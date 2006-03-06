@@ -1,0 +1,247 @@
+<div style="margin: 0 0 0 4em;">
+<h1>PyPHP the python php bridge</h1>
+<div style="margin: 0 0 0 2em; width: 80%;">
+Run your python <a href="http://www.python.org/peps/pep-0333.html">WSGI</a> web
+applications (like QWeb ones) under a php enabled web server without any
+setup.<br/>
+
+
+<br/>
+<small>
+by Antony Lesuisse (Email: al at udev.org) in 2004-2005,<br/>
+Released in the Public Domain.
+</small>
+
+</div>
+
+<h2>Description</h2>
+<div style="margin: 0 0 0 2em; width: 80%;">
+PyPHP enables running Python web application using PHP as the interface to the
+web server.<br>
+Either:
+<ul>
+<li> Your python scripts are run like a php script would be run. (simple mode) </li>
+<li> Your python file define a WSGI conformant app.  </li>
+</ul>
+<br/>
+With PyPHP you get the best of both Python and PHP world:
+<ul>
+<li>The power, cleanness and robustness of the Python language</li>
+<li>NO config files to edit, like php, just copy files to deploy</li>
+<li>The low level integration of PHP with the web server including:
+	<ul>
+		<li> HTTP authentification</li>
+		<li> Ouput buffering</li>
+		<li> header/cookie management</li>
+		<li> POST file upload handling</li>
+		<li> HTTPS SSL TLS handling</li>
+	</ul>
+</li>
+<li>Session management (using pickle you are able to store your python objects in the PHP sessions)</li>
+<li>Database connection pooling (however we recommand the usage of python db api)</li>
+<li>Access to all the PHP api (even if the python api is in most cases superior)</li>
+</ul>
+
+
+<span style="font-weight: bold;font-size: 120%;font-family: sans-serif;">
+PyPHP doesn't require any form of installation or configuration !</span><br/>
+Just copy the files pyphp.py and pyphp.php to your php-enabled web server
+directory and you are ready to run.
+
+</div>
+
+<h2>Quickstart for the simple mode:</h2>
+<div style="margin: 0 0 0 2em; width: 80%;">
+
+Hello world in pyphp filename must ends with .php and begins with '&lt;?include("pyphp.php");pyphp_run();?&gt;':
+
+<pre style="padding: 10px 10px 10px 3em; background-color: #f0f0f0;border: 1px solid #dddddd;">
+&lt;?include("pyphp.php");pyphp_run();?&gt;
+print "Hello World"
+</pre>
+
+A global object called "php" allows you to access php objects and functions.
+
+</div>
+
+<h2>Quickstart for the WSGI mode:</h2>
+<div style="margin: 0 0 0 2em; width: 80%;">
+
+Hello world app the filename must ends with .php and begins with
+'&lt;?include("pyphp.php");pyphp_run("wsgiapp");?&gt;', the argument of
+pyphp_run() must be the name of the web app.<br><br>
+
+environ["php"] contains the PHPProxy.  <br><br>
+
+Use that for file uploads, cookies, session etc..<br><br>
+
+See the examples below demo_wsgi*.
+
+</div>
+
+
+<h2>The php object (PHPProxy)</h2>
+<div style="margin: 0 0 0 2em; width: 80%;">
+
+<ul>
+<li> all the php namespace is acessible from the php object (example: php date() function is is availaible as <tt>php.date()</tt>)
+<li> each time a php function is called, the arguments are serialized from python to
+php, and the return value is serialized from php to python.
+<li> the convertion of a php array is a dict in python
+<li> $_GET is availaible as <tt>php._GET</tt>
+<li> $_POST is availaible as <tt>php._POST</tt>
+<li> $_SESSION is availaible as <tt>php._SESSION</tt>
+<li> idem for all $_* global php variables
+<li> <tt>php._ARG</tt> is the merge of <tt>php._GET</tt> and
+<tt>php._POST</tt>, it is a python dict with an additional <tt>int(key)</tt>
+method that return the corresponding <tt>int()</tt> value or 0 if not found.
+Useful to handle parameters like database ids.
+<li> use <tt>php.exit()</tt> to exit your script instead of <tt>sys.exit()</tt>
+</ul>
+
+<br/>
+</div>
+
+<h2>All examples:</h2>
+<div style="margin: 0 0 0 2em; width: 80%;">
+
+
+
+
+
+<!-- EXAMPLE -->
+
+
+	Example : demo_hello.php<br>
+
+	<pre style="padding: 10px 10px 10px 3em; background-color: #f0f0f0;border: 1px solid #dddddd;">&lt;?include("pyphp.php");pyphp_run();?&gt;
+# vim:syntax=python:
+
+print "Hello World"
+
+</pre>
+	<br>
+	<br>
+	
+	Example : demo_wsgi1.php<br>
+
+	<pre style="padding: 10px 10px 10px 3em; background-color: #f0f0f0;border: 1px solid #dddddd;">&lt;?include("pyphp.php");pyphp_run("mywsgiapp");?&gt;
+# vim:syntax=python:
+
+def mywsgiapp(environ, start_response):
+	start_response('200 OK', [('Content-type','text/plain')])
+
+	# access the php api via environ['php']
+	ver = environ['php'].phpversion()
+
+	return ['Hello world! via (php %s) \n'%ver]
+
+
+</pre>
+	<br>
+	<br>
+	
+	Example : demo_wsgi2.php<br>
+
+	<pre style="padding: 10px 10px 10px 3em; background-color: #f0f0f0;border: 1px solid #dddddd;">&lt;?include("pyphp.php");pyphp_run("test_app");?&gt;
+# vim:syntax=python:
+
+import cgi, time
+
+def test_app(environ, start_response):
+	start_response('200 OK', [('Content-Type', 'text/html')])
+
+	# php proxy
+	php=environ['php']
+
+	# calling a php function
+	php.header("Content-Type: text/html")
+
+	yield '''&lt;html&gt;&lt;head&gt;&lt;title&gt;Hello World!&lt;/title&gt;&lt;/head&gt;
+	&lt;body&gt;&lt;p&gt;Hello World!&lt;/p&gt;
+	&lt;br/&gt;
+	&lt;form action="demo_wsgi2.php" method="GET"&gt;
+	&lt;input type="text" name="a" value="test value"/&gt;
+	&lt;input type="submit" name="s" value="submit"/&gt;
+	&lt;/form&gt;
+	&lt;br/&gt;
+	&lt;br/&gt;
+	'''
+
+	# printing from python
+	print "Hello from python time is ", time.ctime(), "&lt;br&gt;&lt;br&gt;"
+
+	# access php $_GET array
+	print "php._GET acessible as python dict:", php._GET ,"&lt;br&gt;&lt;br&gt;"
+
+	# use a php function
+	print "php exlode ", php.explode("/","/file/path/example"), "&lt;br&gt;&lt;br&gt;"
+
+	# use the php function eval()
+	php.eval("print_r(array());")
+
+	# use php sessions
+	if not "count" in php._SESSION:
+		php._SESSION["count"]=1
+	else:
+		count=php._SESSION["count"]
+
+	print "session: count,",count, "&lt;br&gt;&lt;br&gt;"
+	php._SESSION["count"]=count+1
+
+	# use php mysql api
+	print "Try to list mysql users this wont work if root has a mysql password&lt;br&gt;&lt;br&gt;"
+
+	php.mysql_connect(':/var/run/mysqld/mysqld.sock','root')
+	php.mysql_select_db('mysql')
+
+	q=php.mysql_query('select User from user LIMIT 0,10')
+
+	while 1:
+		r=php.mysql_fetch_assoc(q)
+		if not r: break
+		print r, '&lt;br&gt;'
+
+
+
+
+
+
+</pre>
+	<br>
+	<br>
+	
+	Example : demo_wsgi3.php<br>
+
+	<pre style="padding: 10px 10px 10px 3em; background-color: #f0f0f0;border: 1px solid #dddddd;">&lt;?include("pyphp.php");pyphp_run("testapp");?&gt;
+# vim:syntax=python:
+
+from demo_wsgi3_testapp import testapp
+
+</pre>
+	<br>
+	<br>
+	
+	Example : demo_wsgi3_testapp.py<br>
+
+	<pre style="padding: 10px 10px 10px 3em; background-color: #f0f0f0;border: 1px solid #dddddd;">#/usr/bin/python
+
+def testapp(environ, start_response):
+	start_response('200 OK',[('Content-type','text/plain')])
+	php=environ['php']
+
+	if 'PHP_AUTH_USER' not in php._SERVER:
+		php.header('WWW-Authenticate: Basic realm="My Realm"')
+		php.header('HTTP/1.0 401 Unauthorized')
+		print 'Text to send if user hits Cancel button';
+		php.exit()
+	else:
+		print "&lt;p&gt;Hello '%s'.&lt;/p&gt;"%(php._SERVER['PHP_AUTH_USER'],)
+		print "&lt;p&gt;You entered '%s' as your password.&lt;/p&gt;"%(php._SERVER['PHP_AUTH_PW'])
+
+	return ['done\n']
+
+</pre>
+	<br>
+	<br>
+	 </div> </div> 

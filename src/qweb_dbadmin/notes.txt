@@ -1,0 +1,56 @@
+
+Preprocess sqlobject table classes
+
+Category.sqlmeta.columns[]
+
+Category.sqlmeta.colunms_ordered
+Category.sqlmeta.sqdf
+Category.sqlmeta.sqdfsd
+
+Category.sqlmeta.rowsummary=['','']
+Category.sqlmeta.defaultorder=['id']
+
+
+Category.sqlmeta.cols[0].name
+Category.sqlmeta.cols[0].verbose_name longname title?
+Category.sqlmeta.cols[0].description
+
+Category.sqlmeta.cols[0].type="string,int,float,date,datetime,decimal,boolean,enum,unicode,blob,pickle,currency"
+Category.sqlmeta.cols[0].form_type="text"
+Category.sqlmeta.cols[0].form_type="textarea"
+
+Category.sqlmeta.cols[0].form_type="enum-select"
+Category.sqlmeta.cols[0].form_type="enum-radio"
+Category.sqlmeta.cols[0].form_enum=
+
+Category.sqlmeta.cols[0].form_type="fileblob"
+
+Category.sqlmeta.cols[0].form_type="filefs"
+Category.sqlmeta.cols[0].form_file_dir=
+
+
+Category.sqlmeta.cols[0].type="many2one" foreinkey
+Category.sqlmeta.cols[0].form_type="select all" -> # <100
+Category.sqlmeta.cols[0].form_type="links ->" -> # >100
+
+Category.sqlmeta.cols[0].type="one2many"
+Category.sqlmeta.cols[0].form_type="checkbox" -> # <10
+Category.sqlmeta.cols[0].form_type="selectmultiple" -> # <10
+Category.sqlmeta.cols[0].form_type="selectmultiple2col" -> # <10
+Category.sqlmeta.cols[0].form_type="links -> chexkbox" -> # >100
+
+Category.sqlmeta.cols[0].type="many2many"
+Category.sqlmeta.cols[0].form_type="checkbox" -> # < 30
+Category.sqlmeta.cols[0].form_type="selectmultiple" -> # < 30
+Category.sqlmeta.cols[0].form_type="selectmultiple2col" -> # <10
+Category.sqlmeta.cols[0].form_type="links -> chexkbox" -> # >100
+
+Category.sqlmeta.cols[0].form_type
+Category.sqlmeta.cols[0].form_type
+
+
+Category.sqlmeta.colunms_ordered
+
+
+
+
