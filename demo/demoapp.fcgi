@@ -48,7 +48,6 @@ class QWebDemoApp:
 		v['url']=qweb.QWebURL('/',req.PATH_INFO)
 
 	def demo_home(self, req, arg, v):
-		#v["doc"]=re.sub(r"\n([^\n]+)\n---",r"\n<h2>\1</h2>\n",qweb.__doc__)
 		v["doc"]=qweb.__doc__
 		req.write(self.template.render("demo_home", v))
 
@@ -110,6 +109,8 @@ class QWebDemoApp:
 	def demo_control_logged_page2(self, req, arg, v):
 		req.write(self.template.render("demo_control_logged_page2", v))
 
+	def demo_blog(self, req, arg, v):
+		req.write("TODO")
 
 if __name__ == '__main__':
 	qweb.qweb_wsgi_autorun(QWebDemoApp())

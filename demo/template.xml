@@ -231,19 +231,19 @@ t-pager
 				<td class="form_left" valign="top">Nom de famille:</td>
 				<td class="form_right" valign="top">
 					<input t-form-text="form.f.lastname" t-check="/.+/" size="28"/>
-					<span t-if="form.f.lastname.invalid" class="form_red"><br/>Merci d'indiquer votre nom de famille</span>
+					<span t-if="form.f.lastname.invalid" class="form_red"><br/>fill your lastname</span>
 				</td></tr>
 			<tr>
 				<td class="form_left" valign="top">E-mail:</td>
 				<td class="form_right" valign="top">
 					<input t-form-text="form.f.email" t-check="email" size="28"/>
-					<span t-if="form.f.email.invalid" class="form_red"><br/>Merci d'indiquer une adresse e-mail valide</span>
+					<span t-if="form.f.email.invalid" class="form_red"><br/>fill a valid email</span>
 				</td></tr>
 			<tr>
 				<td class="form_left" valign="top">Addresse:</td>
 				<td class="form_right" valign="top">
 					<input t-form-text="form.f.address" t-check="/.+/" size="38"/>
-					<span t-if="form.f.address.invalid" class="form_red"><br/>Merci d'indiquer votre adresse complète</span>
+					<span t-if="form.f.address.invalid" class="form_red"><br/>fill your address</span>
 				</td></tr>
 			<tr>
 				<td class="form_left" valign="top">Sex:</td>
@@ -340,7 +340,7 @@ t-pager
 	<t t-call="nav">
 		<t t-set="title">control</t>
 		<t t-set="menu">control</t>
-		<h2>Loggued page1</h2>
+		<h2>Logged page1</h2>
 
 		<br/>
 		Your current login: <t t-esc="login"/>
@@ -358,7 +358,7 @@ t-pager
 	<t t-call="nav">
 		<t t-set="title">control</t>
 		<t t-set="menu">control</t>
-		<h2>Loggued page2</h2>
+		<h2>Logged page2</h2>
 
 		<br/>
 		Your current login: <t t-esc="login"/>
