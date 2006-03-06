@@ -316,13 +316,9 @@ class QWebXml:
 #----------------------------------------------------------
 class QWebURL:
 	""" URL helper
-
-	assert req.PATH_INFO== "/shop/admin/prod_edit"
-
-	u = QWebURL(root_path="/shop/",req_path=req.PATH_INFO)
-
+	assert req.PATH_INFO== "/site/admin/page_edit"
+	u = QWebURL(root_path="/site/",req_path=req.PATH_INFO)
 	s=u.url2_href("user/login",{'a':'1'})
-
 	assert s=="../user/login?a=1"
 	
 	"""
