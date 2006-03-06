@@ -6,12 +6,14 @@
 QuickStart
 ----------
 
-$ wget http://antony.lesuisse.org/qweb/QWeb-0.5.tgz
-$ tar zxvf QWeb-0.5.tgz
-$ cd QWeb-0.5/tutorial2
+Run the following commands:
+
+$ wget http://antony.lesuisse.org/qweb/QWeb-0.5.tar.gz
+$ tar zxvf QWeb-0.5.tar.gz
+$ cd QWeb-0.5/demo
 $ ./demoapp.fcgi
 
-point your browser to http://localhost:8080/
+And point your browser to http://localhost:8080/
 
 The examples are tutorial*/
 
