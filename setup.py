@@ -7,7 +7,7 @@ sys.path[0:0]=['src']
 import qweb
 
 if not os.path.isfile("README.txt"):
-	file("README.txt","w").write(qweb.__doc__)
+	file("README.txt","w").write(qweb.qweb_doc())
 
 setuptools.setup(
 	name = 'QWeb',

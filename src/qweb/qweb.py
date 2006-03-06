@@ -1,16 +1,19 @@
 #!/usr/bin/python2.3
-# vim:set noet ts=4 foldlevel=0:
+#
+# vim:set noet ts=4 fdc=0 fdn=2 fdl=0:
+#
+# There are no blank lines between blocks beacause i use folding from:
+# http://www.vim.org/scripts/script.php?script_id=515
+#
 
 """QWeb Framework
 
 QuickStart
 ----------
 
-Run the following commands:
+At the top of the uncompressed soruce archive run the following commands:
 
-$ wget http://antony.lesuisse.org/qweb/QWeb-0.5.tar.gz
-$ tar zxvf QWeb-0.5.tar.gz
-$ cd QWeb-0.5/demo
+$ cd demo
 $ ./demoapp.fcgi
 
 And point your browser to http://localhost:8080/
@@ -31,11 +34,8 @@ QWeb has the following features, each feature may be used independently of all
 the others:
 
 	- An xml templating engine
-
 	- An simple controller
-
 	- A WSGI HTPP request handler
-
 	- A WSGI server
 
 QWeb applications are runnable:
@@ -81,7 +81,6 @@ try:
 	import cStringIO as StringIO
 except ImportError:
 	import StringIO
-
 
 #----------------------------------------------------------
 # Qweb Xml t-raw t-esc t-if t-foreach t-set t-call t-trim
@@ -919,12 +918,11 @@ class QWebRequest:
 	application server.
 	"""
 	#
-	# This class contains part ripped from colubrid
-	# http://wsgiarea.pocoo.org/colubrid/
-	# with the permission of mitsuhiko
+	# This class contains part ripped from colubrid (with the permission of
+	# mitsuhiko) see http://wsgiarea.pocoo.org/colubrid/
 	#
 	# - the class HttpHeaders
-	# - the method load_post_data (a bit tuned)
+	# - the method load_post_data (tuned version)
 	#
 	class HttpHeaders(object):
 		def __init__(self):
@@ -1251,5 +1249,19 @@ def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1):
 	else:
 		print 'Serving on %s:%d'%(ip,port)
 		QWebWSGIServer(wsgiapp,ip=ip,port=port,threaded=threaded).serve_forever()
+
+
+#----------------------------------------------------------
+# Qweb Documentation
+#----------------------------------------------------------
+def qweb_doc():
+	body=__doc__
+	for i in [QWebXml ,QWebHtml ,QWebForm ,QWebURL ,qweb_control ,QWebRequest ,QWebSession ,QWebWSGIServer ,qweb_wsgi_autorun]:
+		n=i.__name__
+		d=i.__doc__
+		body+='\n\n%s\n%s\n\n%s'%(n,'-'*len(n),d)
+	return body
+
+	print qweb_doc()
 
 #
