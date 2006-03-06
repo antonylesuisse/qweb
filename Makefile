@@ -17,7 +17,7 @@ tgz:
 	find . -iname '*.pyc' -exec rm -v '{}' ';'
 	# Source
 	mkdir ${SRCDIR} || true
-	cp -r Makefile README* demo ez_setup.py setup.py src support tut* ${SRCDIR}
+	cp -r Makefile README* contrib demo ez_setup.py setup.py src tut* ${SRCDIR}
 	tar czvf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
 	# DemoApp
 	mkdir ${DEMODIR} || true

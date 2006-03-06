@@ -132,7 +132,7 @@ class QWebXml:
 	QWebXml:
 	    the template engine core implements the basic magic attributes:
 	
-	    t-raw t-esc t-if t-foreach t-set t-call t-trim
+	    t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
 	
 	"""
 	def __init__(self,x=None):
@@ -238,11 +238,12 @@ class QWebXml:
 
 	# Attributes
 	def render_att_att(self,e,an,av,v):
-		att,val=self.eval_object(av,v)
+		if an=="t-att":
+			att,val=self.eval_object(av,v)
+		else:
+			att,val=(an[6:],self.eval_str(av,v))
 		return ' %s="%s"'%(att,cgi.escape(val,1))
-	def render_att_esc_(self,e,an,av,v):
-		return ' %s="%s"'%(an[6:],cgi.escape(self.eval_str(av,v),1))
-	def render_att_escf_(self,e,an,av,v):
+	def render_att_attf_(self,e,an,av,v):
 		return ' %s="%s"'%(an[7:],cgi.escape(self.eval_format(av,v),1))
 
 	# Tags

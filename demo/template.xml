@@ -9,7 +9,7 @@
 	<html>
 	<head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-	<t t-if="refresh"><meta http-equiv="refresh" t-esc-content="refresh"/></t>
+	<t t-if="refresh"><meta http-equiv="refresh" t-att-content="refresh"/></t>
 	<title><t t-raw="title"/></title>
 <style type="text/css">
 body            { margin: 0px; padding: 0px; background-color: #fff; color: #000; font-family: sans-serif; }
@@ -71,14 +71,14 @@ h2              { color: #000066; font-weight: bold; font-size: 115%; }
 
 			<div>
 			<ul class="nav">
-				<li><a t-href="url/home" t-esc-class="'sel%d'%int(menu=='home')">Home</a></li>
-				<li><a t-href="url/request" t-esc-class="'sel%d'%int(menu=='request')">Request</a></li>
-				<li><a t-href="url/session" t-esc-class="'sel%d'%int(menu=='session')" >Sessions</a></li>
-				<li><a t-href="url/template" t-esc-class="'sel%d'%int(menu=='template')" >Templates</a></li>
-				<li><a t-href="url/form" t-esc-class="'sel%d'%int(menu=='form')" >Forms</a></li>
-				<li><a t-href="url/control_home" t-esc-class="'sel%d'%int(menu=='control')" >Controller</a></li>
-				<li><a t-href="url/static" t-esc-class="'sel%d'%int(menu=='static')" >Static files</a></li>
-				<li><a t-href="url/blog" t-esc-class="'sel%d'%int(menu=='blog')" >Mini Blog</a></li>
+				<li><a t-href="url/home" t-att-class="'sel%d'%int(menu=='home')">Home</a></li>
+				<li><a t-href="url/request" t-att-class="'sel%d'%int(menu=='request')">Request</a></li>
+				<li><a t-href="url/session" t-att-class="'sel%d'%int(menu=='session')" >Sessions</a></li>
+				<li><a t-href="url/template" t-att-class="'sel%d'%int(menu=='template')" >Templates</a></li>
+				<li><a t-href="url/form" t-att-class="'sel%d'%int(menu=='form')" >Forms</a></li>
+				<li><a t-href="url/control_home" t-att-class="'sel%d'%int(menu=='control')" >Controller</a></li>
+				<li><a t-href="url/static" t-att-class="'sel%d'%int(menu=='static')" >Static files</a></li>
+				<li><a t-href="url/blog" t-att-class="'sel%d'%int(menu=='blog')" >Mini Blog</a></li>
 			</ul>
 			</div>
 
@@ -392,7 +392,7 @@ t-pager
 		</td>
 		<td class="t_stat_td" width="15%" align="right">
 			<form t-action="url?%(param)s" method="GET" class="t_stat_form">
-				<input type="text" name="search" t-esc-value="search"/>
+				<input type="text" name="search" t-att-value="search"/>
 				<input type="submit" name="submit" value="Search"/>
 			</form>
 		</td>
