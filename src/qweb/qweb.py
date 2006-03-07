@@ -638,7 +638,7 @@ class QWebHtml(QWebXml):
 		return self.render_element(e,g_att,v)
 	def render_tag_form_select(self,e,t_att,g_att,v):
 		f=self.eval_object(t_att["form-select"],v)
-		g_att+=' name="%s"'%(f.name)
+		g_att+=' name="%s" class="%s"'%(f.name,f.css)
 		return self.render_element(e,g_att,v)
 	def render_tag_option(self,e,t_att,g_att,v):
 		f=self.eval_object(e.parentNode.getAttribute("t-form-select"),v)
