@@ -13,8 +13,8 @@ tgz:
 	python2.3 setup.py bdist_egg
 	python2.4 setup.py bdist_egg
 	# clean build
-	rm -Rf build src/QWeb.egg-info
 	find . -iname '*.pyc' -exec rm -v '{}' ';'
+	rm -Rf build src/QWeb.egg-info || true
 	# Source
 	mkdir ${SRCDIR} || true
 	cp -r Makefile README* contrib demo ez_setup.py setup.py src tut* ${SRCDIR}
@@ -25,8 +25,10 @@ tgz:
 	cp demo/[A-Za-z]* ${DEMODIR}
 	tar czvf dist/${DEMOTGZ} ${DEMODIR}
 	# publish
+ifeq ($(USER),wis)
 	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
 	rsync -av --delete ${DEMODIR}/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/demo/
+endif
 	# cleanup
 	rm -Rf ${SRCDIR}
 	rm -Rf ${DEMODIR}
