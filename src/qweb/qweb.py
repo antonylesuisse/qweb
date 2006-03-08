@@ -69,6 +69,22 @@ License
 qweb/fcgi.py wich is BSD-like from saddi.com.
 Everything else is put in the public domain.
 
+
+TODO
+----
+    Announce QWeb to python-announce-list@python.org web-sig@python.org
+    qweb_core
+        request urldispatcher ?
+        request callback_generator, callback_function ?
+        wsgi callback_server_local
+        xml tags explicitly call render_attributes(t_att)?
+        priority form-checkbox over t-value (for t-option)
+    qweb_static:
+        StaticModule http://peak.telecommunity.com/DevCenter/PythonEggs#accessing-package-resources
+        pkg_resources.resource_string|stream(__name__, 'foo.conf')
+        __loader__.get_data()
+        zip or dir from __file__
+
 """
 
 import BaseHTTPServer,SocketServer,Cookie
@@ -165,7 +181,7 @@ class QWebXml:
             dom=xml.dom.minidom.parse(x)
         for n in dom.documentElement.childNodes:
             if n.nodeName=="t":
-                self._t[str(n.getAttribute("name"))]=n
+                self._t[str(n.getAttribute("t-name"))]=n
     def get_template(self,name):
         return self._t[name]
 

@@ -5,7 +5,7 @@
 	vim:set noet:
 -->
 
-<t name="html">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+<t t-name="html">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
 	<html>
 	<head>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
@@ -62,7 +62,7 @@ h2              { color: #000066; font-weight: bold; font-size: 115%; }
 	</html>
 </t>
 
-<t name="nav">
+<t t-name="nav">
 	<t t-call="html">
 		<table align="center" border="0" cellpadding="0" cellspacing="0" width="85%">
 		<tr>
@@ -90,7 +90,7 @@ h2              { color: #000066; font-weight: bold; font-size: 115%; }
 	</t>
 </t>
 
-<t name="demo_home">
+<t t-name="demo_home">
 	<t t-call="nav">
 		<t t-set="title">QWeb Demo Welcome</t>
 		<t t-set="menu">home</t>
@@ -103,7 +103,7 @@ h2              { color: #000066; font-weight: bold; font-size: 115%; }
 	</t>
 </t>
 
-<t name="demo_request">
+<t t-name="demo_request">
 	<t t-call="nav">
 		<t t-set="title">QWebRequest Demo</t>
 		<t t-set="menu">request</t>
@@ -147,7 +147,7 @@ h2              { color: #000066; font-weight: bold; font-size: 115%; }
 	</t>
 </t>
 
-<t name="demo_session">
+<t t-name="demo_session">
 	<t t-call="nav">
 		<t t-set="title">QWebRequest Sessions</t>
 		<t t-set="menu">session</t>
@@ -169,7 +169,7 @@ req.SESSION["counter"]+=1
 	</t>
 </t>
 
-<t name="demo_template">
+<t t-name="demo_template">
 	<t t-call="nav">
 		<t t-set="title">QWeb Templates</t>
 		<t t-set="menu">template</t>
@@ -206,7 +206,7 @@ t-pager
 	</t>
 </t>
 
-<t name="demo_form">
+<t t-name="demo_form">
 	<t t-call="nav">
 		<t t-set="title">QWebHtml Form</t>
 		<t t-set="menu">form</t>
@@ -278,7 +278,7 @@ t-pager
 	</t>
 </t>
 
-<t name="demo_formvalid">
+<t t-name="demo_formvalid">
 	<t t-call="nav">
 		<t t-set="title">QWebHtml Form</t>
 		<t t-set="menu">form</t>
@@ -289,7 +289,7 @@ t-pager
 	</t>
 </t>
 
-<t name="demo_static">
+<t t-name="demo_static">
 	<t t-call="nav">
 		<t t-set="title">QWeb Demo Welcome</t>
 		<t t-set="menu">static</t>
@@ -300,7 +300,7 @@ t-pager
 	</t>
 </t>
 
-<t name="demo_control_home">
+<t t-name="demo_control_home">
 	<t t-call="nav">
 		<t t-set="title">control</t>
 		<t t-set="menu">control</t>
@@ -336,7 +336,7 @@ t-pager
 		</form>
 	</t>
 </t>
-<t name="demo_control_logged_page1">
+<t t-name="demo_control_logged_page1">
 	<t t-call="nav">
 		<t t-set="title">control</t>
 		<t t-set="menu">control</t>
@@ -354,7 +354,7 @@ t-pager
 		<br/>
 	</t>
 </t>
-<t name="demo_control_logged_page2">
+<t t-name="demo_control_logged_page2">
 	<t t-call="nav">
 		<t t-set="title">control</t>
 		<t t-set="menu">control</t>
@@ -373,7 +373,7 @@ t-pager
 	</t>
 </t>
 
-<t name="pager">
+<t t-name="pager">
 	<t t-pager="pager" t-total="total" t-start="start" t-step="100" t-scope="5"/>
 	<table class="t_stat" width="100%" cellpadding="0" cellspacing="0">
 	<tr>
