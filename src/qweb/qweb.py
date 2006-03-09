@@ -598,16 +598,13 @@ class QWebHtml(QWebXml):
         return ' %s="%s"'%(an[6:],cgi.escape(out,1))
     def render_att_href(self,e,an,av,v):
         return self.render_att_url_(e,"t-url-href",av,v)
-    def render_att_selected(self,e,an,av,v):
-        if self.eval_bool(av,v):
-            return ' %s="%s"'%(an[2:],an)
-        else:
-            return ''
     def render_att_checked(self,e,an,av,v):
         if self.eval_bool(av,v):
-            return ' %s="%s"'%(an[2:],an)
+            return ' %s="%s"'%(an[2:],an[2:])
         else:
             return ''
+    def render_att_selected(self,e,an,av,v):
+        return self.render_att_checked(e,an,av,v)
 
     # HTML Tags forms
     def render_tag_rawurl(self,e,t_att,g_att,v):
