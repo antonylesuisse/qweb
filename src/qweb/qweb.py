@@ -74,6 +74,12 @@ TODO
 ----
     Announce QWeb to python-announce-list@python.org web-sig@python.org
     qweb_core
+        rename request methods into
+            request_save_files
+            response_404
+            response_redirect
+            response_download
+                
         request urldispatcher ?
         request callback_generator, callback_function ?
         wsgi callback_server_local
