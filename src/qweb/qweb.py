@@ -254,13 +254,13 @@ class QWebXml:
 
     # Attributes
     def render_att_att(self,e,an,av,v):
-        if an=="t-att":
-            att,val=self.eval_object(av,v)
-        else:
+        if an.startswith("t-attf-"):
+            att,val=an[7:],self.eval_format(av,v)
+        elif an.startswith("t-att-"):
             att,val=(an[6:],self.eval_str(av,v))
+        else:
+            att,val=self.eval_object(av,v)
         return ' %s="%s"'%(att,cgi.escape(val,1))
-    def render_att_attf_(self,e,an,av,v):
-        return ' %s="%s"'%(an[7:],cgi.escape(self.eval_format(av,v),1))
 
     # Tags
     def render_tag_raw(self,e,t_att,g_att,v):
@@ -600,12 +600,12 @@ class QWebHtml(QWebXml):
         return self.render_att_url_(e,"t-url-href",av,v)
     def render_att_selected(self,e,an,av,v):
         if self.eval_bool(av,v):
-            return ' %s="%s"'%(an,an)
+            return ' %s="%s"'%(an[2:],an)
         else:
             return ''
     def render_att_checked(self,e,an,av,v):
         if self.eval_bool(av,v):
-            return ' %s="%s"'%(an,an)
+            return ' %s="%s"'%(an[2:],an)
         else:
             return ''
 
