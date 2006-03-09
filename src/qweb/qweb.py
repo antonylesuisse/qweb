@@ -18,22 +18,35 @@ $ ./demoapp.fcgi
 
 And point your browser to http://localhost:8080/
 
-The examples are tutorial*/
+WARNING:
 
-WARNING: Despite their naming in .fcgi, the example are ALSO RUNNABLE FROM
-COMMANDLINE.
+Despite his naming in .fcgi, the demo is RUNNABLE FROM COMMANDLINE.  When
+runned from command line it will start its own webserver on port 8080.  The demo
+also may be run as FastCGI or regular CGI by any FastCGI or CGI compatible web
+server.
 
-When runned from command line where they start their own webserver on port
-8080.  They also may be run as FastCGI or regular CGI by any FastCGI or CGI
-compatible web server.
+
+== What is QWeb ? ==
+
+Qweb is a python based web framework, that provide:
+
+ * QWebRequest:  a lightweight WSGI request handler
+ * An xml templating engine (QWebXml and QWebHtml)
+
+ * :  a template engine
+
+ * qweb_wsgi_autorun: a function that starts a standalone server or run in cgi or fastcgi mode according to the evinronement.
+
+each feature may be used independently of all the others.
+
+
 
 Qweb Core Features
 ------------------
 
-QWeb has the following features, each feature may be used independently of all
-the others:
+QWeb has the following features,
 
-    - An xml templating engine
+
     - An simple controller
     - A WSGI HTPP request handler
     - A WSGI server
@@ -998,10 +1011,13 @@ class QWebRequest:
                     continue
                 name_dict = cgi.parse_header(sub['Content-Disposition'])[1]
                 if 'filename' in name_dict:
-                    assert type([]) != type(sub.get_payload()), 'Nested MIME Messages are not supported'
+                    # Nested MIME Messages are not supported'
+                    if type([]) == type(sub.get_payload()):
+                        continue
                     if not name_dict['filename'].strip():
                         continue
                     filename = name_dict['filename']
+                    # why not keep all the filename? because IE always send 'C:\documents and settings\blub\blub.png'
                     filename = filename[filename.rfind('\\') + 1:]
                     if 'Content-Type' in sub:
                         content_type = sub['Content-Type']
@@ -1095,7 +1111,7 @@ class QWebRequest:
     get_full_url=staticmethod(get_full_url)
     def save_files(self):
         for k,v in self.FILES.items():
-            if not v.has_key["tmp_file"]:
+            if not v.has_key("tmp_file"):
                 f=tempfile.NamedTemporaryFile()
                 f.write(v["data"])
                 f.flush()
@@ -1123,7 +1139,7 @@ class QWebRequest:
         if not self.response_started:
             if not self.php:
                 for k,v in self.FILES.items():
-                    if v.has_key["tmp_file"]:
+                    if v.has_key("tmp_file"):
                         try:
                             v["tmp_file"].close()
                         except OSError:
