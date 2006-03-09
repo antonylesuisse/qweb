@@ -1089,11 +1089,12 @@ class QWebRequest:
     get_full_url=staticmethod(get_full_url)
     def save_files(self):
         for k,v in self.FILES.items():
-            f=tempfile.NamedTemporaryFile()
-            f.write(v["data"])
-            f.flush()
-            v["tmp_file"]=f
-            v["tmp_name"]=f.name
+            if not v.has_key["tmp_file"]:
+                f=tempfile.NamedTemporaryFile()
+                f.write(v["data"])
+                f.flush()
+                v["tmp_file"]=f
+                v["tmp_name"]=f.name
     def debug(self):
         body=''
         for name,d in [
@@ -1115,6 +1116,12 @@ class QWebRequest:
     def response(self):
         if not self.response_started:
             if not self.php:
+                for k,v in self.FILES.items():
+                    if v.has_key["tmp_file"]:
+                        try:
+                            v["tmp_file"].close()
+                        except OSError:
+                            pass
                 if self.response_gzencode and self.environ.get('HTTP_ACCEPT_ENCODING','').find('gzip')!=-1:
                     zbuf=StringIO.StringIO()
                     zfile=gzip.GzipFile(mode='wb', fileobj=zbuf)
