@@ -26,8 +26,8 @@ tgz:
 	tar czvf dist/${DEMOTGZ} ${DEMODIR}
 	# publish
 ifeq ($(USER),wis)
-	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
-	rsync -av --delete ${DEMODIR}/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/demo/
+#	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
+#	rsync -av --delete ${DEMODIR}/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/demo/
 endif
 	# cleanup
 	rm -Rf ${SRCDIR}

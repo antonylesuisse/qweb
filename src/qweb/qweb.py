@@ -8,15 +8,46 @@
 
 """QWeb Framework
 
-QuickStart
-----------
+== What is QWeb ? ==
 
-At the top of the uncompressed soruce archive run the following commands:
+QWeb is a python based [http://www.python.org/doc/peps/pep-0333/ WSGI]
+compatible web framework, it provides an infratructure to quickly build web
+applications consisting of:
 
-$ cd demo
+ * A lightweight request handler (QWebRequest)
+ * An xml templating engine (QWebXml and QWebHtml)
+ * A simple name based controler (qweb_control)
+ * A standalone WSGI Server (QWebWSGIServer)
+ * A cgi and fastcgi WSGI wrapper (taken from flup)
+ * A startup function that starts cgi, factgi or standalone according to the
+   evironement (qweb_autorun).
+
+QWeb applications are runnable:
+
+  * in standalone mode (run it from commandline)
+  * in FastCGI mode (via a FastCGI compatible webserver)
+  * in Regular CGI mode (via a CGI compatible webserver)
+  * by any python WSGI compliant server
+  * from php using support/php/pyphp wrapper
+  * from asp.net using support/aspnet wrapper
+
+QWeb doesn't provide any database access but it intergrates nicely with ORMs
+such as SQLObject, SQLAlchemy or plain DB-API.
+
+== Quick Start (for Linux, MacOS X and cygwin) ==
+
+Make sure you have at least python 2.3 installed and run the following commands:
+
+{{{
+$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5-DemoApp.tar.gz
+$ tar zxvf QWeb-0.5-DemoApp.tar.gz
+$ cd QWeb-0.5-DemoApp
 $ ./demoapp.fcgi
+}}}
 
 And point your browser to http://localhost:8080/
+
+You may also try the [http://antony.lesuisse.org/qweb/demo/ online demo]
 
 WARNING:
 
@@ -26,45 +57,7 @@ also may be run as FastCGI or regular CGI by any FastCGI or CGI compatible web
 server.
 
 
-== What is QWeb ? ==
-
-Qweb is a python based web framework, that provide:
-
- * QWebRequest:  a lightweight WSGI request handler
- * An xml templating engine (QWebXml and QWebHtml)
-
- * :  a template engine
-
- * qweb_wsgi_autorun: a function that starts a standalone server or run in cgi or fastcgi mode according to the evinronement.
-
-each feature may be used independently of all the others.
-
-
-
-Qweb Core Features
-------------------
-
-QWeb has the following features,
-
-
-    - An simple controller
-    - A WSGI HTPP request handler
-    - A WSGI server
-
-QWeb applications are runnable:
-
-    - in standalone mode (run it from commandline)
-    - in FastCGI mode (throught a FastCGI compatible webserver)
-    - in Regular CGI mode (throught a CGI compatible webserver)
-    - by any python WSGI compliant server
-    - from php using support/php/pyphp wrapper
-    - from asp.net using support/aspnet wrapper
-
-QWeb doesn't provide any database access but it intergrates nicely with ORMs
-such as SQLObject, SQLAlchemy or the plain DB-API API.
-
-
-Qweb Components:
+QWeb Components:
 ----------------
 
 QWeb also feature a simple components api, that enables developers to easily
@@ -75,6 +68,8 @@ Default qweb components:
     - qweb_static:
         A qweb component to serve static content from the filesystem or from
         zipfiles.
+
+
 
 
 License
@@ -92,7 +87,7 @@ TODO
             response_404
             response_redirect
             response_download
-                
+
         request urldispatcher ?
         request callback_generator, callback_function ?
         wsgi callback_server_local
