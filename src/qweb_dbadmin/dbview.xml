@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<template>
+<!--
+	vim: foldmethod=syntax foldcolumn=3 foldnestmax=2 foldlevel=1 noet mouse=:
+-->
+#----------------------------------------------------------
+# Global
+#----------------------------------------------------------
+<t t-name="htmlcss">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+	<html>
+	<head>
+		<title><t t-raw="title" /></title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<style type="text/css">
+body            { padding: 0pt 20pt 20pt 20pt; color: #000; margin: 0px; font-family: sans-serif; font-size: 80%; }
+a:link          { color: #0000ee; }
+a:visited       { color: #551a8b; }
+a:active        { color: #880000; }
+a:hover         { color: #ff0000; }
+h1              { margin: 1ex 0em 1ex 0em; font-size: 150%;}
+h2              { margin: 0px; padding: 0ex 0em 1ex 1em; color: #000066; font-weight: bold; font-size: 125%; }
+img             { border: 0; }
+
+
+table.form td.label { padding: 4px 4px 4px 0px; text-align: right; font-weight: normal; }
+table.form td.input { padding: 4px 1px 4px 3px; text-align: left; }
+
+table.listing {
+	clear: both;
+	border-bottom: 1px solid #d7d7d7;
+	border-collapse: collapse;
+	border-spacing: 0;
+	margin-bottom: 1em;
+}
+table.listing th { text-align: left; padding: 0 1em .1em 0; font-size: 12px }
+table.listing thead { background: #f7f7f0 }
+table.listing thead th {
+	border: 1px solid #d7d7d7;
+	border-bottom-color: #999;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 2px .5em;
+	vertical-align: bottom;
+}
+table.listing thead th :link:hover, table.listing thead th :visited:hover {
+	background-color: transparent;
+}
+table.listing thead th a { border: none; padding-right: 12px }
+table.listing th.asc a, table.listing th.desc a { font-weight: bold }
+table.listing th.asc a, table.listing th.desc a {
+	background-position: 100% 50%;
+	background-repeat: no-repeat;
+}
+table.listing th.asc a { background-image: url(./image/asc1.png) }
+table.listing th.desc a { background-image: url(./image/desc1.png) }
+table.listing tbody td, table.listing tbody th {
+	border: 1px dotted #ddd;
+	padding: .33em .5em;
+	vertical-align: top;
+/*
+	overflow: auto;
+	text-overflow: ellipsis;
+*/
+}
+table.listing tbody td a:hover, table.listing tbody th a:hover {
+	background-color: transparent;
+}
+table.listing tbody tr { border-top: 1px solid #ddd }
+table.listing tbody tr.even { background-color: #fcfcfc }
+table.listing tbody tr.odd { background-color: #f7f7f7 }
+table.listing thead tr th.action { 
+	white-space: nowrap; 
+}
+table.listing tbody tr td.action { 
+	white-space: nowrap; 
+}
+/*
+table.listing tbody tr.even td.action { background-color: #fff7e5 }
+table.listing tbody tr.odd td.action { background-color: #faf2e1 }
+*/
+table.listing thead .action a, table.listing tbody .action a { text-decoration: underline;}
+table.listing tbody tr:hover { background: #eed !important }
+
+table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align: middle;}
+
+/* from edit TODO merge */
+	td a.add {
+	text-decoration: none; font-size: 85%; padding: 2px;
+	}
+	th a.add {
+	text-decoration: none; font-size: 85%; padding: 2px;
+	}
+	tr.t_head th {
+		border-top: #36C solid 1px; padding: 3px;
+	}
+	span.in_regime {
+		font-size: 70%; color: green;
+	}
+	span.mandatory {
+		color: red;
+	}
+
+		</style>
+	</head>
+	<body>
+	<div>
+		<br/>
+		<br/>
+		<br/>
+		<t t-raw="0" />
+	</div>
+	</body>
+	</html>
+</t>
+#----------------------------------------------------------
+# DBView
+#----------------------------------------------------------
+<t t-name="dbview_pager">
+	<style>
+	table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-space: nowrap; } 
+	</style>
+   <table class="pager" width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+        <t t-pager="pager" t-total="total" t-start="start" t-step="step" t-scope="5"/>
+        <td width="15%" align="left">
+            <t t-esc="table"/>: <t t-esc="pager_win_start1"/> - <t t-esc="pager_win_end1"/> of <t t-esc="pager_tot_size"/>
+        </td>
+        <td width="70%" align="center">
+            <t t-if="pager_active">
+                <t t-if="pager_prev"><a t-href="pagerurl?start=%(pager_prev_start)d">&amp;#171; Previous</a> &amp;nbsp; </t>
+                <t t-foreach="pager_list">
+                    <t t-if="pager_sel"> <span style="color:#000;"><b><t t-esc="pager_page1"/></b></span> </t>
+                    <t t-if="not pager_sel"> <a t-href="pagerurl?start=%(pager_start)d"><t t-esc="pager_page1"/></a> </t>
+                </t>
+                <t t-if="pager_next"> &amp;nbsp; <a t-href="pagerurl?start=%(pager_next_start)d">Next &amp;#187;</a></t>
+            </t>
+        </td>
+        <td width="15%" align="right">
+            <form t-action="pagerurl?%(param)s" method="GET">
+                <input type="text" name="search" t-att-value="search"/>
+                <input type="submit" name="submit" value="Search"/>
+            </form>
+        </td>
+    </tr>
+    </table>
+</t>
+<t t-name="dbview_common">
+	<t t-call="htmlcss">
+		<t t-raw="0"/>
+	</t>
+</t>
+<t t-name="dbview_table_list">
+	<t t-call="dbview_common">
+		<t t-call="dbview_pager">
+			<t t-set="pagerurl" t-eval="url.copy('table_list',{'search':search,'table':table})"/>
+		</t>
+		<table class="listing" width="100%">
+		<thead>
+		<tr>
+			<t t-foreach="tableo.dbview_cols" t-as="c">
+				<th><t t-raw="c.dbview_name"/></th>
+			</t>
+			<th class="action">
+				Actions: <a t-href="url/table_rowadd?table=%(table)s">Add</a>
+			</th>
+		</tr>
+		</thead>
+		<tbody>
+		<t t-foreach="rows">
+		<tr t-att-class="rows_parity">
+			<t t-foreach="tableo.dbview_cols" t-as="c">
+				<td align="left">
+					<t t-if="c.dbview_type=='normal'">
+						<t t-esc="getattr(rows,c.dbview_name)" />
+					</t>
+					<t t-if="c.dbview_type=='many2one'">
+						id: <t t-esc="getattr(rows,c.dbview_name).id" />
+					</t>
+				</td>
+			</t>
+			<td class="action" width="10%">
+				<a t-href="url/table_row_edit?table=%(table)s&amp;id=%(rows.id)s">Edit</a> |
+				<a t-href="url/table_row_del?table=%(table)s&amp;id=%(rows.id)s">Delete</a>
+			</td>
+		</tr>
+		</t>
+		</tbody>
+		</table>
+	</t>
+</t>
+<t t-name="dbview_table_row_edit">
+	<t t-call="dbview_common">
+
+	<t t-esc="table"/> <t t-esc="row.id"/>:
+	<form action="url/table_row_edit?id=%(row.id)d" method="GET">
+	<table class="form">
+	<t t-foreach="tableo.dbview_cols" t-as="c">
+		<tr>
+			<td class="label">
+				<t t-raw="c.dbview_name"/>:
+			</td>
+			<td class="input">
+				<t t-if="c.dbview_type=='normal'">
+					<input type="text" t-att-name="c.dbview_name" t-att-value="getattr(row, c.dbview_name)" />
+				</t>
+				<t t-if="c.dbview_type=='many2one'">
+					<select t-att-name="c.dbview_name">
+					<t t-set="val" t-eval="getattr(row, c.dbview_name)"/>
+					<t t-foreach="c.dbview_dest.select()" t-as="target">
+						<option value="target.id" t-selected="target==val">id: <t t-esc="target.id"/></option>
+					</t>
+					</select>
+				</t>
+			</td>
+		</tr>
+	</t>
+	</table>
+	</form>
+
+	</t>
+</t>
+</template>
