@@ -87,6 +87,7 @@ TODO
             response_404
             response_redirect
             response_download
+        qweb_control to return True or False
 
         request urldispatcher ?
         request callback_generator, callback_function ?
@@ -721,8 +722,10 @@ def qweb_control(self,jump='main',p=[]):
     """ qweb_control(self,jump='main',p=[]):
         a simple function to handle the controler part of your application.
     """
+    jump.replace('/','')
     done={}
     todo=[]
+    found=0
     while 1:
         if jump!=None:
             tmp=""
@@ -736,12 +739,14 @@ def qweb_control(self,jump='main',p=[]):
             i=todo.pop(0)
             done[i]=1
             if hasattr(self,i):
+                found=1
                 f=getattr(self,i)
                 r=f(*p)
                 if isinstance(r,types.StringType):
                     jump=r
         else:
             break
+    return found
 
 #----------------------------------------------------------
 # QWeb WSGI Request handler
