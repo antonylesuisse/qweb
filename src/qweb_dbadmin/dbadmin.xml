@@ -168,11 +168,66 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 				<td><t t-esc="t[1].dba.count"/></td>
 				<td class="action" width="10%">
 					<a t-href="url/table_list?table=%(t[0])s">Browse</a>
+					<a t-href="url/table_rowadd?table=%(t[0])s">Add</a>
 				</td>
 			</tr>
 		</t>
 		</tbody>
 		</table>
+	</t>
+</t>
+<t t-name="dbview_table_rowform">
+	<table class="form" width="50%">
+	<t t-foreach="tableo.dba.cols" t-as="c">
+		<tr>
+			<td class="label" valign="top">
+				<t t-raw="c.dba.name"/>:
+			</td>
+			<td class="input">
+				<t t-if="c.dba.type=='scalar'">
+					<t t-set="val" t-eval="form[c.dba.name].value"/>
+
+					<t t-if="len(val)&lt;40">
+						<input type="text" t-att-name="c.dba.name" t-att-value="val" size="40"/>
+					</t>
+					<t t-if="len(val)>40">
+						<textarea t-att-name="c.dba.name" cols="50" rows="8"><t t-esc="val"/></textarea>
+					</t>
+				</t>
+				<t t-if="c.dba.type=='many2one'">
+					<select t-att-name="c.dba.name">
+					<t t-set="val" t-eval="form[c.dba.name].value"/>
+
+					<t t-if="c.dba.nullable">
+						<option value="None" t-selected="not val">---</option>
+					</t>
+					<t t-foreach="c.dba.dest.select()" t-as="target">
+						<option t-att-value="target.id" t-selected="target==val">id: <t t-esc="target.id"/></option>
+					</t>
+					</select>
+				</t>
+				<t t-if="form[c.dba.name].invalid">
+					INVALID
+				</t>
+			</td>
+		</tr>
+	</t>
+		<tr>
+			<td class="label" colspan="2">
+				<input type="submit" name="save" value="Save"/>
+			</td>
+		</tr>
+	</table>
+</t>
+<t t-name="dbview_table_rowadd">
+	<t t-call="dbview_common">
+
+	<t t-esc="table"/>:
+
+	<form t-action="url/table_rowadd?table=%(table)s" method="GET">
+		<t t-call="dbview_table_rowform"/>
+	</form>
+
 	</t>
 </t>
 <t t-name="dbview_table_list">
@@ -220,43 +275,8 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 	<t t-call="dbview_common">
 
 	<t t-esc="table"/> <t t-esc="row.id"/>:
-	<form action="url/table_row_edit?id=%(row.id)d" method="GET">
-	<table class="form" width="50%">
-	<t t-foreach="tableo.dba.cols" t-as="c">
-		<tr>
-			<td class="label">
-				<t t-raw="c.dba.name"/>:
-			</td>
-			<td class="input">
-				<t t-if="c.dba.type=='scalar'">
-					<t t-set="val" t-eval="str(getattr(row, c.dba.name))"/>
-					<t t-if="len(val)&lt;40">
-						<input type="text" t-att-name="c.dba.name" t-att-value="getattr(row, c.dba.name)" />
-					</t>
-					<t t-if="len(val)>40">
-						<textarea t-att-name="c.dba.name"><t t-esc="val"/></textarea>
-					</t>
-				</t>
-				<t t-if="c.dba.type=='many2one'">
-					<select t-att-name="c.dba.name">
-					<t t-set="val" t-eval="getattr(row, c.dba.name)"/>
-					<t t-if="c.dba.nullable">
-						<option value="None" t-selected="not val">---</option>
-					</t>
-					<t t-foreach="c.dba.dest.select()" t-as="target">
-						<option t-att-value="target.id" t-selected="target==val">id: <t t-esc="target.id"/></option>
-					</t>
-					</select>
-				</t>
-			</td>
-		</tr>
-	</t>
-		<tr>
-			<td class="label" colspan="2">
-				<input type="submit" name="save" value="Save"/>
-			</td>
-		</tr>
-	</table>
+	<form t-action="url/table_row_edit?table=%(table)s&amp;id=%(row.id)d" method="GET">
+		<t t-call="dbview_table_rowform"/>
 	</form>
 
 	</t>

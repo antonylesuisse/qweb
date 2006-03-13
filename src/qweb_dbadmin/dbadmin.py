@@ -103,9 +103,35 @@ class DBAdmin:
 		v["rows"]=res[v["start"]:v["start"]+v["step"]]
 		req.write(self.template.render("dbview_table_list",v))
 
+	def rowform(self,table):
+		f=qweb.QWebForm()
+		for c in table.dba.cols:
+			if c.dba.type=="scalar" or c.dba.type=="many2one":
+				if not c.default:
+					default=""
+				else:
+					default=str(c.default)
+				if c.dba.nullable:
+					check=None
+				else:
+					check="/.+/"
+				fi=qweb.QWebField(c.dba.name,default=default,check=check)
+				f.add_field(fi)
+		return f
+
+
 	def dbview_table_rowadd(self,req,arg,out,v):
-		v["row"]=v["tableo"]()
-		return "dbview_table_row_edit"
+		f=v["form"]=self.rowform(v["tableo"])
+		f.process_input(arg)
+		if arg["save"] and f.valid:
+			print "VALID"
+			d=f.collect()
+			v["row"]=v["tableo"](**d)
+			arg.clear()
+			return "dbview_table_row_edit"
+		else:
+			v["body"]=self.template.render("dbview_table_rowadd",v)
+
 	def dbview_table_row(self,req,arg,out,v):
 		if not v.has_key("row"):
 			res=v["tableo"].select(v["tableo"].q.id==arg["id"])
@@ -115,12 +141,15 @@ class DBAdmin:
 				return "error"
 
 	def dbview_table_row_edit(self,req,arg,out,v):
+		f=v["form"]=self.rowform(v["tableo"])
+		f.process_input(arg)
+		if arg["save"] and f.valid:
+			print " valid"
+			req.write("caca ok")
+		else:
+			print "pas valid"
 
-		v["row"]
-
-
-
-		req.write(self.template.render("dbview_table_row_edit",v))
+			req.write(self.template.render("dbview_table_row_edit",v))
 
 	def dbview_table_row_del(self,req,arg,out,v):
 		v["row"]
