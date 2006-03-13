@@ -1,34 +1,22 @@
 #!/usr/bin/python
 # vim:set mouse=:
-
-import os, sys, re, datetime, time, csv, StringIO, logging
-import model
-import glob
+import glob, os, sys, re
+#import glob
 #sys.path[0:0] = glob.glob('lib/QWeb-0.5-py%d.%d.egg'%sys.version_info[:2])
-sys.path[0:0] = glob.glob('lib/')
+#sys.path[0:0] = glob.glob('lib/')
 from qweb import *
-from qweb_static import *
+#from qweb_static import *
 
-class DualUse:
-	def __init__(self):
+class DBAdmin:
+	def __init__(self,urlroot,mod):
+		self.mod = mod
 		self.mtime = 0
-		self.pages = [i[5:] for i in dir(self) if i.startswith("page")]
-		self.file_server = StaticDir(urlroot="/", root=".")
-	def __call__(self, environ, start_response):
-		mtime=os.path.getmtime("dbview.xml")
-		if self.mtime!=mtime:
-			self.mtime=mtime
-			self.template = QWebHtml("dbview.xml")
-		req = QWebRequest(environ, start_response, session=QWebSessionMem)
-		if len(req.PATH_INFO)<=1:
-			req.http_redirect('/index',1)
-		elif qweb_control(self,"dbview_"+req.PATH_INFO,[req,req.REQUEST,req,{}]):
-			pass
-		else:
-			r = self.file_server.process(req)
-			if r:
-				req.write(r["body"])
-		return req
+
+	def premodel(self,mod):
+		for i in dir(mod):
+			c=getattr(mod,i)
+			if hasattr(c,'sqlmeta'):
+				self.pretable(mod,c)
 
 	# dbview_* attributes
 	# dbview_cols cols ordered
@@ -59,11 +47,24 @@ class DualUse:
 			table.dbview_precount=100
 			table.dbview=1
 
-	def premodel(self,mod):
-		for i in dir(mod):
-			c=getattr(mod,i)
-			if hasattr(c,'sqlmeta'):
-				self.pretable(mod,c)
+	def process(self, req):
+		pass
+#		mtime=os.path.getmtime("dbview.xml")
+#		if self.mtime!=mtime:
+#			self.mtime=mtime
+#			self.template = QWebHtml("dbview.xml")
+#		if len(req.PATH_INFO)<=1:
+#			req.http_redirect('/index',1)
+#		elif qweb_control(self,"dbview_"+req.PATH_INFO,[req,req.REQUEST,req,{}]):
+#			pass
+#		else:
+#			r = self.file_server.process(req)
+#			if r:
+#				req.write(r["body"])
+#		return req
+
+
+
 
 	def dbview(self,req,arg,out,v):
 		req.response_headers['Content-type'] = 'text/html; charset=UTF-8'
