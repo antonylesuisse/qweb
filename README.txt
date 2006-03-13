@@ -79,8 +79,6 @@ TODO
             response_404
             response_redirect
             response_download
-
-        request urldispatcher ?
         request callback_generator, callback_function ?
         wsgi callback_server_local
         xml tags explicitly call render_attributes(t_att)?

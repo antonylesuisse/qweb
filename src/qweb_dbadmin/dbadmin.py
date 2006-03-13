@@ -17,10 +17,13 @@ class DBAdmin:
 	def premodel(self,mod):
 		for i in dir(mod):
 			c=getattr(mod,i)
-			if hasattr(c,'sqlmeta'):
+			if hasattr(c,'__mro__'):
+				for cls in c.__mro__:
+					if cls.__name__=='SQLObject':
+						self.pretable(mod,c)
+						self.tables[i]=c
+						break
 			# if getattr(mol) instranceof SQLobject
-				self.pretable(mod,c)
-				self.tables[i]=c
 
 	# dbview_* attributes
 	# dbview_cols cols ordered
