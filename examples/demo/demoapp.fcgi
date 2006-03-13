@@ -13,36 +13,35 @@ class QWebDemoApp:
 
 	def __init__(self):
 		self.template = qweb.QWebHtml("template.xml")
-		self.filetime = os.path.getmtime(__file__)
-		self.pages = [i[5:] for i in dir(self) if i.startswith("demo")]
 		self.fileserver = qweb_static.StaticDir(urlroot="/static",root=".")
 
 	def __call__(self, environ, start_response):
-		# Hack to expire the fcgi
-		#if self.filetime != os.path.getmtime(__file__):
-		#	environ["wsgi.errors"]._req.server._exit()
+#		mtime=os.path.getmtime("dbview.xml")
+#		if self.mtime!=mtime:
+#			self.mtime=mtime
+#			self.template = QWebHtml("dbview.xml")
+#		self.filetime = os.path.getmtime(__file__)
+#		if self.filetime != os.path.getmtime(__file__):
+#			environ["wsgi.errors"]._req.server._exit()
 
 		req = qweb.QWebRequest(environ, start_response)
 
-		# Call the qweb control entry to main
-		qweb.qweb_control(self,'main',[req,req.REQUEST,{}])
+		if req.PATH_INFO == "" or req.PATH_INFO=="/static":
+			req.http_redirect(req.FULL_PATH + '/',1)
+			return req
+		elif req.PATH_INFO == "/":
+			page="demo_home"
+		elif req.PATH_INFO.startswith('/static/'):
+			page="demo_static"
+		else:
+			page="demo"+req.PATH_INFO
+
+		# Call the qweb control to the selected page
+		if not qweb.qweb_control(self,page,[req,req.REQUEST,{}]):
+			req.http_404()
 
 		# return req (req behaves as an iterator with the write buffer)
 		return req
-
-	def main(self, req, arg, v):
-		if req.PATH_INFO == "" or req.PATH_INFO=="/static":
-			req.http_redirect(req.FULL_PATH + '/',1)
-			return
-
-		page=req.PATH_INFO[1:].split('/')[0]
-		if page=="":
-			page="home"
-
-		if page in self.pages:
-			return "demo_%s"%page
-		else:
-			req.http_404()
 
 	def demo(self, req, arg, v):
 		v['url']=qweb.QWebURL('/',req.PATH_INFO)
