@@ -727,6 +727,7 @@ def qweb_control(self,jump='main',p=[]):
         return 0
     done={}
     todo=[]
+    found=0
     while 1:
         if jump!=None:
             tmp=""
@@ -740,10 +741,13 @@ def qweb_control(self,jump='main',p=[]):
             i=todo.pop(0)
             done[i]=1
             if hasattr(self,i):
+                found=1
                 f=getattr(self,i)
                 r=f(*p)
                 if isinstance(r,types.StringType):
                     jump=r
+            else:
+                found=0
         else:
             break
     return 1
