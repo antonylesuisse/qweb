@@ -10,8 +10,13 @@ import qweb, qweb_static
 class DBATable:
 	def __init__(self,cols):
 		self.cols=cols
+
 class DBACol:
-	pass
+	def __init__(self):
+		self.name=None
+		self.type=None
+		# many2one
+		self.dest=None
 
 
 class DBAdmin:
@@ -19,6 +24,7 @@ class DBAdmin:
 		self.urlroot = urlroot
 		self.mod = mod
 		self.template = qweb.QWebHtml(qweb_static.get_module_data('qweb_dbadmin','dbadmin.xml'))
+
 		self.tables={}
 		self.preprocess(mod)
 
@@ -42,23 +48,19 @@ class DBAdmin:
 			tmp=[(col.creationOrder, col) for col in table.sqlmeta.columns.values() if col.name!='childName']
 			tmp.sort()
 			for order,c in tmp:
-				if not hasattr(c,'longname'):
-					c.longname=c.name
+				c.dba=DBACol()
+				c.dba.name=c.name
+				c.dba.nullable=not c.notNone
 				if c.foreignKey:
-					c.dbview_name=c.name[:-2]
-					c.dbview_type="many2one"
-					c.dbview_dest=getattr(mod,c.foreignKey)
-					c.dbview_form="select"
+					c.dba.type="many2one"
+					c.dba.name=c.name[:-2]
+					c.dba.dest=getattr(mod,c.foreignKey)
+					c.dba.form="select"
 				else:
-					c.dbview_name=c.name
-					c.dbview_type="normal"
-					# TODO precise type
-					c.dbview_form="text"
-					#c.dbview_form_text_machin
-					#c.dbview_form_text_machin
+					c.dba.type="scalar"
+					c.dba.sqltype="text"
 				table.dba.cols.append(c)
-			# TODO precount
-			table.dba.precount=100
+			table.dba.count=table.select().count()
 
 	def process(self, req):
 		path=req.PATH_INFO[len(self.urlroot):]
@@ -77,15 +79,18 @@ class DBAdmin:
 	def dbview(self,req,arg,out,v):
 		req.response_headers['Content-type'] = 'text/html; charset=UTF-8'
 		v['url'] = qweb.QWebURL(self.urlroot, req.PATH_INFO)
+
 	def dbview_index(self,req,arg,out,v):
 		v["tables"]=self.tables
 		v["body"]=self.template.render("dbview_index",v)
+
 	def dbview_table(self,req,arg,out,v):
 		if self.tables.has_key(arg["table"]):
 			v["table"]=arg["table"]
 			v["tableo"]=self.tables[arg["table"]]
 		else:
 			return "error"
+
 	def dbview_table_list(self,req,arg,out,v):
 		v["start"]=arg.int("start")
 		v["search"]=arg["search"]
@@ -97,6 +102,7 @@ class DBAdmin:
 		v["total"]=res.count()
 		v["rows"]=res[v["start"]:v["start"]+v["step"]]
 		req.write(self.template.render("dbview_table_list",v))
+
 	def dbview_table_rowadd(self,req,arg,out,v):
 		v["row"]=v["tableo"]()
 		return "dbview_table_row_edit"
@@ -107,8 +113,15 @@ class DBAdmin:
 				v["row"]=res[0]
 			else:
 				return "error"
+
 	def dbview_table_row_edit(self,req,arg,out,v):
+
+		v["row"]
+
+
+
 		req.write(self.template.render("dbview_table_row_edit",v))
+
 	def dbview_table_row_del(self,req,arg,out,v):
 		v["row"]
 		req.write('ok')

@@ -165,7 +165,7 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		<t t-foreach="tables.items()" t-as="t">
 			<tr t-att-class="t_parity">
 				<td><t t-esc="t[0]"/></td>
-				<td></td>
+				<td><t t-esc="t[1].dba.count"/></td>
 				<td class="action" width="10%">
 					<a t-href="url/table_list?table=%(t[0])s">Browse</a>
 				</td>
@@ -185,7 +185,7 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		<tr>
 			<th>Id</th>
 			<t t-foreach="tableo.dba.cols" t-as="c">
-				<th><t t-raw="c.dbview_name"/></th>
+				<th><t t-raw="c.dba.name"/></th>
 			</t>
 			<th class="action">
 				Actions: <a t-href="url/table_rowadd?table=%(table)s">Add</a>
@@ -198,11 +198,11 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 			<td><t t-esc="rows.id"/></td>
 			<t t-foreach="tableo.dba.cols" t-as="c">
 				<td align="left">
-					<t t-if="c.dbview_type=='normal'">
-						<t t-esc="getattr(rows,c.dbview_name)" />
+					<t t-if="c.dba.type=='scalar'">
+						<t t-esc="getattr(rows,c.dba.name)" />
 					</t>
-					<t t-if="c.dbview_type=='many2one'">
-						id: <t t-esc="getattr(rows,c.dbview_name).id" />
+					<t t-if="c.dba.type=='many2one'">
+						id: <t t-esc="getattr(rows,c.dba.name).id" />
 					</t>
 				</td>
 			</t>
@@ -221,27 +221,41 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 
 	<t t-esc="table"/> <t t-esc="row.id"/>:
 	<form action="url/table_row_edit?id=%(row.id)d" method="GET">
-	<table class="form">
+	<table class="form" width="50%">
 	<t t-foreach="tableo.dba.cols" t-as="c">
 		<tr>
 			<td class="label">
-				<t t-raw="c.dbview_name"/>:
+				<t t-raw="c.dba.name"/>:
 			</td>
 			<td class="input">
-				<t t-if="c.dbview_type=='normal'">
-					<input type="text" t-att-name="c.dbview_name" t-att-value="getattr(row, c.dbview_name)" />
+				<t t-if="c.dba.type=='scalar'">
+					<t t-set="val" t-eval="str(getattr(row, c.dba.name))"/>
+					<t t-if="len(val)&lt;40">
+						<input type="text" t-att-name="c.dba.name" t-att-value="getattr(row, c.dba.name)" />
+					</t>
+					<t t-if="len(val)>40">
+						<textarea t-att-name="c.dba.name"><t t-esc="val"/></textarea>
+					</t>
 				</t>
-				<t t-if="c.dbview_type=='many2one'">
-					<select t-att-name="c.dbview_name">
-					<t t-set="val" t-eval="getattr(row, c.dbview_name)"/>
-					<t t-foreach="c.dbview_dest.select()" t-as="target">
-						<option value="target.id" t-selected="target==val">id: <t t-esc="target.id"/></option>
+				<t t-if="c.dba.type=='many2one'">
+					<select t-att-name="c.dba.name">
+					<t t-set="val" t-eval="getattr(row, c.dba.name)"/>
+					<t t-if="c.dba.nullable">
+						<option value="None" t-selected="not val">---</option>
+					</t>
+					<t t-foreach="c.dba.dest.select()" t-as="target">
+						<option t-att-value="target.id" t-selected="target==val">id: <t t-esc="target.id"/></option>
 					</t>
 					</select>
 				</t>
 			</td>
 		</tr>
 	</t>
+		<tr>
+			<td class="label" colspan="2">
+				<input type="submit" name="save" value="Save"/>
+			</td>
+		</tr>
 	</table>
 	</form>
 
