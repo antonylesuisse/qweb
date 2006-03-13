@@ -1,16 +1,17 @@
 #!/usr/bin/python
 # vim:set mouse=:
 import glob, os, sys, re
-#import glob
-#sys.path[0:0] = glob.glob('lib/QWeb-0.5-py%d.%d.egg'%sys.version_info[:2])
-#sys.path[0:0] = glob.glob('lib/')
-from qweb import *
-#from qweb_static import *
+
+#sys.path[0:0] = glob.glob('lib/QWeb-0.5-py%d.%d.egg'%sys.version_info[:2])+glob.glob('lib/')
+
+import qweb, qweb_static
 
 class DBAdmin:
 	def __init__(self,urlroot,mod):
+		self.urlroot = urlroot
 		self.mod = mod
-		self.mtime = 0
+		s = qweb_static.get_module_data('qweb_dbadmin','dbview.xml')
+		self.template = qweb.QWebHtml(s)
 
 	def premodel(self,mod):
 		for i in dir(mod):
@@ -108,6 +109,6 @@ class DBAdmin:
 		req.write('ok')
 
 if __name__ == '__main__':
-	qweb.qweb_wsgi_autorun(DualUse(), port=8001, threaded=0)
+	pass
 
 

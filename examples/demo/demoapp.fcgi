@@ -14,6 +14,8 @@ class QWebDemoApp:
 	def __init__(self):
 		self.template = qweb.QWebHtml("template.xml")
 		self.fileserver = qweb_static.StaticDir(urlroot="/static",root=".")
+#		import qweb_dbadmin
+#		self.fileserver = qweb_static.StaticModule(urlroot="/static",module='qweb_dbadmin')
 
 	def __call__(self, environ, start_response):
 #		mtime=os.path.getmtime("dbview.xml")

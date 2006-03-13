@@ -11,13 +11,29 @@ Serve static contents, directories, zipfiles or python modules
 
 import calendar,cgi,md5,mimetypes,os,stat,sys,time,urllib,zipfile
 
+def get_module_data(module,path):
+	m=sys.modules[module]
+	l=getattr(m,'__loader__',None)
+	d=os.path.dirname(m.__file__)
+	fname=os.path.join(d,path)
+	if l:
+		return l.get_data(fname)
+	else:
+		return file(fname).read()
+
+def path_clean(path):
+	path=path.replace('\\','/')
+	pl=[i for i in path.split('/') if (i!='..' and i!='')]
+	return '/'.join(pl)
+
 class Entry:
-	def  __init__(self,path,type,mtime,size):
+	def  __init__(self,path,type,mtime,size,data=None):
 		self.path=path
 		self.name=os.path.basename(path)
 		self.type=type
 		self.mtime=mtime
 		self.size=size
+		self.data=data
 
 class StaticBase:
 	def __init__(self, urlroot="/", listdir=1):
@@ -61,24 +77,18 @@ class StaticBase:
 			ext = os.path.splitext(path)[1].lower()
 			ctype = self.type_map.get(ext, 'application/octet-stream')
 			req.response_headers['Content-Type']=ctype
-			f = self.fs_getfile(path)
-			if not isinstance(f,str):
-				f=f.read()
+			if entry.data!=None:
+				f=entry.data
+			else:
+				f=self.fs_getfile(path)
+				if not isinstance(f,str):
+					f=f.read()
 			if self.gzencode.has_key(ext):
 				req.response_gzencode=1
 			req.response_headers['Content-Length']=str(len(f))
 			req.write(f)
 	def process(self, req, inline=1):
-		path=req.PATH_INFO[len(self.urlroot):].replace('\\','/')
-		pl=[]
-		for i in path.split('/'):
-			if i=='..':
-				req.http_404()
-			elif i=='':
-				continue
-			else:
-				pl.append(i)
-		path='/'.join(pl)
+		path=path_clean(req.PATH_INFO[len(self.urlroot):])
 		e=self.fs_stat(path)
 		if e:
 			if e.type=="dir" and self.listdir:
@@ -96,7 +106,6 @@ class StaticDir(StaticBase):
 	def __init__(self, urlroot="/", root=".", listdir=1):
 		self.root=root
 		StaticBase.__init__(self,urlroot,listdir)
-
 	def fs_stat(self,path):
 		fs_path = os.path.join(self.root,path)
 		try:
@@ -120,7 +129,7 @@ class StaticZip(StaticBase):
 		StaticBase.__init__(self,urlroot,listdir)
 		self.zipfile=zipfile.ZipFile(zipname)
 		self.zipmtime=os.path.getmtime(zipname)
-		self.ziproot=ziproot
+		self.ziproot=path_clean(ziproot)
 		self.zipdir={}
 		self.zipentry={}
 
@@ -147,7 +156,7 @@ class StaticZip(StaticBase):
 						self.zipdir[d]={n:e}
 					i=d
 	def fs_stat(self,path):
-		fs_path = self.ziproot[1:]+path
+		fs_path=os.path.join(self.ziproot,path)
 		if fs_path in self.zipentry:
 			return self.zipentry[fs_path]
 		elif fs_path in self.zipdir:
@@ -160,6 +169,22 @@ class StaticZip(StaticBase):
 	def fs_listdir(self,path):
 		fs_path = self.ziproot[1:]+path
 		return self.zipdir[fs_path].values()
+
+class StaticModule(StaticBase):
+	def __init__(self, urlroot="/", module="", module_root="/", listdir=0):
+		StaticBase.__init__(self,urlroot,listdir)
+		self.module=module
+		self.mtime=time.time()
+		self.module_root=path_clean(module_root)
+	def fs_stat(self,path):
+		name=os.path.join(self.module_root,path)
+		try:
+			d=get_module_data(self.module,name)
+			e=Entry(path,"file",self.mtime,len(d))
+			e.data=d
+			return e
+		except IOError,e:
+			return None
 
 #----------------------------------------------------------
 # OLD version: Pure WSGI

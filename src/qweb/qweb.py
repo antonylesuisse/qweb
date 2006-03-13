@@ -93,11 +93,6 @@ TODO
         wsgi callback_server_local
         xml tags explicitly call render_attributes(t_att)?
         priority form-checkbox over t-value (for t-option)
-    qweb_static:
-        StaticModule http://peak.telecommunity.com/DevCenter/PythonEggs#accessing-package-resources
-        pkg_resources.resource_string|stream(__name__, 'foo.conf')
-        __loader__.get_data()
-        zip or dir from __file__
 
 """
 

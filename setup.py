@@ -21,6 +21,7 @@ setuptools.setup(
 	keywords = 'web application server wsgi template xml',
 	package_dir = {'': 'src'},
 	packages = [i for i in os.listdir('src') if i.startswith("qweb")],
-	# How to exclude files from QWeb.egg-info/SOURCES.txt
-	# exclude_package_data = { '': ['Makefile'] }
+	package_data = {
+		'qweb_dbadmin': ['*.xml','*.txt'],
+	}
 )
