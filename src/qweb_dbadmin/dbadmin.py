@@ -10,7 +10,7 @@ class DBAdmin:
 	def __init__(self,urlroot,mod):
 		self.urlroot = urlroot
 		self.mod = mod
-		s = qweb_static.get_module_data('qweb_dbadmin','dbview.xml')
+		s = qweb_static.get_module_data('qweb_dbadmin','dbadmin.xml')
 		self.template = qweb.QWebHtml(s)
 
 	def premodel(self,mod):
