@@ -79,7 +79,6 @@ TODO
             response_404
             response_redirect
             response_download
-        qweb_control to return True or False
 
         request urldispatcher ?
         request callback_generator, callback_function ?
