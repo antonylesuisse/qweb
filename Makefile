@@ -22,7 +22,7 @@ tgz:
 	# DemoApp
 	mkdir ${DEMODIR} || true
 	cp dist/QWeb-*.egg ${DEMODIR}
-	cp demo/[A-Za-z]* ${DEMODIR}
+	cp examples/demo/[A-Za-z]* ${DEMODIR}
 	tar czvf dist/${DEMOTGZ} ${DEMODIR}
 	# publish
 ifeq ($(USER),wis)

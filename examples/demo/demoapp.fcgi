@@ -5,7 +5,7 @@
 import cgi, glob, os, re, sys
 
 # Optional: Add the QWeb .egg or ../qweb in sys path
-sys.path[0:0]=glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('../src')
+sys.path[0:0]=glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('../../src')
 
 import qweb, qweb_static
 
