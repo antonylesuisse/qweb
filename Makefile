@@ -4,7 +4,7 @@ SRCTGZ=${SRCDIR}.tar.gz
 DEMODIR=${SRCDIR}-DemoApp
 DEMOTGZ=${DEMODIR}.tar.gz
 
-all: tgz
+all: dist
 	true
 
 tgz:
@@ -18,17 +18,25 @@ tgz:
 	# Source
 	mkdir ${SRCDIR} || true
 	cp -r Makefile README* contrib examples ez_setup.py setup.py src ${SRCDIR}
-	tar czvf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
+	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
 	# DemoApp
 	mkdir ${DEMODIR} || true
 	cp dist/QWeb-*.egg ${DEMODIR}
 	cp examples/demo/[A-Za-z]* ${DEMODIR}
-	tar czvf dist/${DEMOTGZ} ${DEMODIR}
-	# publish
-ifeq ($(USER),wis)
-#	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
-#	rsync -av --delete ${DEMODIR}/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/demo/
-endif
+	tar czf dist/${DEMOTGZ} ${DEMODIR}
+
+dist: tgz
 	# cleanup
 	rm -Rf ${SRCDIR}
 	rm -Rf ${DEMODIR}
+
+pub: tgz
+	# publish
+ifeq ($(USER),wis)
+	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
+	rsync -av --delete ${DEMODIR}/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/demo/
+endif
+	rm -Rf ${SRCDIR}
+	rm -Rf ${DEMODIR}
+
+

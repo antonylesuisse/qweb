@@ -163,7 +163,16 @@ qweb_control
 ------------
 
  qweb_control(self,jump='main',p=[]):
-        a simple function to handle the controler part of your application.
+    A simple function to handle the controler part of your application. It
+    dispatch the control to the jump argument, while ensuring that prefix
+    function have been called.
+
+    qweb_control replace '/' to '_' and strip '_' from the jump argument.
+
+    name1
+    name1_name2
+    name1_name2_name3
+
     
 
 QWebRequest
