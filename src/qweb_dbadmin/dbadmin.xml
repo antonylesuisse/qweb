@@ -183,7 +183,8 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		<table class="listing" width="100%">
 		<thead>
 		<tr>
-			<t t-foreach="tableo.dbview_cols" t-as="c">
+			<th>Id</th>
+			<t t-foreach="tableo.dba.cols" t-as="c">
 				<th><t t-raw="c.dbview_name"/></th>
 			</t>
 			<th class="action">
@@ -194,7 +195,8 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		<tbody>
 		<t t-foreach="rows">
 		<tr t-att-class="rows_parity">
-			<t t-foreach="tableo.dbview_cols" t-as="c">
+			<td><t t-esc="rows.id"/></td>
+			<t t-foreach="tableo.dba.cols" t-as="c">
 				<td align="left">
 					<t t-if="c.dbview_type=='normal'">
 						<t t-esc="getattr(rows,c.dbview_name)" />
@@ -220,7 +222,7 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 	<t t-esc="table"/> <t t-esc="row.id"/>:
 	<form action="url/table_row_edit?id=%(row.id)d" method="GET">
 	<table class="form">
-	<t t-foreach="tableo.dbview_cols" t-as="c">
+	<t t-foreach="tableo.dba.cols" t-as="c">
 		<tr>
 			<td class="label">
 				<t t-raw="c.dbview_name"/>:

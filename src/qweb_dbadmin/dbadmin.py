@@ -6,15 +6,23 @@ import glob, os, sys, re
 
 import qweb, qweb_static
 
+
+class DBATable:
+	def __init__(self,cols):
+		self.cols=cols
+class DBACol:
+	pass
+
+
 class DBAdmin:
 	def __init__(self,urlroot,mod):
 		self.urlroot = urlroot
 		self.mod = mod
 		self.template = qweb.QWebHtml(qweb_static.get_module_data('qweb_dbadmin','dbadmin.xml'))
 		self.tables={}
-		self.premodel(mod)
+		self.preprocess(mod)
 
-	def premodel(self,mod):
+	def preprocess(self,mod):
 		for i in dir(mod):
 			c=getattr(mod,i)
 			if hasattr(c,'__mro__'):
@@ -23,15 +31,14 @@ class DBAdmin:
 						self.pretable(mod,c)
 						self.tables[i]=c
 						break
-			# if getattr(mol) instranceof SQLobject
 
 	# dbview_* attributes
 	# dbview_cols cols ordered
 	# dbview_cols[0].longname
 	# dbview_cols[0].type
 	def pretable(self,mod,table):
-		if not hasattr(table,'dbview'):
-			table.dbview_cols=[]
+		if not hasattr(table,'dba'):
+			table.dba=DBATable([])
 			tmp=[(col.creationOrder, col) for col in table.sqlmeta.columns.values() if col.name!='childName']
 			tmp.sort()
 			for order,c in tmp:
@@ -49,10 +56,9 @@ class DBAdmin:
 					c.dbview_form="text"
 					#c.dbview_form_text_machin
 					#c.dbview_form_text_machin
-				table.dbview_cols.append(c)
+				table.dba.cols.append(c)
 			# TODO precount
-			table.dbview_precount=100
-			table.dbview=1
+			table.dba.precount=100
 
 	def process(self, req):
 		path=req.PATH_INFO[len(self.urlroot):]
