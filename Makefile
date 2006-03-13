@@ -17,7 +17,7 @@ tgz:
 	rm -Rf build src/QWeb.egg-info || true
 	# Source
 	mkdir ${SRCDIR} || true
-	cp -r Makefile README* contrib demo ez_setup.py setup.py src tut* ${SRCDIR}
+	cp -r Makefile README* contrib examples ez_setup.py setup.py src ${SRCDIR}
 	tar czvf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
 	# DemoApp
 	mkdir ${DEMODIR} || true
