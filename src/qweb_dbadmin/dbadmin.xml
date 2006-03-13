@@ -149,6 +149,32 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		<t t-raw="0"/>
 	</t>
 </t>
+<t t-name="dbview_index">
+	<t t-call="dbview_common">
+		<table class="listing" width="100%">
+		<thead>
+		<tr>
+			<th>Table</th>
+			<th>Count</th>
+			<th class="action">
+				Actions:
+			</th>
+		</tr>
+		</thead>
+		<tbody>
+		<t t-foreach="tables.items()" t-as="t">
+			<tr t-att-class="t_parity">
+				<td><t t-esc="t[0]"/></td>
+				<td></td>
+				<td class="action" width="10%">
+					<a t-href="url/table_list?table=%(t[0])s">Browse</a>
+				</td>
+			</tr>
+		</t>
+		</tbody>
+		</table>
+	</t>
+</t>
 <t t-name="dbview_table_list">
 	<t t-call="dbview_common">
 		<t t-call="dbview_pager">

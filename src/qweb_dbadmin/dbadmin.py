@@ -10,14 +10,17 @@ class DBAdmin:
 	def __init__(self,urlroot,mod):
 		self.urlroot = urlroot
 		self.mod = mod
-		s = qweb_static.get_module_data('qweb_dbadmin','dbadmin.xml')
-		self.template = qweb.QWebHtml(s)
+		self.template = qweb.QWebHtml(qweb_static.get_module_data('qweb_dbadmin','dbadmin.xml'))
+		self.tables={}
+		self.premodel(mod)
 
 	def premodel(self,mod):
 		for i in dir(mod):
 			c=getattr(mod,i)
 			if hasattr(c,'sqlmeta'):
+			# if getattr(mol) instranceof SQLobject
 				self.pretable(mod,c)
+				self.tables[i]=c
 
 	# dbview_* attributes
 	# dbview_cols cols ordered
@@ -49,36 +52,29 @@ class DBAdmin:
 			table.dbview=1
 
 	def process(self, req):
-		pass
-#		mtime=os.path.getmtime("dbview.xml")
-#		if self.mtime!=mtime:
-#			self.mtime=mtime
-#			self.template = QWebHtml("dbview.xml")
-#		if len(req.PATH_INFO)<=1:
-#			req.http_redirect('/index',1)
-#		elif qweb_control(self,"dbview_"+req.PATH_INFO,[req,req.REQUEST,req,{}]):
-#			pass
-#		else:
-#			r = self.file_server.process(req)
-#			if r:
-#				req.write(r["body"])
-#		return req
-
-
-
+		path=req.PATH_INFO[len(self.urlroot):]
+		if path=="":
+			path="index"
+		v={}
+		if qweb.qweb_control(self,"dbview_"+path,[req,req.REQUEST,req,v]):
+			r={}
+			r['head']=v.get('head','')
+			r['body']=v.get('body','')
+			return r
+		else:
+			req.http_404()
+			return None
 
 	def dbview(self,req,arg,out,v):
 		req.response_headers['Content-type'] = 'text/html; charset=UTF-8'
-		v['url'] = QWebURL('/', req.PATH_INFO)
+		v['url'] = qweb.QWebURL(self.urlroot, req.PATH_INFO)
 	def dbview_index(self,req,arg,out,v):
-		req.write('<a href="table_list?table=Country">test</a>')
+		v["tables"]=self.tables
+		v["body"]=self.template.render("dbview_index",v)
 	def dbview_table(self,req,arg,out,v):
-		v["module"]=model
-		if hasattr(model,arg["table"]):
+		if self.tables.has_key(arg["table"]):
 			v["table"]=arg["table"]
-			v["tableo"]=getattr(model,arg["table"])
-			# if getattr(mol) instranceof SQLobject
-			self.pretable(v["module"],v['tableo'])
+			v["tableo"]=self.tables[arg["table"]]
 		else:
 			return "error"
 	def dbview_table_list(self,req,arg,out,v):
