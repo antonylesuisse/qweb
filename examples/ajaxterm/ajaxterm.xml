@@ -1,0 +1,188 @@
+<template>
+<t t-name="at_main">
+	<html>
+	<head>
+	<title>Ajaxterm</title>
+	<style type="text/css">
+	body { background-color: white; }
+	.termframe { float: left; background-color: rgb(63,63,161); padding: 0.4ex; }
+	.termframe p { margin: 0; color: white; font-weight: bold; }
+	.term { margin: 0.4ex; background-color: black; color: white; padding: 0.4ex; }
+	.cursor { background-color: #800; /*text-decoration: blink;*/ }
+	</style>
+
+	<script type="text/javascript">
+	ajaxterm={};
+	ajaxterm.Terminal_ctor=function(id,width,height) {
+		var pre=document.getElementById(id);
+		var buf="";
+		var cx=0;
+		var cy=0;
+		function display() {
+			var scr="";
+			for(var i=0; i&lt;height; i++){
+				scr+=buf.substr(i*width,width)+"\n";
+			}
+			off=(cy*(width+1))+cx;
+			b0=scr.substr(0,off);
+			b1=scr[off];
+			b2=scr.substr(off+1);
+			pre.innerHTML=b0+'&lt;span class="cursor">'+b1+'&lt;/span>'+b2;
+		}
+		function init() {
+			buf="";
+			for(var i=0; i&lt;height*width; i++){
+				buf+=" ";
+			}
+			display();
+		}
+		function replace(pos,s) {
+			buf=buf.substr(0,pos)+s+buf.substr(pos+s.length);
+			display();
+		}
+		function replacexy(x,y,s) {
+			cx=x;
+			cy=y;
+			replace((y*width)+x,s);
+		}
+		function debug(s) {
+			replacexy(0,height-1,s);
+		}
+		var keybuf=[];
+		var sending=[];
+		var count=0;
+		function update(key) {
+			sending.push(1);
+			if(sending.length>1 || keybuf.length==0) {
+				sending.pop();
+				window.setTimeout(update,10);
+			} else {
+				var r=new XMLHttpRequest();
+				r.onreadystatechange = function () {
+					if (r.readyState==4 &amp;&amp; r.status==200) {
+						text=r.responseText;
+						replace(0,text);
+//						count=(count+(send.length))%(width*height);
+						sending.pop();
+						window.setTimeout(update,10);
+					} else {
+						a=1;
+					}
+				}
+				var send="";
+				while(keybuf.length>0) {
+					send+=keybuf.pop();
+				}
+				r.open("GET", "/test?a="+send, true);
+				r.send(null);
+//				r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+//				r.send(query);
+			}
+		}
+
+		function keypress(ev) {
+			if (!ev) var ev=window.event;
+			s="keypress keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
+//			debug(s);
+			var kc;
+			if (ev.keyCode)
+				kc=ev.keyCode;
+			if (ev.which)
+				kc=ev.which;
+			if (ev.ctrlKey || (ev.which==0)) {
+				a=1;
+			} else {
+				var k=escape(String.fromCharCode(kc));
+				keybuf.unshift(k);
+			}
+			ev.cancelBubble=true;
+			if (ev.stopPropagation) ev.stopPropagation();
+			if (ev.preventDefault)  ev.preventDefault();
+			return false;
+		}
+		function keydown(ev) {
+		}
+
+
+		document.onkeypress=keypress;
+		document.onkeydown=keydown;
+		window.setTimeout(update,10);
+
+		init();
+	}
+	ajaxterm.Terminal=function(id,width,height) {
+		return new this.Terminal_ctor(id,width,height);
+	}
+
+
+
+<!--
+function keydown(ev) {
+  if (!ev) var ev=window.event;
+  var kc=ev.keyCode;
+  if (kc==33) k=esc_seq("5~");       // PgUp
+  else if (kc==34) k=esc_seq("6~");  // PgDn
+  else if (kc==35) k=esc_seq("4~");  // End
+  else if (kc==36) k=esc_seq("1~");  // Home
+  else if (kc==37) k=esc_seq("D");   // Left
+  else if (kc==38) k=esc_seq("A");   // Up
+  else if (kc==39) k=esc_seq("C");   // Right
+  else if (kc==40) k=esc_seq("B");   // Down
+  else if (kc==45) k=esc_seq("2~");  // Ins
+  else if (kc==46) k=esc_seq("3~");  // Del
+  else if (kc==27) k=String.fromCharCode(27); // Escape
+  else if (kc==9)  k=String.fromCharCode(9);  // Tab
+  else if (kc==8)  k=String.fromCharCode(8);  // Backspace
+  else if (kc==112) k=esc_seq("[A");  // F1
+  else if (kc==113) k=esc_seq("[B");  // F2
+  else if (kc==114) k=esc_seq("[C");  // F3
+  else if (kc==115) k=esc_seq("[D");  // F4
+  else if (kc==116) k=esc_seq("[E");  // F5
+  else if (kc==117) k=esc_seq("17~"); // F6
+  else if (kc==118) k=esc_seq("18~"); // F7
+  else if (kc==119) k=esc_seq("19~"); // F8
+  else if (kc==120) k=esc_seq("20~"); // F9
+  else if (kc==121) k=esc_seq("21~"); // F10
+  else if (kc==122) k=esc_seq("23~"); // F11
+  else if (kc==123) k=esc_seq("24~"); // F12
+  else {
+    if (!ev.ctrlKey || ev.keyCode==17) {
+      return;
+    }
+
+    if (ev.shiftKey) {
+      if (kc==219) k=String.fromCharCode(0);       // Ctrl-@
+      else if (kc==54) k=String.fromCharCode(30);  // Ctrl-^
+      else if (kc==109) k=String.fromCharCode(31); // Ctrl-_
+      else {
+	return;
+      }
+    } else {
+      if (kc>=65 && kc<=90) k=String.fromCharCode(kc-64); // Ctrl-A..Z
+      else if (kc==219) k=String.fromCharCode(27); // Ctrl-[
+      else if (kc==220) k=String.fromCharCode(28); // Ctrl-\   .
+      else if (kc==221) k=String.fromCharCode(29); // Ctrl-]
+      else {
+	return;
+      }
+    }
+  }
+}
+-->
+
+
+	</script>
+
+	<script type="text/javascript">
+	window.onload=function() {
+		t=ajaxterm.Terminal("term",80,25);
+	};
+	</script>
+	</head>
+
+	<body>
+	<div style="float: left; padding: 1ex;"><pre id="term" class="term"></pre></div>
+	</body>
+	</html>
+</t>
+</template>
