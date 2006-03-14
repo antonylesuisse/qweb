@@ -10,7 +10,6 @@
 	.term { margin: 0.4ex; background-color: black; color: white; padding: 0.4ex; }
 	.cursor { background-color: #800; /*text-decoration: blink;*/ }
 	</style>
-
 	<script type="text/javascript">
 	ajaxterm={};
 	ajaxterm.Terminal_ctor=function(id,width,height) {
@@ -19,38 +18,29 @@
 		var cx=0;
 		var cy=0;
 		function display() {
-			var scr="";
-			for(var i=0; i&lt;height; i++){
-				scr+=buf.substr(i*width,width)+"\n";
-			}
-			off=(cy*(width+1))+cx;
-			b0=scr.substr(0,off);
-			b1=scr[off];
-			b2=scr.substr(off+1);
-			pre.innerHTML=b0+'&lt;span class="cursor">'+b1+'&lt;/span>'+b2;
+			pre.innerHTML=buf;
 		}
 		function init() {
 			buf="";
-			for(var i=0; i&lt;height*width; i++){
-				buf+=" ";
+			for(var i=0; i&lt;height; i++){
+				for(var j=0; j&lt;width; j++)
+					buf+=" ";
+				buf+="\n";
 			}
 			display();
 		}
-		function replace(pos,s) {
-			buf=buf.substr(0,pos)+s+buf.substr(pos+s.length);
+		function show(s) {
+			buf=s;
 			display();
 		}
-		function replacexy(x,y,s) {
-			cx=x;
-			cy=y;
-			replace((y*width)+x,s);
+		function replace(pos,s) {
+			show(buf.substr(0,pos)+s+buf.substr(pos+s.length));
 		}
 		function debug(s) {
-			replacexy(0,height-1,s);
+			replace(0,s);
 		}
 		var keybuf=[];
 		var sending=[];
-		var count=0;
 		function update(key) {
 			sending.push(1);
 			if(sending.length>1 || keybuf.length==0) {
@@ -61,8 +51,8 @@
 				r.onreadystatechange = function () {
 					if (r.readyState==4 &amp;&amp; r.status==200) {
 						text=r.responseText;
-						replace(0,text);
-//						count=(count+(send.length))%(width*height);
+						if(text.length)
+							show(text);
 						sending.pop();
 						window.setTimeout(update,10);
 					} else {
@@ -79,21 +69,63 @@
 //				r.send(query);
 			}
 		}
-
 		function keypress(ev) {
 			if (!ev) var ev=window.event;
-			s="keypress keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
+//			s="keypress keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
 //			debug(s);
 			var kc;
+			var k="";
+//  else { if (!ev.ctrlKey || ev.keyCode==17) { return; }
 			if (ev.keyCode)
 				kc=ev.keyCode;
 			if (ev.which)
 				kc=ev.which;
-			if (ev.ctrlKey || (ev.which==0)) {
-				a=1;
+			if (ev.which==0) {
+				if (kc==9) k=String.fromCharCode(9);  // Tab
+				else if (kc==8) k=String.fromCharCode(8);  // Backspace
+				else if (kc==27) k=String.fromCharCode(27); // Escape
+				else {
+					if (kc==33) k="[5~";       // PgUp
+					else if (kc==34) k="[6~";  // PgDn
+					else if (kc==35) k="[4~";  // End
+					else if (kc==36) k="[1~";  // Home
+					else if (kc==37) k="[D";   // Left
+					else if (kc==38) k="[A";   // Up
+					else if (kc==39) k="[C";   // Right
+					else if (kc==40) k="[B";   // Down
+					else if (kc==45) k="[2~";  // Ins
+					else if (kc==46) k="[3~";  // Del
+					else if (kc==112) k="[[A";  // F1
+					else if (kc==113) k="[[B";  // F2
+					else if (kc==114) k="[[C";  // F3
+					else if (kc==115) k="[[D";  // F4
+					else if (kc==116) k="[[E";  // F5
+					else if (kc==117) k="[17~"; // F6
+					else if (kc==118) k="[18~"; // F7
+					else if (kc==119) k="[19~"; // F8
+					else if (kc==120) k="[20~"; // F9
+					else if (kc==121) k="[21~"; // F10
+					else if (kc==122) k="[23~"; // F11
+					else if (kc==123) k="[24~"; // F12
+					if (k.length) {
+						k=String.fromCharCode(27)+k;
+					}
+				}
+			} else if (ev.ctrlKey) {
+				if (kc>=97 &amp;&amp; kc&lt;=122) k=String.fromCharCode(kc-96); // Ctrl-A..Z
+				else if (kc==219) k=String.fromCharCode(27); // Ctrl-[
+				else if (kc==220) k=String.fromCharCode(28); // Ctrl-\   .
+				else if (kc==221) k=String.fromCharCode(29); // Ctrl-]
+				else if (kc==219) k=String.fromCharCode(29); // Ctrl-]
+				else if (kc==219) k=String.fromCharCode(0);  // Ctrl-@
+				else if (kc==54) k=String.fromCharCode(30);  // Ctrl-^
+				else if (kc==109) k=String.fromCharCode(31); // Ctrl-_
 			} else {
-				var k=escape(String.fromCharCode(kc));
-				keybuf.unshift(k);
+				k=String.fromCharCode(kc);
+			}
+			if(k.length) {
+//				debug("send kc:"+kc+" len:"+k.length+"  val:"+escape(k)+"       ");
+				keybuf.unshift(escape(k));
 			}
 			ev.cancelBubble=true;
 			if (ev.stopPropagation) ev.stopPropagation();
@@ -101,76 +133,16 @@
 			return false;
 		}
 		function keydown(ev) {
+			return false;
 		}
-
-
 		document.onkeypress=keypress;
 		document.onkeydown=keydown;
-		window.setTimeout(update,10);
-
 		init();
+		window.setTimeout(update,10);
 	}
 	ajaxterm.Terminal=function(id,width,height) {
 		return new this.Terminal_ctor(id,width,height);
 	}
-
-
-
-<!--
-function keydown(ev) {
-  if (!ev) var ev=window.event;
-  var kc=ev.keyCode;
-  if (kc==33) k=esc_seq("5~");       // PgUp
-  else if (kc==34) k=esc_seq("6~");  // PgDn
-  else if (kc==35) k=esc_seq("4~");  // End
-  else if (kc==36) k=esc_seq("1~");  // Home
-  else if (kc==37) k=esc_seq("D");   // Left
-  else if (kc==38) k=esc_seq("A");   // Up
-  else if (kc==39) k=esc_seq("C");   // Right
-  else if (kc==40) k=esc_seq("B");   // Down
-  else if (kc==45) k=esc_seq("2~");  // Ins
-  else if (kc==46) k=esc_seq("3~");  // Del
-  else if (kc==27) k=String.fromCharCode(27); // Escape
-  else if (kc==9)  k=String.fromCharCode(9);  // Tab
-  else if (kc==8)  k=String.fromCharCode(8);  // Backspace
-  else if (kc==112) k=esc_seq("[A");  // F1
-  else if (kc==113) k=esc_seq("[B");  // F2
-  else if (kc==114) k=esc_seq("[C");  // F3
-  else if (kc==115) k=esc_seq("[D");  // F4
-  else if (kc==116) k=esc_seq("[E");  // F5
-  else if (kc==117) k=esc_seq("17~"); // F6
-  else if (kc==118) k=esc_seq("18~"); // F7
-  else if (kc==119) k=esc_seq("19~"); // F8
-  else if (kc==120) k=esc_seq("20~"); // F9
-  else if (kc==121) k=esc_seq("21~"); // F10
-  else if (kc==122) k=esc_seq("23~"); // F11
-  else if (kc==123) k=esc_seq("24~"); // F12
-  else {
-    if (!ev.ctrlKey || ev.keyCode==17) {
-      return;
-    }
-
-    if (ev.shiftKey) {
-      if (kc==219) k=String.fromCharCode(0);       // Ctrl-@
-      else if (kc==54) k=String.fromCharCode(30);  // Ctrl-^
-      else if (kc==109) k=String.fromCharCode(31); // Ctrl-_
-      else {
-	return;
-      }
-    } else {
-      if (kc>=65 && kc<=90) k=String.fromCharCode(kc-64); // Ctrl-A..Z
-      else if (kc==219) k=String.fromCharCode(27); // Ctrl-[
-      else if (kc==220) k=String.fromCharCode(28); // Ctrl-\   .
-      else if (kc==221) k=String.fromCharCode(29); // Ctrl-]
-      else {
-	return;
-      }
-    }
-  }
-}
--->
-
-
 	</script>
 
 	<script type="text/javascript">

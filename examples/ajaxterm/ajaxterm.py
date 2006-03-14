@@ -13,12 +13,7 @@ class Terminal:
 	def __init__(self,width=80,height=25):
 		self.width=width
 		self.height=height
-		self.reset()
-	def reset(self):
-		self.scr=array.array('c'," "*(self.width*self.height))
-		self.cx=0
-		self.cy=0
-		self.escbuf=""
+		self.init()
 	def lineup(self):
 		s=self.scr
 		h=self.height
@@ -39,45 +34,170 @@ class Terminal:
 			self.cx=0
 		else:
 			self.cx=r
-	def ctab(self):
-		x=self.cx+8
-		q,r=divmod(x,8)
-		self.cx=(q*8)%self.width
-	def cbs(self):
-		self.cx=max(0,self.cx-1)
 	def echo(self,c):
 		self.scr[(self.cy*self.width)+self.cx]=c
 		self.cright()
+	def esc_0x08(self):
+		self.cx=max(0,self.cx-1)
+	def esc_0x09(self):
+		x=self.cx+8
+		q,r=divmod(x,8)
+		self.cx=(q*8)%self.width
+	def esc_0x0a(self):
+		self.cdown()
+	def esc_0x0d(self):
+		self.cx=0
+	def esc_save(self):
+		self.cx_bak=self.cx
+		self.cy_bak=self.cy
+	def esc_restore(self):
+		self.cx=self.cx_bak
+		self.cy=self.cy_bak
+	def esc_cls(self):
+		self.scr=array.array('c'," "*(self.width*self.height))
+	def esc_cup(self,l):
+		if len(l)<2:
+			l=(1,1)
+		self.cx=min(self.width,l[1])-1
+		self.cy=min(self.height,l[0])-1
+	def esc_cuf(self,l):
+		if len(l)<1:
+			l=[1]
+		for i in range(l[0]):
+			self.cright()
+	def esc_el(self,l):
+		if len(l)<1:
+			l=[0]
+		if l[0]==0:
+			s=self.width*self.cy+self.cx
+			e=self.width*(self.cy+1)
+		elif l[0]==1:
+			e=self.width*self.cy
+			s=self.width*self.cy+self.cx
+		elif l[0]==2:
+			s=self.width*self.cy
+			e=self.width*(self.cy+1)
+		size=e-s
+		self.scr[s:e]=array.array('c'," "*size)
+	def esc_reset(self):
+		self.scr=array.array('c'," "*(self.width*self.height))
+		self.cx_bak=self.cx=0
+		self.cy_bak=self.cy=0
+		self.escbuf=""
 	def escape(self):
 		e=self.escbuf
-		if e=="\x1bc":
-			self.reset()
-		elif len(e)>32:
+		if len(e)>32:
+			print "error %r"%e
 			self.escbuf=""
+		elif e in self.esc_seq:
+			f=self.esc_seq[e]
+			if f:
+				f()
+			self.escbuf=""
+		else:
+			for r,f in self.esc_re:
+				mo=re.match(r,e)
+				if mo:
+					if f:
+						l=mo.group(1).split(';')
+						l2=[]
+						for i in l:
+							try:
+								val=int(i)
+								l2.append(val)
+							except ValueError:
+								pass
+						f(l2)
+					self.escbuf=""
+	def init(self):
+		self.esc_reset()
+		self.esc_seq={
+			"\x05": None,
+			"\x07": None,
+			"\x08": self.esc_0x08,
+			"\x09": self.esc_0x09,
+			"\x0a": self.esc_0x0a,
+			"\x0b": self.esc_0x0a,
+			"\x0c": self.esc_0x0a,
+			"\x0d": self.esc_0x0d,
+			"\x0e": None,
+			"\x0f": None,
+			"\x1b#8": None,
+			"\x1b=": None,
+			"\x1b>": None,
+			"\x1b(0": None,
+			"\x1b(A": None,
+			"\x1b(B": None,
+			"\x1b7": self.esc_save,
+			"\x1b8": self.esc_restore,
+			"\x1bD": None,
+			"\x1bE": None,
+			"\x1bH": None,
+			"\x1bM": None,
+			"\x1bN": None,
+			"\x1bO": None,
+			"\x1bZ": None,
+			"\x1bc": self.esc_reset,
+			"\x1bn": None,
+			"\x1bo": None,
+			"\x1b[s": self.esc_save,
+			"\x1b[u": self.esc_restore,
+			"\x1b[2J": self.esc_cls,
+		}
+		escre={
+			r'\[([0-9;]*)H' : self.esc_cup,
+			r'\[([0-9]*)C' : self.esc_cuf,
+			r'\[([0-9]*)K' : self.esc_el,
+			r'\[([0-9;]*)l' : None,
+			r'\[([0-9;]*)m' : None,
+			r'\[([0-9;]+)r' : None,
+			r'\[([0-9;\>]+)c' : None,
+			r'\[\?([0-9;]+)[hlrst]' : None,
+			r'\]([^\x07]+)\x07' : None,
+		}
+		self.esc_re=[('\x1b'+k,v) for k,v in escre.items()]
+		self.tr=""
+		for i in range(256):
+			if i<32:
+				self.tr+=" "
+			elif i<127:
+				self.tr+=chr(i)
+			else:
+				self.tr+="+"
 	def write(self,s):
 		for i in s:
-			if len(self.escbuf):
+			if len(self.escbuf) or (i in self.esc_seq):
 				self.escbuf+=i
 				self.escape()
+			elif i == '\x1b':
+				self.escbuf+=i
 			else:
-				if i=="\n":
-					self.cdown()
-				elif i=="\r":
-					self.cx=0
-				elif i=="\t":
-					self.ctab()
-				elif i=="\b":
-					self.cbs()
-				elif i=="\x1b":
-					self.escbuf=i
-				else:
-					self.echo(i)
+				self.echo(i)
 	def dump(self):
 		return self.scr.tostring()
+	def dumpascii(self):
+		return self.dump().translate(self.tr)
+	def dumphtml(self):
+		h=self.height
+		w=self.width
+		s=self.dumpascii()
+		r=""
+		for i in range(h):
+			line=s[w*i:w*(i+1)]
+			if self.cy==i:
+				pre=cgi.escape(line[:self.cx])
+				pos=cgi.escape(line[self.cx+1:])
+				r+=pre+'<span class="cursor">'+cgi.escape(line[self.cx])+'</span>'+pos+'\n'
+			else:
+				r+=cgi.escape(line)+"\n"
+		return r
 	def __repr__(self):
+		d=self.dumpascii()
 		r=""
 		for i in range(self.height):
-			r+=self.scr[self.width*i:self.width*(i+1)].__repr__()+"\n"
+			r+="|%s|\n"%d[self.width*i:self.width*(i+1)]
+		for i in range(self.height):
+			r+="|%r|\n"%self.scr[self.width*i:self.width*(i+1)]
 		return r
 
 class Process:
@@ -114,6 +234,7 @@ class AjaxTerm:
 		self.template = qweb.QWebHtml("ajaxterm.xml")
 		self.proc = Process(cmd)
 		self.term = Terminal()
+		self.termp = ""
 
 	def __call__(self, environ, start_response):
 		req = qweb.QWebRequest(environ, start_response)
@@ -125,13 +246,19 @@ class AjaxTerm:
 			r=self.proc.read()
 			self.term.write(r)
 			print self.term
-			req.write(self.term.dump())
+			s=self.term.dumphtml()
+			if self.termp==s:
+				req.write('')
+			else:
+				req.write(s)
+				self.termp==s
 		else:
 			v={}
 			v['url']=qweb.QWebURL('/',req.PATH_INFO)
 			req.write(self.template.render("at_main",v))
 		return req
 #		qweb.qweb_control(self,'main',[req,req.REQUEST,{}])
+
 		pass
 
 if __name__ == '__main__':
