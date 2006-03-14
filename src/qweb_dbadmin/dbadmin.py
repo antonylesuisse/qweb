@@ -118,6 +118,18 @@ class DBAdmin:
 				fi=qweb.QWebField(c.dba.name,default=default,check=check)
 				f.add_field(fi)
 		return f
+	def rowformedit(self,table,row):
+		f=qweb.QWebForm()
+		for c in table.dba.cols:
+			if c.dba.type=="scalar" or c.dba.type=="many2one":
+				default=str(getatt(row,c.dba.name))
+				if c.dba.nullable:
+					check=None
+				else:
+					check="/.+/"
+				fi=qweb.QWebField(c.dba.name,default=default,check=check)
+				f.add_field(fi)
+		return f
 
 
 	def dbview_table_rowadd(self,req,arg,out,v):
@@ -141,7 +153,7 @@ class DBAdmin:
 				return "error"
 
 	def dbview_table_row_edit(self,req,arg,out,v):
-		f=v["form"]=self.rowform(v["tableo"])
+		f=v["form"]=self.rowformedit(v["tableo"],v["row"])
 		f.process_input(arg)
 		if arg["save"] and f.valid:
 			print " valid"
