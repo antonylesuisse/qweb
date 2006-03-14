@@ -31,9 +31,9 @@ such as SQLObject, SQLAlchemy or plain DB-API.
 Make sure you have at least python 2.3 installed and run the following commands:
 
 {{{
-$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5-DemoApp.tar.gz
-$ tar zxvf QWeb-0.5-DemoApp.tar.gz
-$ cd QWeb-0.5-DemoApp
+$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5-demo.tar.gz
+$ tar zxvf QWeb-0.5-demo.tar.gz
+$ cd QWeb-0.5-demo
 $ ./demoapp.fcgi
 }}}
 
@@ -60,7 +60,6 @@ Default qweb components:
     - qweb_static:
         A qweb component to serve static content from the filesystem or from
         zipfiles.
-
 
 
 

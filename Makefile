@@ -1,8 +1,10 @@
 VERSION=0.5
 SRCDIR=QWeb-${VERSION}
 SRCTGZ=${SRCDIR}.tar.gz
-DEMODIR=${SRCDIR}-DemoApp
+DEMODIR=${SRCDIR}-demo
 DEMOTGZ=${DEMODIR}.tar.gz
+ATDIR=${SRCDIR}-ajaxterm
+ATTGZ=${ATDIR}.tar.gz
 
 all: dist
 	true
@@ -24,11 +26,17 @@ tgz:
 	cp dist/QWeb-*.egg ${DEMODIR}
 	cp examples/demo/[A-Za-z]* ${DEMODIR}
 	tar czf dist/${DEMOTGZ} ${DEMODIR}
+	# DemoApp
+	mkdir ${ATDIR} || true
+	cp dist/QWeb-*.egg ${ATDIR}
+	cp examples/ajaxterm/[A-Za-z]* ${ATDIR}
+	tar czf dist/${ATTGZ} ${ATDIR}
 
 dist: tgz
 	# cleanup
 	rm -Rf ${SRCDIR}
 	rm -Rf ${DEMODIR}
+	rm -Rf ${ATDIR}
 
 pub: tgz
 	# publish
@@ -38,5 +46,6 @@ ifeq ($(USER),wis)
 endif
 	rm -Rf ${SRCDIR}
 	rm -Rf ${DEMODIR}
+	rm -Rf ${ATDIR}
 
 

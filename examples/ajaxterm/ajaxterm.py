@@ -13,9 +13,12 @@ class Terminal:
 	def __init__(self,width=80,height=25):
 		self.width=width
 		self.height=height
-		self.scr=array.array('c'," "*width*height)
+		self.reset()
+	def reset(self):
+		self.scr=array.array('c'," "*(self.width*self.height))
 		self.cx=0
 		self.cy=0
+		self.escbuf=""
 	def lineup(self):
 		s=self.scr
 		h=self.height
@@ -45,18 +48,30 @@ class Terminal:
 	def echo(self,c):
 		self.scr[(self.cy*self.width)+self.cx]=c
 		self.cright()
+	def escape(self):
+		e=self.escbuf
+		if e=="\x1bc":
+			self.reset()
+		elif len(e)>32:
+			self.escbuf=""
 	def write(self,s):
 		for i in s:
-			if i=="\n":
-				self.cdown()
-			elif i=="\r":
-				self.cx=0
-			elif i=="\t":
-				self.ctab()
-			elif i=="\b":
-				self.cbs()
+			if len(self.escbuf):
+				self.escbuf+=i
+				self.escape()
 			else:
-				self.echo(i)
+				if i=="\n":
+					self.cdown()
+				elif i=="\r":
+					self.cx=0
+				elif i=="\t":
+					self.ctab()
+				elif i=="\b":
+					self.cbs()
+				elif i=="\x1b":
+					self.escbuf=i
+				else:
+					self.echo(i)
 	def dump(self):
 		return self.scr.tostring()
 	def __repr__(self):
@@ -66,7 +81,7 @@ class Terminal:
 		return r
 
 class Process:
-	def __init__(self,cmd=['/bin/sh']):
+	def __init__(self,cmd):
 		signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 		pid,fd=pty.fork()
 		if pid==0:
@@ -95,9 +110,9 @@ class Process:
 			print "proc:BLOCK:%r"%s
 
 class AjaxTerm:
-	def __init__(self):
+	def __init__(self,cmd=['/bin/sh']):
 		self.template = qweb.QWebHtml("ajaxterm.xml")
-		self.proc = Process()
+		self.proc = Process(cmd)
 		self.term = Terminal()
 
 	def __call__(self, environ, start_response):
@@ -120,7 +135,8 @@ class AjaxTerm:
 		pass
 
 if __name__ == '__main__':
-	qweb.qweb_wsgi_autorun(AjaxTerm(),ip='')
+	at=AjaxTerm()
+	qweb.qweb_wsgi_autorun(at,ip='')
 
 
 

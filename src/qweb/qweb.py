@@ -39,9 +39,9 @@ such as SQLObject, SQLAlchemy or plain DB-API.
 Make sure you have at least python 2.3 installed and run the following commands:
 
 {{{
-$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5-DemoApp.tar.gz
-$ tar zxvf QWeb-0.5-DemoApp.tar.gz
-$ cd QWeb-0.5-DemoApp
+$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5-demo.tar.gz
+$ tar zxvf QWeb-0.5-demo.tar.gz
+$ cd QWeb-0.5-demo
 $ ./demoapp.fcgi
 }}}
 
@@ -68,7 +68,6 @@ Default qweb components:
     - qweb_static:
         A qweb component to serve static content from the filesystem or from
         zipfiles.
-
 
 
 
@@ -1240,9 +1239,19 @@ class QWebWSGIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             environ['PATH_INFO'] = urllib.unquote(path_info)
         for key, value in self.headers.items():
             environ['HTTP_' + key.upper().replace('-', '_')] = value
+        # Hack to avoid may TCP packets
+        sio=StringIO.StringIO()
+        siobuf=1
+        wfile=self.wfile
+        self.wfile=sio
         appiter=self.server.wsgiapp(environ, self.start_response)
         for data in appiter:
-            self.write(data)
+            if siobuf==1:
+                self.wfile=wfile
+                self.write(sio.getvalue()+data)
+                siobuf=0
+            else:
+                self.write(data)
     def do_GET(self):
         self.serve('GET')
     def do_POST(self):
