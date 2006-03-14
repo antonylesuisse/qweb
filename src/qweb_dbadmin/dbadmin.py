@@ -122,7 +122,7 @@ class DBAdmin:
 		f=qweb.QWebForm()
 		for c in table.dba.cols:
 			if c.dba.type=="scalar" or c.dba.type=="many2one":
-				default=str(getatt(row,c.dba.name))
+				default=str(getattr(row,c.dba.name))
 				if c.dba.nullable:
 					check=None
 				else:
