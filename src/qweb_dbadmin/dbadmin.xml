@@ -237,7 +237,8 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 		<t t-foreach="tableo.dba.cols" t-as="c">
 			<td align="left">
 				<t t-if="c.dba.type=='scalar'">
-					<t t-esc="getattr(rows,c.dba.name)" />
+					<t t-set="val" t-eval="str(getattr(rows,c.dba.name))"/>
+					<t t-esc="val[:64]"/>
 				</t>
 				<t t-if="c.dba.type=='many2one'">
 					id: <t t-esc="getattr(rows,c.dba.name).id" />
