@@ -69,7 +69,7 @@ class DBAdmin:
 		v={}
 		if qweb.qweb_control(self,"dbview_"+path,[req,req.REQUEST,req,v]):
 			r={}
-			r['head']=v.get('head','')
+			r['head']=self.template.render("head",v)
 			r['body']=v.get('body','')
 			return r
 		else:
@@ -101,7 +101,8 @@ class DBAdmin:
 		res=v["tableo"].select(orderBy=v["order"])
 		v["total"]=res.count()
 		v["rows"]=res[v["start"]:v["start"]+v["step"]]
-		req.write(self.template.render("dbview_table_list",v))
+
+		v["body"]=self.template.render("dbview_table_list",v)
 
 	def rowform(self,table):
 		f=qweb.QWebForm()
@@ -131,7 +132,6 @@ class DBAdmin:
 				f.add_field(fi)
 		return f
 
-
 	def dbview_table_rowadd(self,req,arg,out,v):
 		f=v["form"]=self.rowform(v["tableo"])
 		f.process_input(arg)
@@ -156,16 +156,13 @@ class DBAdmin:
 		f=v["form"]=self.rowformedit(v["tableo"],v["row"])
 		f.process_input(arg)
 		if arg["save"] and f.valid:
-			print " valid"
-			req.write("caca ok")
+			v["body"]="ok"
 		else:
-			print "pas valid"
-
-			req.write(self.template.render("dbview_table_row_edit",v))
+			v["body"]=self.template.render("dbview_table_row_edit",v)
 
 	def dbview_table_row_del(self,req,arg,out,v):
 		v["row"]
-		req.write('ok')
+		v["body"]="ok"
 
 if __name__ == '__main__':
 	pass

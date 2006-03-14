@@ -6,21 +6,8 @@
 #----------------------------------------------------------
 # Global
 #----------------------------------------------------------
-<t t-name="htmlcss">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
-	<html>
-	<head>
-		<title><t t-raw="title" /></title>
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-		<style type="text/css">
-body            { padding: 0pt 20pt 20pt 20pt; color: #000; margin: 0px; font-family: sans-serif; font-size: 80%; }
-a:link          { color: #0000ee; }
-a:visited       { color: #551a8b; }
-a:active        { color: #880000; }
-a:hover         { color: #ff0000; }
-h1              { margin: 1ex 0em 1ex 0em; font-size: 150%;}
-h2              { margin: 0px; padding: 0ex 0em 1ex 1em; color: #000066; font-weight: bold; font-size: 125%; }
-img             { border: 0; }
-
+<t t-name="head">
+	<style type="text/css">
 
 table.form td.label { padding: 4px 4px 4px 0px; text-align: right; font-weight: normal; }
 table.form td.input { padding: 4px 1px 4px 3px; text-align: left; }
@@ -100,7 +87,16 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		color: red;
 	}
 
-		</style>
+table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-space: nowrap; } 
+
+	</style>
+</t>
+<t t-name="htmlcss">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+	<html>
+	<head>
+		<title><t t-raw="title" /></title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<t t-call="head"/>
 	</head>
 	<body>
 	<div>
@@ -116,9 +112,6 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 # DBView
 #----------------------------------------------------------
 <t t-name="dbview_pager">
-	<style>
-	table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-space: nowrap; } 
-	</style>
    <table class="pager" width="100%" cellpadding="0" cellspacing="0">
     <tr>
         <t t-pager="pager" t-total="total" t-start="start" t-step="step" t-scope="5"/>
@@ -144,37 +137,30 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
     </tr>
     </table>
 </t>
-<t t-name="dbview_common">
-	<t t-call="htmlcss">
-		<t t-raw="0"/>
-	</t>
-</t>
 <t t-name="dbview_index">
-	<t t-call="dbview_common">
-		<table class="listing" width="100%">
-		<thead>
-		<tr>
-			<th>Table</th>
-			<th>Count</th>
-			<th class="action">
-				Actions:
-			</th>
+	<table class="listing" width="100%">
+	<thead>
+	<tr>
+		<th>Table</th>
+		<th>Count</th>
+		<th class="action">
+			Actions:
+		</th>
+	</tr>
+	</thead>
+	<tbody>
+	<t t-foreach="tables.items()" t-as="t">
+		<tr t-att-class="t_parity">
+			<td><t t-esc="t[0]"/></td>
+			<td><t t-esc="t[1].dba.count"/></td>
+			<td class="action" width="10%">
+				<a t-href="url/table_list?table=%(t[0])s">Browse</a>
+				<a t-href="url/table_rowadd?table=%(t[0])s">Add</a>
+			</td>
 		</tr>
-		</thead>
-		<tbody>
-		<t t-foreach="tables.items()" t-as="t">
-			<tr t-att-class="t_parity">
-				<td><t t-esc="t[0]"/></td>
-				<td><t t-esc="t[1].dba.count"/></td>
-				<td class="action" width="10%">
-					<a t-href="url/table_list?table=%(t[0])s">Browse</a>
-					<a t-href="url/table_rowadd?table=%(t[0])s">Add</a>
-				</td>
-			</tr>
-		</t>
-		</tbody>
-		</table>
 	</t>
+	</tbody>
+	</table>
 </t>
 <t t-name="dbview_table_rowform">
 	<table class="form" width="50%">
@@ -220,7 +206,6 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 	</table>
 </t>
 <t t-name="dbview_table_rowadd">
-	<t t-call="dbview_common">
 
 	<t t-esc="table"/>:
 
@@ -228,57 +213,50 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		<t t-call="dbview_table_rowform"/>
 	</form>
 
-	</t>
 </t>
 <t t-name="dbview_table_list">
-	<t t-call="dbview_common">
-		<t t-call="dbview_pager">
-			<t t-set="pagerurl" t-eval="url.copy('table_list',{'search':search,'table':table})"/>
-		</t>
-		<table class="listing" width="100%">
-		<thead>
-		<tr>
-			<th>Id</th>
-			<t t-foreach="tableo.dba.cols" t-as="c">
-				<th><t t-raw="c.dba.name"/></th>
-			</t>
-			<th class="action">
-				Actions: <a t-href="url/table_rowadd?table=%(table)s">Add</a>
-			</th>
-		</tr>
-		</thead>
-		<tbody>
-		<t t-foreach="rows">
-		<tr t-att-class="rows_parity">
-			<td><t t-esc="rows.id"/></td>
-			<t t-foreach="tableo.dba.cols" t-as="c">
-				<td align="left">
-					<t t-if="c.dba.type=='scalar'">
-						<t t-esc="getattr(rows,c.dba.name)" />
-					</t>
-					<t t-if="c.dba.type=='many2one'">
-						id: <t t-esc="getattr(rows,c.dba.name).id" />
-					</t>
-				</td>
-			</t>
-			<td class="action" width="10%">
-				<a t-href="url/table_row_edit?table=%(table)s&amp;id=%(rows.id)s">Edit</a> |
-				<a t-href="url/table_row_del?table=%(table)s&amp;id=%(rows.id)s">Delete</a>
-			</td>
-		</tr>
-		</t>
-		</tbody>
-		</table>
+	<t t-call="dbview_pager">
+		<t t-set="pagerurl" t-eval="url.copy('table_list',{'search':search,'table':table})"/>
 	</t>
+	<table class="listing" width="100%">
+	<thead>
+	<tr>
+		<th>Id</th>
+		<t t-foreach="tableo.dba.cols" t-as="c">
+			<th><t t-raw="c.dba.name"/></th>
+		</t>
+		<th class="action">
+			Actions: <a t-href="url/table_rowadd?table=%(table)s">Add</a>
+		</th>
+	</tr>
+	</thead>
+	<tbody>
+	<t t-foreach="rows">
+	<tr t-att-class="rows_parity">
+		<td><t t-esc="rows.id"/></td>
+		<t t-foreach="tableo.dba.cols" t-as="c">
+			<td align="left">
+				<t t-if="c.dba.type=='scalar'">
+					<t t-esc="getattr(rows,c.dba.name)" />
+				</t>
+				<t t-if="c.dba.type=='many2one'">
+					id: <t t-esc="getattr(rows,c.dba.name).id" />
+				</t>
+			</td>
+		</t>
+		<td class="action" width="10%">
+			<a t-href="url/table_row_edit?table=%(table)s&amp;id=%(rows.id)s">Edit</a> |
+			<a t-href="url/table_row_del?table=%(table)s&amp;id=%(rows.id)s">Delete</a>
+		</td>
+	</tr>
+	</t>
+	</tbody>
+	</table>
 </t>
 <t t-name="dbview_table_row_edit">
-	<t t-call="dbview_common">
-
 	<t t-esc="table"/> <t t-esc="row.id"/>:
 	<form t-action="url/table_row_edit?table=%(table)s&amp;id=%(row.id)d" method="GET">
 		<t t-call="dbview_table_rowform"/>
 	</form>
-
-	</t>
 </t>
 </template>
