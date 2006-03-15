@@ -281,16 +281,16 @@ class Process:
 		signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 		pid,fd=pty.fork()
 		if pid==0:
-			try:
-				fdl=[int(i) for i in os.listdir('/proc/self/fd')]
-			except OSError:
-				fdl=range(256)
-			for i in fdl:
-				if i!=fd:
-					try:
-						os.close(i)
-					except OSError:
-						pass
+#			try:
+#				fdl=[int(i) for i in os.listdir('/proc/self/fd')]
+#			except OSError:
+#				fdl=range(256)
+#			for i in fdl:
+#				if i!=fd:
+#					try:
+#						os.close(i)
+#					except OSError:
+#						pass
 			os.environ["TERM"]="linux"
 			os.execv(cmd[0],cmd)
 		else:
@@ -351,7 +351,7 @@ class AjaxTerm:
 
 if __name__ == '__main__':
 	at=AjaxTerm()
-	qweb.qweb_wsgi_autorun(at,ip='',port=8888)
+	qweb.qweb_wsgi_autorun(at,ip='',port=8080)
 
 
 

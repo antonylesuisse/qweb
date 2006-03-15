@@ -1194,6 +1194,8 @@ class QWebRequest:
 # autorun, run an app as FCGI or CGI otherwise launch the server
 #----------------------------------------------------------
 class QWebWSGIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    def address_string(self):
+        return self.client_address[0]
     def start_response(self,status,headers):
         l=status.split(' ',1)
         self.send_response(int(l[0]),l[1])
