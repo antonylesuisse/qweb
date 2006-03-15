@@ -160,9 +160,17 @@
 			if (!ev) var ev=window.event;
 //			s="keydown keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
 //			debug(s);
-			if (ie)
-				keypress(ev);
-			return false;
+			if (ie) {
+				if (ev.ctrlKey || ev.altKey) {
+s="keydown keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
+debug(s);
+//					keypress(ev);
+					ev.cancelBubble=true;
+					if (ev.stopPropagation) ev.stopPropagation();
+					if (ev.preventDefault)  ev.preventDefault();
+					return false;
+				}
+			}
 		}
 		document.onkeypress=keypress;
 		document.onkeydown=keydown;

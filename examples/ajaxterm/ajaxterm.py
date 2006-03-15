@@ -256,14 +256,16 @@ class Terminal:
 		w=self.width
 		s=self.dumpascii()
 		r=""
+		r+="&nbsp;"+("-"*w)+"<br/>"
 		for i in range(h):
 			line=s[w*i:w*(i+1)]
 			if self.cy==i:
 				pre=cgi.escape(line[:self.cx])
 				pos=cgi.escape(line[self.cx+1:])
-				r+=pre+'<span class="cursor">'+cgi.escape(line[self.cx])+'</span>'+pos+'<br/>'
+				r+="&nbsp;"+pre+'<span class="cursor">'+cgi.escape(line[self.cx])+'</span>'+pos+'<br/>'
 			else:
-				r+=cgi.escape(line)+"<br/>"
+				r+="&nbsp;"+cgi.escape(line)+"&nbsp;<br/>"
+		r+="&nbsp;"+("-"*w)
 		return r
 	def __repr__(self):
 		d=self.dumpascii()
