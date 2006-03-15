@@ -1258,6 +1258,7 @@ class QWebWSGIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for data in appiter:
             self.write(data)
             self.bufferoff()
+        self.bufferoff()
     def do_GET(self):
         self.serve('GET')
     def do_POST(self):
