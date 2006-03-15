@@ -14,6 +14,15 @@ class Terminal:
 		self.width=width
 		self.height=height
 		self.init()
+	def peek(self,y1,x1,y2,x2):
+		return self.scr[self.width*y1+x1:self.width*y2+x2]
+	def poke(self,y,x,s):
+		pos=self.width*y+x
+		if isinstance(s,str):
+			s=array.array('c',s)
+		self.scr[pos:pos+len(s)]=s
+	def zero(self,y,x,w):
+		self.poke(y,x,' '*w)
 	def lineup(self):
 		s=self.scr
 		w=self.width
@@ -63,6 +72,7 @@ class Terminal:
 	def esc_0x0a(self,s):
 		self.cdown()
 	def esc_0x0d(self,s):
+		self.cl=0
 		self.cx=0
 	def esc_save(self,s):
 		self.cx_bak=self.cx
@@ -71,35 +81,40 @@ class Terminal:
 		self.cx=self.cx_bak
 		self.cy=self.cy_bak
 		self.cl=0
-	def esc_cls(self,s):
-		self.scr=array.array('c'," "*(self.width*self.height))
 	# CSI sequences
 	def esc_ich(self,s,l):
-		if len(l)<1:
-			l=[1]
+		if len(l)<1: l=[1]
 		x,y=self.cx,self.cy
 		for i in range(l[0]):
 			self.echo(" ")
 		self.cx,self.cy=x,y
 	def esc_csr(self,s,l):
-		if len(l)<2:
-			l=(0,self.height)
+		if len(l)<2: l=(0,self.height)
 		self.st=min(self.height-1,l[0]-1)
 		self.sb=min(self.height-1,l[1]-1)
 		self.sb=max(self.st,self.sb)
 	def esc_cup(self,s,l):
-		if len(l)<2:
-			l=(1,1)
+		if len(l)<2: l=(1,1)
+		self.cl=0
 		self.cx=min(self.width,l[1])-1
 		self.cy=min(self.height,l[0])-1
+	def esc_cuu(self,s,l):
+		if len(l)<1: l=[1]
+		self.cy=max(self.st,self.cy-l[0])
 	def esc_cuf(self,s,l):
-		if len(l)<1:
-			l=[1]
+		if len(l)<1: l=[1]
 		for i in range(l[0]):
 			self.cright()
+	def esc_dch(self,s,l):
+		w,cx,cy=self.width,self.cx,self.cy
+		if len(l)<1: l=[1]
+		end=self.peek(cy,cx,cy,w)
+		self.esc_el(s,[0])
+		self.poke(cy,cx,end[l[0]:])
+	def esc_ed(self,s,l):
+		self.scr=array.array('c'," "*(self.width*self.height))
 	def esc_el(self,s,l):
-		if len(l)<1:
-			l=[0]
+		if len(l)<1: l=[0]
 		if l[0]==0:
 			s=self.width*self.cy+self.cx
 			e=self.width*(self.cy+1)
@@ -112,7 +127,6 @@ class Terminal:
 		size=e-s
 		self.scr[s:e]=array.array('c'," "*size)
 	def esc_il(self,s,l):
-		s=self.scr
 		w=self.width
 		cy=self.cy
 		sb=self.sb
@@ -123,7 +137,7 @@ class Terminal:
 				l0=cy*w
 				l1=(cy+1)*w
 				ss=(sb-cy)*w
-				s[l1:l1+ss]=s[l0:l0+ss]
+				self.scr[l1:l1+ss]=self.scr[l0:l0+ss]
 			self.esc_el(s,[2])
 	def esc_color(self,*s):
 		pass
@@ -186,8 +200,6 @@ class Terminal:
 			"\x1bc": self.esc_reset,
 			"\x1bn": None,
 			"\x1bo": None,
-			"\x1b[2J": self.esc_cls,
-			"\x1b[J": self.esc_cls,
 			"\x1b[s": self.esc_save,
 			"\x1b[u": self.esc_restore,
 		}
@@ -196,29 +208,16 @@ class Terminal:
 				self.esc_seq[k]=self.esc_ignore
 		escre={
 			r'\[([0-9]*)@' : self.esc_ich,
+			r'\[([0-9]*)A' : self.esc_cuu,
 			r'\[([0-9]*)C' : self.esc_cuf,
 			r'\[([0-9]*)L' : self.esc_il,
 			r'\[([0-9;]*)H' : self.esc_cup,
+			r'\[([0-9]*)J' : self.esc_ed,
 			r'\[([0-9]*)K' : self.esc_el,
-#			r'\[([0-9]*)P' : None,
-#l-trunk.com - - [14/Mar/2006 23:54:37] "GET /test?a= HTTP/1.1" 200 -
-#ml-trunk.com - - [14/Mar/2006 23:54:37] "GET /test?a=%1B%5BB HTTP/1.1" 200 -
-#nochange
-#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a= HTTP/1.1" 200 -
-#error '\x1b[A3.1$ llllllllllll\x1b[K\r\n\r\x1b[K\x1b[As'
-#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a=%1B%5BA HTTP/1.1" 200 -
-#nochange
-#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a= HTTP/1.1" 200 -
-#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a=%1B%5BA HTTP/1.1" 200 -
-#nochange
-#ml-trunk.com - - [14/Mar/2006 23:54:39] "GET /test?a= HTTP/1.1" 200 -
-#ml-trunk.com - - [14/Mar/2006 23:54:39] "GET /test?a=%1B%5BB HTTP/1.1" 200 -
-#error '\x1b[2Pllllllllllll\rsh-3.1$ jjjjjjjj'
-#ml-trunk.com - - [14/Mar/2006 23:54:40] "GET /test?a=%1B%5BB HTTP/1.1" 200 -
-#nochange
-#ml-trunk.com - - [14/Mar/2006 23:54:40] "GET /test?a= HTTP/1.1" 200 -
-#nochange
-#
+			r'\[([0-9]*)P' : self.esc_dch,
+#term:ignore: ('\x1b[?1049h', [1049])
+#term:ignore: ('\x1b[4h', [4])
+#term:ignore: ('\x1b[?1h', [1])
 			r'\[([0-9;]*)l' : None,
 			r'\[([0-9;]*)m' : self.esc_color,
 			r'\[([0-9;]+)r' : self.esc_csr,
@@ -262,11 +261,9 @@ class Terminal:
 			if self.cy==i:
 				pre=cgi.escape(line[:self.cx])
 				pos=cgi.escape(line[self.cx+1:])
-				r+=pre+'<span class="cursor">'+cgi.escape(line[self.cx])+'</span>'+pos+'\n'
+				r+=pre+'<span class="cursor">'+cgi.escape(line[self.cx])+'</span>'+pos+'<br/>'
 			else:
-				r+=cgi.escape(line)+"\n"
-		r+="---"
-#		print self
+				r+=cgi.escape(line)+"<br/>"
 		return r
 	def __repr__(self):
 		d=self.dumpascii()
@@ -328,7 +325,7 @@ class AjaxTerm:
 				print "nochange"
 				req.write('')
 			else:
-				print self.term
+#				print self.term
 				req.write(s)
 				self.termp=s
 		else:
