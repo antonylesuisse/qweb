@@ -19,6 +19,7 @@
 		var pre=document.getElementById(id);
 		var buf="";
 		var timeout;
+		var error_timeout;
 		var keybuf=[];
 		var sending=0;
 		var rmax=1;
@@ -30,7 +31,9 @@
 			display();
 		}
 		function debug(s) {
-			replace(0,s);
+			for(var i=s.length;i&lt;80;i++)
+				s+=" ";
+			replace(6,s);
 		}
 		function show(s) {
 			buf=s;
@@ -51,28 +54,14 @@
 			}
 			return req;
 		}
-		function update(key) {
+		function error() {
+			debug("xhr timeout connection lost ts:"+((new Date).getTime()));
+		}
+		function update() {
 //			debug("ts: "+((new Date).getTime())+" rmax:"+rmax);
 			if(sending==0) {
 				sending=1;
 				var r=xhr();
-				r.onreadystatechange = function () {
-					if (r.readyState==4 &amp;&amp; r.status==200) {
-						text=r.responseText;
-						if(text.length) {
-							show(text);
-							rmax=100;
-						} else {
-							rmax*=2;
-							if(rmax>2000)
-								rmax=2000;
-						}
-						sending=0;
-						timeout=window.setTimeout(update,rmax);
-					} else {
-						a=1;
-					}
-				}
 				var send="";
 				while(keybuf.length>0) {
 					send+=keybuf.pop();
@@ -80,9 +69,35 @@
 				r.open("GET", "/test?a="+send, true);
 				if(ie)
 					r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
-				r.send(null);
+//				debug("xhr send ts:"+((new Date).getTime()));
 //				r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 //				r.send(query);
+				r.onerror = function () {
+					debug("xhr ERROR:"+((new Date).getTime())+" state:"+r.readyState+" status:"+r.status+" statusText:"+r.statusText);
+				}
+				r.onreadystatechange = function () {
+//					debug("xhr:"+((new Date).getTime())+" state:"+r.readyState+" status:"+r.status+" statusText:"+r.statusText);
+					if (r.readyState==4) {
+						if(r.status==200) {
+							window.clearTimeout(error_timeout);
+							text=r.responseText;
+							if(text.length>80) {
+								show(text);
+								rmax=100;
+							} else {
+								rmax*=2;
+								if(rmax>2000)
+									rmax=2000;
+							}
+							sending=0;
+							timeout=window.setTimeout(update,rmax);
+						} else {
+//							debug("xhr error ts:"+((new Date).getTime())+" r:"+r.status);
+						}
+					}
+				}
+				error_timeout=window.setTimeout(error,5000);
+				r.send(null);
 			}
 		}
 		function queue(s) {
@@ -174,7 +189,7 @@ debug(s);
 		}
 		document.onkeypress=keypress;
 		document.onkeydown=keydown;
-		timeout=window.setTimeout(update,1);
+		timeout=window.setTimeout(update,100);
 	}
 	ajaxterm.Terminal=function(id,width,height) {
 		return new this.Terminal_ctor(id,width,height);

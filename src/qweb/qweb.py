@@ -810,7 +810,7 @@ class QWebSession(dict):
                 h.append(("Set-Cookie", c[self.session_cookie_name].OutputString()))
             if self.session_limit_cache:
                 h.append(('Cache-Control','no-store, no-cache, must-revalidate, post-check=0, pre-check=0'))
-                h.append(('Expires:','Thu, 19 Nov 1981 08:52:00 GMT'))
+                h.append(('Expires','Thu, 19 Nov 1981 08:52:00 GMT'))
                 h.append(('Pragma','no-cache'))
         return h
     def session_load(self,sid):
@@ -1227,9 +1227,9 @@ class QWebWSGIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             'CONTENT_TYPE':         self.headers.get('Content-Type', ''),
             'CONTENT_LENGTH':       self.headers.get('Content-Length', ''),
             'REMOTE_ADDR':          self.client_address[0],
-            'REMOTE_PORT':          self.client_address[1],
+            'REMOTE_PORT':          str(self.client_address[1]),
             'SERVER_NAME':          self.server.server_address[0],
-            'SERVER_PORT':          self.server.server_address[1],
+            'SERVER_PORT':          str(self.server.server_address[1]),
             'SERVER_PROTOCOL':      self.request_version,
             # extention
             'FULL_PATH':            self.path,
