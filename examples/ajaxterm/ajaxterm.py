@@ -16,56 +16,88 @@ class Terminal:
 		self.init()
 	def lineup(self):
 		s=self.scr
-		h=self.height
 		w=self.width
-		s[0:w*(h-1)]=s[w:w*h]
-		s[w*(h-1):w*h]=array.array('c'," "*w)
+		st=self.st
+		sb=self.sb
+		ss=(sb-st)*w
+		l0=w*st
+		l1=w*(st+1)
+		ll=w*(sb)
+		s[l0:l0+ss]=s[l1:l1+ss]
+		s[ll:ll+w]=array.array('c'," "*w)
 	def cdown(self):
-		q,r=divmod(self.cy+1,self.height)
-		if q:
-			self.lineup()
-			self.cy=self.height-1
-		else:
-			self.cy=r
+		if self.cy>=self.st and self.cy<=self.sb:
+			self.cl=0
+			q,r=divmod(self.cy+1,self.sb+1)
+			if q:
+				self.lineup()
+				self.cy=self.sb
+			else:
+				self.cy=r
 	def cright(self):
 		q,r=divmod(self.cx+1,self.width)
 		if q:
-			self.cdown()
-			self.cx=0
+			self.cl=1
 		else:
 			self.cx=r
 	def echo(self,c):
+		if self.cl:
+			self.cdown()
+			self.cx=0
 		self.scr[(self.cy*self.width)+self.cx]=c
 		self.cright()
-	def esc_0x08(self):
+	def esc_reset(self,s=""):
+		self.scr=array.array('c'," "*(self.width*self.height))
+		self.st=0
+		self.sb=self.height-1
+		self.cx_bak=self.cx=0
+		self.cy_bak=self.cy=0
+		self.cl=0
+		self.escbuf=""
+	def esc_0x08(self,s):
 		self.cx=max(0,self.cx-1)
-	def esc_0x09(self):
+	def esc_0x09(self,s):
 		x=self.cx+8
 		q,r=divmod(x,8)
 		self.cx=(q*8)%self.width
-	def esc_0x0a(self):
+	def esc_0x0a(self,s):
 		self.cdown()
-	def esc_0x0d(self):
+	def esc_0x0d(self,s):
 		self.cx=0
-	def esc_save(self):
+	def esc_save(self,s):
 		self.cx_bak=self.cx
 		self.cy_bak=self.cy
-	def esc_restore(self):
+	def esc_restore(self,s):
 		self.cx=self.cx_bak
 		self.cy=self.cy_bak
-	def esc_cls(self):
+		self.cl=0
+	def esc_cls(self,s):
 		self.scr=array.array('c'," "*(self.width*self.height))
-	def esc_cup(self,l):
+	# CSI sequences
+	def esc_ich(self,s,l):
+		if len(l)<1:
+			l=[1]
+		x,y=self.cx,self.cy
+		for i in range(l[0]):
+			self.echo(" ")
+		self.cx,self.cy=x,y
+	def esc_csr(self,s,l):
+		if len(l)<2:
+			l=(0,self.height)
+		self.st=min(self.height-1,l[0]-1)
+		self.sb=min(self.height-1,l[1]-1)
+		self.sb=max(self.st,self.sb)
+	def esc_cup(self,s,l):
 		if len(l)<2:
 			l=(1,1)
 		self.cx=min(self.width,l[1])-1
 		self.cy=min(self.height,l[0])-1
-	def esc_cuf(self,l):
+	def esc_cuf(self,s,l):
 		if len(l)<1:
 			l=[1]
 		for i in range(l[0]):
 			self.cright()
-	def esc_el(self,l):
+	def esc_el(self,s,l):
 		if len(l)<1:
 			l=[0]
 		if l[0]==0:
@@ -79,20 +111,34 @@ class Terminal:
 			e=self.width*(self.cy+1)
 		size=e-s
 		self.scr[s:e]=array.array('c'," "*size)
-	def esc_reset(self):
-		self.scr=array.array('c'," "*(self.width*self.height))
-		self.cx_bak=self.cx=0
-		self.cy_bak=self.cy=0
-		self.escbuf=""
+	def esc_il(self,s,l):
+		s=self.scr
+		w=self.width
+		cy=self.cy
+		sb=self.sb
+		if len(l)<1:
+			l=[1]
+		for i in range(l[0]):
+			if cy<sb:
+				l0=cy*w
+				l1=(cy+1)*w
+				ss=(sb-cy)*w
+				s[l1:l1+ss]=s[l0:l0+ss]
+			self.esc_el(s,[2])
+	def esc_color(self,*s):
+		pass
+	def esc_ignore(self,*s):
+		print "term:ignore: %s"%repr(s)
 	def escape(self):
 		e=self.escbuf
+#		print "ESC %r %r"%(e,(self.st,self.sb))
 		if len(e)>32:
 			print "error %r"%e
 			self.escbuf=""
 		elif e in self.esc_seq:
 			f=self.esc_seq[e]
 			if f:
-				f()
+				f(e)
 			self.escbuf=""
 		else:
 			for r,f in self.esc_re:
@@ -107,7 +153,7 @@ class Terminal:
 								l2.append(val)
 							except ValueError:
 								pass
-						f(l2)
+						f(e,l2)
 					self.escbuf=""
 	def init(self):
 		self.esc_reset()
@@ -140,22 +186,51 @@ class Terminal:
 			"\x1bc": self.esc_reset,
 			"\x1bn": None,
 			"\x1bo": None,
+			"\x1b[2J": self.esc_cls,
+			"\x1b[J": self.esc_cls,
 			"\x1b[s": self.esc_save,
 			"\x1b[u": self.esc_restore,
-			"\x1b[2J": self.esc_cls,
 		}
+		for k,v in self.esc_seq.items():
+			if v==None:
+				self.esc_seq[k]=self.esc_ignore
 		escre={
-			r'\[([0-9;]*)H' : self.esc_cup,
+			r'\[([0-9]*)@' : self.esc_ich,
 			r'\[([0-9]*)C' : self.esc_cuf,
+			r'\[([0-9]*)L' : self.esc_il,
+			r'\[([0-9;]*)H' : self.esc_cup,
 			r'\[([0-9]*)K' : self.esc_el,
+#			r'\[([0-9]*)P' : None,
+#l-trunk.com - - [14/Mar/2006 23:54:37] "GET /test?a= HTTP/1.1" 200 -
+#ml-trunk.com - - [14/Mar/2006 23:54:37] "GET /test?a=%1B%5BB HTTP/1.1" 200 -
+#nochange
+#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a= HTTP/1.1" 200 -
+#error '\x1b[A3.1$ llllllllllll\x1b[K\r\n\r\x1b[K\x1b[As'
+#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a=%1B%5BA HTTP/1.1" 200 -
+#nochange
+#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a= HTTP/1.1" 200 -
+#ml-trunk.com - - [14/Mar/2006 23:54:38] "GET /test?a=%1B%5BA HTTP/1.1" 200 -
+#nochange
+#ml-trunk.com - - [14/Mar/2006 23:54:39] "GET /test?a= HTTP/1.1" 200 -
+#ml-trunk.com - - [14/Mar/2006 23:54:39] "GET /test?a=%1B%5BB HTTP/1.1" 200 -
+#error '\x1b[2Pllllllllllll\rsh-3.1$ jjjjjjjj'
+#ml-trunk.com - - [14/Mar/2006 23:54:40] "GET /test?a=%1B%5BB HTTP/1.1" 200 -
+#nochange
+#ml-trunk.com - - [14/Mar/2006 23:54:40] "GET /test?a= HTTP/1.1" 200 -
+#nochange
+#
 			r'\[([0-9;]*)l' : None,
-			r'\[([0-9;]*)m' : None,
-			r'\[([0-9;]+)r' : None,
+			r'\[([0-9;]*)m' : self.esc_color,
+			r'\[([0-9;]+)r' : self.esc_csr,
 			r'\[([0-9;\>]+)c' : None,
-			r'\[\?([0-9;]+)[hlrst]' : None,
+			r'\[\?([0-9;]+)[chlrst]' : None,
 			r'\]([^\x07]+)\x07' : None,
 		}
-		self.esc_re=[('\x1b'+k,v) for k,v in escre.items()]
+		self.esc_re=[]
+		for k,v in escre.items():
+			if v==None:
+				v=self.esc_ignore
+			self.esc_re.append(('\x1b'+k,v))
 		self.tr=""
 		for i in range(256):
 			if i<32:
@@ -190,6 +265,8 @@ class Terminal:
 				r+=pre+'<span class="cursor">'+cgi.escape(line[self.cx])+'</span>'+pos+'\n'
 			else:
 				r+=cgi.escape(line)+"\n"
+		r+="---"
+#		print self
 		return r
 	def __repr__(self):
 		d=self.dumpascii()
@@ -205,6 +282,7 @@ class Process:
 		signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 		pid,fd=pty.fork()
 		if pid==0:
+			os.environ["TERM"]="linux"
 			os.execv(cmd[0],cmd)
 		else:
 			self.pid=pid
@@ -245,13 +323,14 @@ class AjaxTerm:
 			time.sleep(0.001)
 			r=self.proc.read()
 			self.term.write(r)
-			print self.term
 			s=self.term.dumphtml()
 			if self.termp==s:
+				print "nochange"
 				req.write('')
 			else:
+				print self.term
 				req.write(s)
-				self.termp==s
+				self.termp=s
 		else:
 			v={}
 			v['url']=qweb.QWebURL('/',req.PATH_INFO)

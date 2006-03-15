@@ -15,46 +15,42 @@
 	ajaxterm.Terminal_ctor=function(id,width,height) {
 		var pre=document.getElementById(id);
 		var buf="";
-		var cx=0;
-		var cy=0;
+		var timeout;
+		var keybuf=[];
+		var sending=0;
+		var rmax=1;
 		function display() {
 			pre.innerHTML=buf;
 		}
-		function init() {
-			buf="";
-			for(var i=0; i&lt;height; i++){
-				for(var j=0; j&lt;width; j++)
-					buf+=" ";
-				buf+="\n";
-			}
+		function replace(pos,s) {
+			buf=buf.substr(0,pos)+s+buf.substr(pos+s.length)
 			display();
+		}
+		function debug(s) {
+			replace(0,s);
 		}
 		function show(s) {
 			buf=s;
 			display();
 		}
-		function replace(pos,s) {
-			show(buf.substr(0,pos)+s+buf.substr(pos+s.length));
-		}
-		function debug(s) {
-			replace(0,s);
-		}
-		var keybuf=[];
-		var sending=[];
 		function update(key) {
-			sending.push(1);
-			if(sending.length>1 || keybuf.length==0) {
-				sending.pop();
-				window.setTimeout(update,10);
-			} else {
+//			debug("ts: "+((new Date).getTime())+" rmax:"+rmax);
+			if(sending==0) {
+				sending=1;
 				var r=new XMLHttpRequest();
 				r.onreadystatechange = function () {
 					if (r.readyState==4 &amp;&amp; r.status==200) {
 						text=r.responseText;
-						if(text.length)
+						if(text.length) {
 							show(text);
-						sending.pop();
-						window.setTimeout(update,10);
+							rmax=100;
+						} else {
+							rmax*=2;
+							if(rmax>2000)
+								rmax=2000;
+						}
+						sending=0;
+						timeout=window.setTimeout(update,rmax);
 					} else {
 						a=1;
 					}
@@ -69,13 +65,20 @@
 //				r.send(query);
 			}
 		}
+		function queue(s) {
+			keybuf.unshift(s);
+			if(sending==0) {
+				window.clearTimeout(timeout);
+				timeout=window.setTimeout(update,1);
+			}
+		}
 		function keypress(ev) {
 			if (!ev) var ev=window.event;
 //			s="keypress keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
 //			debug(s);
+//			else { if (!ev.ctrlKey || ev.keyCode==17) { return; }
 			var kc;
 			var k="";
-//  else { if (!ev.ctrlKey || ev.keyCode==17) { return; }
 			if (ev.keyCode)
 				kc=ev.keyCode;
 			if (ev.which)
@@ -85,16 +88,16 @@
 				else if (kc==8) k=String.fromCharCode(8);  // Backspace
 				else if (kc==27) k=String.fromCharCode(27); // Escape
 				else {
-					if (kc==33) k="[5~";       // PgUp
-					else if (kc==34) k="[6~";  // PgDn
-					else if (kc==35) k="[4~";  // End
-					else if (kc==36) k="[1~";  // Home
-					else if (kc==37) k="[D";   // Left
-					else if (kc==38) k="[A";   // Up
-					else if (kc==39) k="[C";   // Right
-					else if (kc==40) k="[B";   // Down
-					else if (kc==45) k="[2~";  // Ins
-					else if (kc==46) k="[3~";  // Del
+					if (kc==33) k="[5~";        // PgUp
+					else if (kc==34) k="[6~";   // PgDn
+					else if (kc==35) k="[4~";   // End
+					else if (kc==36) k="[1~";   // Home
+					else if (kc==37) k="[D";    // Left
+					else if (kc==38) k="[A";    // Up
+					else if (kc==39) k="[C";    // Right
+					else if (kc==40) k="[B";    // Down
+					else if (kc==45) k="[2~";   // Ins
+					else if (kc==46) k="[3~";   // Del
 					else if (kc==112) k="[[A";  // F1
 					else if (kc==113) k="[[B";  // F2
 					else if (kc==114) k="[[C";  // F3
@@ -113,19 +116,19 @@
 				}
 			} else if (ev.ctrlKey) {
 				if (kc>=97 &amp;&amp; kc&lt;=122) k=String.fromCharCode(kc-96); // Ctrl-A..Z
+				else if (kc==54)  k=String.fromCharCode(30); // Ctrl-^
+				else if (kc==109) k=String.fromCharCode(31); // Ctrl-_
 				else if (kc==219) k=String.fromCharCode(27); // Ctrl-[
-				else if (kc==220) k=String.fromCharCode(28); // Ctrl-\   .
+				else if (kc==220) k=String.fromCharCode(28); // Ctrl-\
 				else if (kc==221) k=String.fromCharCode(29); // Ctrl-]
 				else if (kc==219) k=String.fromCharCode(29); // Ctrl-]
 				else if (kc==219) k=String.fromCharCode(0);  // Ctrl-@
-				else if (kc==54) k=String.fromCharCode(30);  // Ctrl-^
-				else if (kc==109) k=String.fromCharCode(31); // Ctrl-_
 			} else {
 				k=String.fromCharCode(kc);
 			}
 			if(k.length) {
 //				debug("send kc:"+kc+" len:"+k.length+"  val:"+escape(k)+"       ");
-				keybuf.unshift(escape(k));
+				queue(escape(k));
 			}
 			ev.cancelBubble=true;
 			if (ev.stopPropagation) ev.stopPropagation();
@@ -137,21 +140,18 @@
 		}
 		document.onkeypress=keypress;
 		document.onkeydown=keydown;
-		init();
-		window.setTimeout(update,10);
+		timeout=window.setTimeout(update,1);
 	}
 	ajaxterm.Terminal=function(id,width,height) {
 		return new this.Terminal_ctor(id,width,height);
 	}
 	</script>
-
 	<script type="text/javascript">
 	window.onload=function() {
 		t=ajaxterm.Terminal("term",80,25);
 	};
 	</script>
 	</head>
-
 	<body>
 	<div style="float: left; padding: 1ex;"><pre id="term" class="term"></pre></div>
 	</body>
