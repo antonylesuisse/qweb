@@ -1211,8 +1211,19 @@ class QWebWSGIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def write(self,data):
         try:
             self.wfile.write(data)
-        except (socket.error, socket.timeout):
-            return
+        except (socket.error, socket.timeout),e:
+            print e
+    def bufferon(self):
+        if not getattr(self,'wfile_buf',0):
+            self.wfile_buf=1
+            self.wfile_bak=self.wfile
+            self.wfile=StringIO.StringIO()
+    def bufferoff(self):
+        if self.wfile_buf:
+            buf=self.wfile
+            self.wfile=self.wfile_bak
+            self.write(buf.getvalue())
+            self.wfile_buf=0
     def serve(self,type):
         path_info, parameters, query = urlparse.urlparse(self.path)[2:5]
         environ = {
@@ -1242,18 +1253,11 @@ class QWebWSGIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for key, value in self.headers.items():
             environ['HTTP_' + key.upper().replace('-', '_')] = value
         # Hack to avoid may TCP packets
-        sio=StringIO.StringIO()
-        siobuf=1
-        wfile=self.wfile
-        self.wfile=sio
+        self.bufferon()
         appiter=self.server.wsgiapp(environ, self.start_response)
         for data in appiter:
-            if siobuf==1:
-                self.wfile=wfile
-                self.write(sio.getvalue()+data)
-                siobuf=0
-            else:
-                self.write(data)
+            self.write(data)
+            self.bufferoff()
     def do_GET(self):
         self.serve('GET')
     def do_POST(self):
