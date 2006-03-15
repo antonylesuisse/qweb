@@ -14,6 +14,77 @@ class Terminal:
 		self.width=width
 		self.height=height
 		self.init()
+		self.esc_reset()
+	def init(self):
+		self.esc_seq={
+			"\x05": None,
+			"\x07": None,
+			"\x08": self.esc_0x08,
+			"\x09": self.esc_0x09,
+			"\x0a": self.esc_0x0a,
+			"\x0b": self.esc_0x0a,
+			"\x0c": self.esc_0x0a,
+			"\x0d": self.esc_0x0d,
+			"\x0e": None,
+			"\x0f": None,
+			"\x1b#8": None,
+			"\x1b=": None,
+			"\x1b>": None,
+			"\x1b(0": None,
+			"\x1b(A": None,
+			"\x1b(B": None,
+			"\x1b[s": self.esc_save,
+			"\x1b[u": self.esc_restore,
+			"\x1b]R": None,
+			"\x1b7": self.esc_save,
+			"\x1b8": self.esc_restore,
+			"\x1bD": None,
+			"\x1bE": None,
+			"\x1bH": None,
+			"\x1bM": None,
+			"\x1bN": None,
+			"\x1bO": None,
+			"\x1bZ": None,
+			"\x1bc": self.esc_reset,
+			"\x1bn": None,
+			"\x1bo": None,
+		}
+		for k,v in self.esc_seq.items():
+			if v==None:
+				self.esc_seq[k]=self.esc_ignore
+		d={
+#term:ignore: ('\x1b[4h', [4])
+#error '\x1b]R\r\nsh-3.1$ \r\nsh-3.1$ \r\nsh-3.1$ '
+#term:ignore: ('\x1b[?1h', [1])
+			r'\[([0-9]*)@' : self.esc_ich,
+			r'\[([0-9]*)A' : self.esc_cuu,
+			r'\[([0-9]*)C' : self.esc_cuf,
+			r'\[([0-9]*)L' : self.esc_il,
+			r'\[([0-9;]*)H' : self.esc_cup,
+			r'\[([0-9]*)J' : self.esc_ed,
+			r'\[([0-9]*)K' : self.esc_el,
+			r'\[([0-9]*)P' : self.esc_dch,
+			r'\[([0-9]*)g' : None,
+			r'\[([0-9;]*)l' : None,
+			r'\[([0-9;]*)m' : self.esc_color,
+			r'\[([0-9;]+)r' : self.esc_csr,
+			r'\[([0-9;\>]+)c' : None,
+			r'\[\?([0-9;]+)[chlrst]' : None,
+			r'\]([^\x07]+)\x07' : None,
+		}
+		self.esc_re=[]
+		for k,v in d.items():
+			if v==None:
+				v=self.esc_ignore
+			self.esc_re.append(('\x1b'+k,v))
+		self.tr=""
+		for i in range(256):
+			if i<32:
+				self.tr+=" "
+			elif i<127:
+				self.tr+=chr(i)
+			else:
+				self.tr+="+"
 	def peek(self,y1,x1,y2,x2):
 		return self.scr[self.width*y1+x1:self.width*y2+x2]
 	def poke(self,y,x,s):
@@ -62,7 +133,8 @@ class Terminal:
 		self.cx_bak=self.cx=0
 		self.cy_bak=self.cy=0
 		self.cl=0
-		self.escbuf=""
+		self.buf=""
+		self.outbuf=""
 	def esc_0x08(self,s):
 		self.cx=max(0,self.cx-1)
 	def esc_0x09(self,s):
@@ -143,110 +215,44 @@ class Terminal:
 		pass
 	def esc_ignore(self,*s):
 		print "term:ignore: %s"%repr(s)
+	def csiarg(self,s):
+		l=[]
+		for i in s.split(';'):
+			try:
+				l.append(int(i))
+			except ValueError:
+				pass
+		return l
 	def escape(self):
-		e=self.escbuf
+		e=self.buf
 #		print "ESC %r %r"%(e,(self.st,self.sb))
 		if len(e)>32:
 			print "error %r"%e
-			self.escbuf=""
+			self.buf=""
 		elif e in self.esc_seq:
-			f=self.esc_seq[e]
-			if f:
-				f(e)
-			self.escbuf=""
+			self.esc_seq[e](e)
+			self.buf=""
 		else:
 			for r,f in self.esc_re:
 				mo=re.match(r,e)
 				if mo:
-					if f:
-						l=mo.group(1).split(';')
-						l2=[]
-						for i in l:
-							try:
-								val=int(i)
-								l2.append(val)
-							except ValueError:
-								pass
-						f(e,l2)
-					self.escbuf=""
-	def init(self):
-		self.esc_reset()
-		self.esc_seq={
-			"\x05": None,
-			"\x07": None,
-			"\x08": self.esc_0x08,
-			"\x09": self.esc_0x09,
-			"\x0a": self.esc_0x0a,
-			"\x0b": self.esc_0x0a,
-			"\x0c": self.esc_0x0a,
-			"\x0d": self.esc_0x0d,
-			"\x0e": None,
-			"\x0f": None,
-			"\x1b#8": None,
-			"\x1b=": None,
-			"\x1b>": None,
-			"\x1b(0": None,
-			"\x1b(A": None,
-			"\x1b(B": None,
-			"\x1b7": self.esc_save,
-			"\x1b8": self.esc_restore,
-			"\x1bD": None,
-			"\x1bE": None,
-			"\x1bH": None,
-			"\x1bM": None,
-			"\x1bN": None,
-			"\x1bO": None,
-			"\x1bZ": None,
-			"\x1bc": self.esc_reset,
-			"\x1bn": None,
-			"\x1bo": None,
-			"\x1b[s": self.esc_save,
-			"\x1b[u": self.esc_restore,
-		}
-		for k,v in self.esc_seq.items():
-			if v==None:
-				self.esc_seq[k]=self.esc_ignore
-		escre={
-			r'\[([0-9]*)@' : self.esc_ich,
-			r'\[([0-9]*)A' : self.esc_cuu,
-			r'\[([0-9]*)C' : self.esc_cuf,
-			r'\[([0-9]*)L' : self.esc_il,
-			r'\[([0-9;]*)H' : self.esc_cup,
-			r'\[([0-9]*)J' : self.esc_ed,
-			r'\[([0-9]*)K' : self.esc_el,
-			r'\[([0-9]*)P' : self.esc_dch,
-#term:ignore: ('\x1b[?1049h', [1049])
-#term:ignore: ('\x1b[4h', [4])
-#term:ignore: ('\x1b[?1h', [1])
-			r'\[([0-9;]*)l' : None,
-			r'\[([0-9;]*)m' : self.esc_color,
-			r'\[([0-9;]+)r' : self.esc_csr,
-			r'\[([0-9;\>]+)c' : None,
-			r'\[\?([0-9;]+)[chlrst]' : None,
-			r'\]([^\x07]+)\x07' : None,
-		}
-		self.esc_re=[]
-		for k,v in escre.items():
-			if v==None:
-				v=self.esc_ignore
-			self.esc_re.append(('\x1b'+k,v))
-		self.tr=""
-		for i in range(256):
-			if i<32:
-				self.tr+=" "
-			elif i<127:
-				self.tr+=chr(i)
-			else:
-				self.tr+="+"
+					f(e,self.csiarg(mo.group(1)))
+					self.buf=""
+					break
 	def write(self,s):
 		for i in s:
-			if len(self.escbuf) or (i in self.esc_seq):
-				self.escbuf+=i
+			if len(self.buf) or (i in self.esc_seq):
+				self.buf+=i
 				self.escape()
 			elif i == '\x1b':
-				self.escbuf+=i
+				self.buf+=i
 			else:
+#				print "ECHO %r"%i
 				self.echo(i)
+	def read():
+		b=self.outbuf
+		self.outbuf=""
+		return b
 	def dump(self):
 		return self.scr.tostring()
 	def dumpascii(self):
@@ -276,7 +282,7 @@ class Terminal:
 			r+="|%r|\n"%self.scr[self.width*i:self.width*(i+1)]
 		return r
 
-class Process:
+class Multiplex:
 	def __init__(self,cmd):
 		signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 		pid,fd=pty.fork()
@@ -291,8 +297,11 @@ class Process:
 #						os.close(i)
 #					except OSError:
 #						pass
-			os.environ["TERM"]="linux"
-			os.execv(cmd[0],cmd)
+			env={}
+			env["COLUMNS"]="80"
+			env["LINES"]="25"
+			env["TERM"]="linux"
+			os.execve(cmd[0],cmd,env)
 		else:
 			self.pid=pid
 			self.fd=fd
@@ -317,9 +326,11 @@ class Process:
 			print "proc:BLOCK:%r"%s
 
 class AjaxTerm:
-	def __init__(self,cmd=['/bin/sh']):
+	def __init__(self):
+		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
+		
 		self.template = qweb.QWebHtml("ajaxterm.xml")
-		self.proc = Process(cmd)
+		self.proc = Multiplex(cmd)
 		self.term = Terminal()
 		self.termp = ""
 
