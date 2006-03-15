@@ -9,6 +9,15 @@
 <t t-name="head">
 	<style type="text/css">
 
+.form_alert     { margin: 0px 0px 6px 0px; padding: 6px; border: 1px solid #DD9988; background-color: #FFFFD5; color: #990000; }
+.form_warn      { margin: 0px 0px 6px 0px; padding: 6px; border: 1px solid #6666CC; background-color: #F8F8FF; color: #000099; }
+
+.form_valid     { font-family: monospace; font-size: 115%;}
+.form_error     { font-family: monospace; font-size: 115%; background-color: #FFFFD5; }
+.form_invalid   { font-family: monospace; font-size: 115%; background-color: #FFFFD5; }
+.form_red       { color: #990000; }
+
+
 table.form td.label { padding: 4px 4px 4px 0px; text-align: right; font-weight: normal; }
 table.form td.input { padding: 4px 1px 4px 3px; text-align: left; }
 
@@ -188,7 +197,7 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 						<option value="None" t-selected="not val">---</option>
 					</t>
 					<t t-foreach="c.dba.dest.select()" t-as="target">
-						<option t-att-value="target.id" t-selected="target==val">id: <t t-esc="target.id"/></option>
+						<option t-att-value="target.id" t-selected="str(target.id)==val">id: <t t-esc="target.id"/></option>
 					</t>
 					</select>
 				</t>
@@ -241,7 +250,7 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 					<t t-esc="val[:64]"/>
 				</t>
 				<t t-if="c.dba.type=='many2one'">
-					id: <t t-esc="getattr(rows,c.dba.name).id" />
+					id: <t t-esc="getattr(rows,c.dba.name+'ID')" />
 				</t>
 			</td>
 		</t>
@@ -255,6 +264,9 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 	</table>
 </t>
 <t t-name="dbview_table_row_edit">
+	<div t-if="saved" class="form_warn">
+		Your changes have been sucked in by the system.
+	</div>
 	<t t-esc="table"/> <t t-esc="row.id"/>:
 	<form t-action="url/table_row_edit?table=%(table)s&amp;id=%(row.id)d" method="GET">
 		<t t-call="dbview_table_rowform"/>

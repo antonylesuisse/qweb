@@ -104,36 +104,46 @@ class DBAdmin:
 
 		v["body"]=self.template.render("dbview_table_list",v)
 
-	def rowform(self,table):
-		f=qweb.QWebForm()
+	def rowform(self,form,table,prefix="row__",row=None):
+		#choir prefix
+		# si ca existe deja ou __add
+		# denial.consigneeID
+		# row_consignee_=1
+		# add=row_consignee
+		# row_consignee-name
+		# row_consignee-country
+		# 
 		for c in table.dba.cols:
-			if c.dba.type=="scalar" or c.dba.type=="many2one":
-				if not c.default:
-					default=""
-				else:
+			#
+			# Choose the right default value le default
+			default=""
+			if c.dba.type=="scalar":
+				if row:
+					default=str(getattr(row,c.dba.name))
+				elif c.default:
+					# TODO
 					default=str(c.default)
-				if c.dba.nullable:
-					check=None
-				else:
-					check="/.+/"
-				fi=qweb.QWebField(c.dba.name,default=default,check=check)
-				f.add_field(fi)
-		return f
-	def rowformedit(self,table,row):
-		f=qweb.QWebForm()
-		for c in table.dba.cols:
-			if c.dba.type=="scalar" or c.dba.type=="many2one":
-				default=str(getattr(row,c.dba.name))
-				if c.dba.nullable:
-					check=None
-				else:
-					check="/.+/"
-				fi=qweb.QWebField(c.dba.name,default=default,check=check)
-				f.add_field(fi)
+			elif c.dba.type=="many2one":
+				if row:
+					default=str(getattr(row,c.dba.name+'ID'))
+				elif c.default:
+					# TODO
+					default=str(c.default)
+			#
+			# Nullable attribut
+			if c.dba.nullable:
+				check=None
+			else:
+				check="/.+/"
+			#
+			# Add field
+			fi=qweb.QWebField(prefix+c.dba.name,default=default,check=check)
+			f.add_field(fi)
 		return f
 
 	def dbview_table_rowadd(self,req,arg,out,v):
-		f=v["form"]=self.rowform(v["tableo"])
+		f=v["form"]=qweb.QWebForm()
+		self.rowform(f,v["tableo"])
 		f.process_input(arg)
 		if arg["save"] and f.valid:
 			print "VALID"
@@ -152,11 +162,15 @@ class DBAdmin:
 			else:
 				return "error"
 
+	# ajouter inline
 	def dbview_table_row_edit(self,req,arg,out,v):
 		f=v["form"]=self.rowformedit(v["tableo"],v["row"])
 		f.process_input(arg)
 		if arg["save"] and f.valid:
-			v["body"]="ok"
+			d=f.collect()
+			v["row"].set(**d)
+			v["saved"]=1
+			v["body"]=self.template.render("dbview_table_row_edit",v)
 		else:
 			v["body"]=self.template.render("dbview_table_row_edit",v)
 
