@@ -13,6 +13,9 @@
 	<script type="text/javascript">
 	ajaxterm={};
 	ajaxterm.Terminal_ctor=function(id,width,height) {
+		var ie=0;
+		if(window.ActiveXObject)
+			ie=1;
 		var pre=document.getElementById(id);
 		var buf="";
 		var timeout;
@@ -33,11 +36,26 @@
 			buf=s;
 			display();
 		}
+		function xhr()  {
+			var req="";
+			if(window.XMLHttpRequest) {
+				req = new XMLHttpRequest();
+			} else if(window.ActiveXObject) {
+				try {
+					req = new ActiveXObject("Msxml2.XMLHTTP");
+				} catch(e) {
+					try {
+						req = new ActiveXObject("Microsoft.XMLHTTP");
+					} catch(e) { }
+				}
+			}
+			return req;
+		}
 		function update(key) {
 //			debug("ts: "+((new Date).getTime())+" rmax:"+rmax);
 			if(sending==0) {
 				sending=1;
-				var r=new XMLHttpRequest();
+				var r=xhr();
 				r.onreadystatechange = function () {
 					if (r.readyState==4 &amp;&amp; r.status==200) {
 						text=r.responseText;
@@ -60,6 +78,8 @@
 					send+=keybuf.pop();
 				}
 				r.open("GET", "/test?a="+send, true);
+				if(ie)
+					r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 				r.send(null);
 //				r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 //				r.send(query);
@@ -76,6 +96,7 @@
 			if (!ev) var ev=window.event;
 //			s="keypress keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
 //			debug(s);
+//			return false;
 //			else { if (!ev.ctrlKey || ev.keyCode==17) { return; }
 			var kc;
 			var k="";
@@ -136,6 +157,11 @@
 			return false;
 		}
 		function keydown(ev) {
+			if (!ev) var ev=window.event;
+//			s="keydown keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
+//			debug(s);
+			if (ie)
+				keypress(ev);
 			return false;
 		}
 		document.onkeypress=keypress;
