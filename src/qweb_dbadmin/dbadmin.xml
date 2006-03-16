@@ -179,7 +179,7 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 		<t t-set="fn" t-eval="pf+ca.name"/>
 		<tr>
 			<td class="label" valign="top" width="5%">
-				<t t-raw="ca.name"/>:
+				<t t-raw="ca.longname"/>:
 			</td>
 			<td class="input" valign="top" width="95%">
 				<t t-if="ca.type=='scalar'">
@@ -232,7 +232,7 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 	<tr>
 		<th>Id</th>
 		<t t-foreach="tableo.dba.cols" t-as="c">
-			<th><t t-raw="c.dba.name"/></th>
+			<th><t t-raw="c.dba.longname"/></th>
 		</t>
 		<th class="action">
 			Actions: <a t-href="url/table_rowadd?table=%(table)s">Add</a>

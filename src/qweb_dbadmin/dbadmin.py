@@ -6,15 +6,16 @@ import glob, os, sys, re
 
 import qweb, qweb_static
 
-
 class DBATable:
 	def __init__(self,cols):
 		self.cols=cols
+		self.hidden=0
 
 class DBACol:
 	def __init__(self):
 		self.name=None
 		self.type=None
+		self.hidden=0
 		# many2one
 		self.dest=None
 
@@ -29,13 +30,13 @@ class DBAdmin:
 		self.preprocess(mod)
 
 	def preprocess(self,mod):
-		for i in dir(mod):
-			c=getattr(mod,i)
-			if hasattr(c,'__mro__'):
-				for cls in c.__mro__:
-					if cls.__name__=='SQLObject':
-						self.pretable(mod,c)
-						self.tables[i]=c
+		for name in dir(mod):
+			cls=getattr(mod,name)
+			if hasattr(cls, '__mro__'):
+				for basecls in cls.__mro__:
+					if basecls.__name__=='SQLObject':
+						self.pretable(mod, cls)
+						self.tables[name]=cls
 						break
 
 	# dbview_* attributes
@@ -47,19 +48,20 @@ class DBAdmin:
 			table.dba=DBATable([])
 			tmp=[(col.creationOrder, col) for col in table.sqlmeta.columns.values() if col.name!='childName']
 			tmp.sort()
-			for order,c in tmp:
-				c.dba=DBACol()
-				c.dba.name=c.name
-				c.dba.nullable=not c.notNone
-				if c.foreignKey:
-					c.dba.type="many2one"
-					c.dba.name=c.name[:-2]
-					c.dba.dest=getattr(mod,c.foreignKey)
-					c.dba.form="select"
+			for order, col in tmp:
+				col.dba=DBACol()
+				col.dba.name=col.name
+				col.dba.longname=getattr(col, 'longname', col.name.replace('_',' '))
+				col.dba.nullable=not col.notNone
+				col.dba.sqltype=col._sqliteType()
+				if col.foreignKey:
+					col.dba.type="many2one"
+					col.dba.name=col.name[:-2]
+					col.dba.dest=getattr(mod, col.foreignKey)
+					col.dba.form="select"
 				else:
-					c.dba.type="scalar"
-					c.dba.sqltype="text"
-				table.dba.cols.append(c)
+					col.dba.type="scalar"
+				table.dba.cols.append(col)
 			table.dba.count=table.select().count()
 
 	def process(self, req):
@@ -67,7 +69,7 @@ class DBAdmin:
 		if path=="":
 			path="index"
 		v={}
-		if qweb.qweb_control(self,"dbview_"+path,[req,req.REQUEST,req,v]):
+		if qweb.qweb_control(self, "dbview_" + path, [req,req.REQUEST,req,v]):
 			r={}
 			r['head']=self.template.render("head",v)
 			r['body']=v.get('body','')
@@ -109,14 +111,14 @@ class DBAdmin:
 		# denial.consigneeID
 		for c in table.dba.cols:
 			ca=c.dba
-			fn=prefix+ca.name
+			fn=prefix + ca.name
 			# ---------------------------------------------
 			# Recurse
 			# ---------------------------------------------
 			if ca.type=="many2one":
 				sub=fn+'__'
-				if sub in arg and arg[sub]!='Cancel':
-					fi=qweb.QWebField(sub,default='1')
+				if sub in arg and arg[sub] != 'Cancel':
+					fi=qweb.QWebField(sub, default='1')
 					form.add_field(fi)
 					self.rowform(arg,form,ca.dest,row=None,prefix=sub)
 			# ---------------------------------------------
@@ -128,12 +130,15 @@ class DBAdmin:
 				if ca.type=="many2one":
 					default=str(getattr(row,ca.name+'ID'))
 			elif c.default:
+				# TODO
 				default=str(c.default)
 			# ---------------------------------------------
 			# Null
 			# ---------------------------------------------
 			if c.dba.nullable:
 				check=None
+			elif c.dba.sqltype=='DATE':
+				check="date"
 			else:
 				check="/.+/"
 			# ---------------------------------------------
@@ -149,16 +154,17 @@ class DBAdmin:
 
 	def rowsave(self,form,table,row=None,prefix="__"):
 #			v["row"].set(**d)
+#		resurce to rowadd
 		pass
 
 	def dbview_table_rowadd(self,req,arg,out,v):
 		f=v["form"]=qweb.QWebForm()
-		self.rowform(f,v["tableo"])
+		self.rowform(arg,f,v["tableo"])
 		f.process_input(arg)
 		if arg["save"] and f.valid:
 			print "VALID"
 			d=f.collect()
-			print d
+			self.rowsave()
 			arg.clear()
 			return "dbview_table_row_edit"
 		else:
@@ -181,6 +187,7 @@ class DBAdmin:
 		if arg["save"] and f.valid:
 			print "VALID"
 			d=f.collect()
+			self.rowsave()
 			print d
 			v["saved"]=1
 			v["body"]=self.template.render("dbview_table_row_edit",v)
