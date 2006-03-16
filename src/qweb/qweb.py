@@ -1312,7 +1312,10 @@ def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1,callback_ready
         if callback_ready:
             print 'Callback ready'
             callback_ready()
-        s.serve_forever()
+        try:
+            s.serve_forever()
+        except KeyboardInterrupt,e:
+            sys.excepthook(*sys.exc_info())
 
 #----------------------------------------------------------
 # Qweb Documentation

@@ -113,10 +113,10 @@ class Terminal:
 		for i in range(256):
 			if i<32:
 				self.tr+=" "
-			elif i<127:
+			elif i<127 or i>160:
 				self.tr+=chr(i)
 			else:
-				self.tr+="+"
+				self.tr+="?"
 	def peek(self,y1,x1,y2,x2):
 		return self.scr[self.width*y1+x1:self.width*y2+x2]
 	def poke(self,y,x,s):
@@ -290,12 +290,12 @@ class Terminal:
 		return b
 	def dump(self):
 		return self.scr.tostring()
-	def dumpascii(self):
+	def dumplatin1(self):
 		return self.dump().translate(self.tr)
 	def dumphtml(self):
 		h=self.height
 		w=self.width
-		s=self.dumpascii()
+		s=self.dumplatin1()
 		r=""
 		for i in range(h):
 			line=s[w*i:w*(i+1)]
@@ -306,6 +306,7 @@ class Terminal:
 			else:
 				r+=cgi.escape(line)+"\n"
 		# replace nbsp
+		r=unicode(r,'latin1').encode('utf8')
 		r='<?xml version="1.0"?><pre>%s</pre>'%r
 		if self.last_html==r:
 			print "nochange"
@@ -314,7 +315,7 @@ class Terminal:
 			self.last_html=r
 			return r
 	def __repr__(self):
-		d=self.dumpascii()
+		d=self.dumplatin1()
 		r=""
 		for i in range(self.height):
 			r+="|%s|\n"%d[self.width*i:self.width*(i+1)]
@@ -338,14 +339,15 @@ class Multiplex:
 		self.proc={}
 		self.lock=threading.RLock()
 		self.thread=threading.Thread(target=self.loop)
+		self.alive=1
 		# synchronize methods
-		for name in ['create','fds','proc_read','proc_write','dump']:
+		for name in ['create','fds','proc_read','proc_write','dump','die','run']:
 			orig=getattr(self,name)
 			setattr(self,name,SynchronizedMethod(self.lock,orig))
 		self.thread.start()
 	def create(self,cmd=[]):
 		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
-		cmd=['/bin/bash']
+		cmd=['/bin/bash','-l']
 		pid,fd=pty.fork()
 		if pid==0:
 			try:
@@ -367,6 +369,10 @@ class Multiplex:
 			fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
 			self.proc[fd]={'pid':pid,'term':Terminal(),'buf':'','time':time.time()}
 			return fd
+	def die(self):
+		self.alive=0
+	def run(self):
+		return self.alive
 	def fds(self):
 		return self.proc.keys()
 	def proc_kill(self,fd):
@@ -402,14 +408,22 @@ class Multiplex:
 			return self.proc[fd]['term'].dumphtml()
 		except KeyError:
 			return False
+
 	def loop(self):
-		while 1:
+		while self.run():
 			fds=self.fds()
 			i,o,e=select.select(fds, [], [], 1.0)
 			for fd in i:
 				self.proc_read(fd)
 			if len(i):
 				time.sleep(0.002)
+		for i in self.proc.keys():
+			try:
+				os.close(i)
+				os.kill(self.proc[i]['pid'],signal.SIGTERM)
+			except (IOError,OSError):
+				pass
+
 
 class AjaxTerm:
 	def __init__(self):
@@ -437,13 +451,17 @@ class AjaxTerm:
 				del self.session[s]
 			print "sessions %r"%self.session
 		else:
+			req.response_headers['Content-Type']='text/html; charset=UTF-8'
 			req.write(self.template)
 		return req
+
 
 if __name__ == '__main__':
 	at=AjaxTerm()
 	f=lambda:os.system('firefox http://localhost:8080/&')
 	qweb.qweb_wsgi_autorun(at,ip='',port=8080,threaded=0,callback_ready=None)
+	at.multi.die()
+
 
 
 
