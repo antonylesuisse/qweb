@@ -3,25 +3,24 @@
 	<title>Ajaxterm</title>
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 	<style type="text/css">
-	body { background-color: white; }
+	body { background-color: #888; }
 	#term {
-		padding: 0.4ex;
-		background-color: #000088;
-		color: white;
 		float: left;
 	}
 	#term pre {
+		padding: 3px;
 		display: block;
-		padding: 0.4ex;
 		font-family: monospace;
 		white-space: pre;
 		background-color: black;
+		border: 1px solid blue;
 		color: white;
 	}
 	#term pre span {
 		background-color: #800;
 	}
 	</style>
+	<script type="text/javascript" src="sarissa.js"></script>
 	<script type="text/javascript">
 	ajaxterm={};
 	ajaxterm.Terminal_ctor=function(id,width,height) {
@@ -37,32 +36,10 @@
 	var keybuf=[];
 	var sending=0;
 	var rmax=1;
-	function display() {
-		div.innerHTML=buf;
-	}
-	function replace(pos,s) {
-		buf=buf.substr(0,pos)+s+buf.substr(pos+s.length)
-		display();
-	}
 	function debug(s) {
 		for(var i=s.length;i<80;i++)
 			s+=" ";
-		replace(6,s);
-	}
-	function xhr()  {
-		var req="";
-		if(window.XMLHttpRequest) {
-			req = new XMLHttpRequest();
-		} else if(window.ActiveXObject) {
-			try {
-				req = new ActiveXObject("Msxml2.XMLHTTP");
-			} catch(e) {
-				try {
-					req = new ActiveXObject("Microsoft.XMLHTTP");
-				} catch(e) { }
-			}
-		}
-		return req;
+		div.innerHTML=s;
 	}
 	function error() {
 		debug("xhr timeout connection lost ts:"+((new Date).getTime()));
@@ -71,7 +48,7 @@
 //		debug("ts: "+((new Date).getTime())+" rmax:"+rmax);
 		if(sending==0) {
 			sending=1;
-			var r=xhr();
+			var r=new XMLHttpRequest();
 			var send="";
 			while(keybuf.length>0) {
 				send+=keybuf.pop();
@@ -82,9 +59,6 @@
 //			debug("xhr send ts:"+((new Date).getTime()));
 //			r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 //			r.send(query);
-			r.onerror = function () {
-				debug("xhr ERROR:"+((new Date).getTime())+" state:"+r.readyState+" status:"+r.status+" statusText:"+r.statusText);
-			}
 			r.onreadystatechange = function () {
 //				debug("xhr:"+((new Date).getTime())+" state:"+r.readyState+" status:"+r.status+" statusText:"+r.statusText);
 				if (r.readyState==4) {
@@ -92,13 +66,14 @@
 						window.clearTimeout(error_timeout);
 						de=r.responseXML.documentElement;
 						if(de.tagName=="pre") {
-							old=div.firstChild;
-							div.replaceChild(de,old);
+							if(ie) {
+								Sarissa.updateContentFromNode(de, div);
+							} else {
+								Sarissa.updateContentFromNode(de, div);
+//								old=div.firstChild;
+//								div.replaceChild(de,old);
+							}
 							rmax=100;
-//							var items=de.getElementsByTagName("span");
-//							for (var i=0;i<items.length;i++) {
-//								items[i].setAttribute('class','caca');
-//							}
 						} else {
 							rmax*=2;
 							if(rmax>2000)
@@ -200,7 +175,7 @@ debug(s);
 		}
 	}
 	document.onkeypress=keypress;
-	document.onkeydown=keydown;
+//	document.onkeydown=keydown;
 	timeout=window.setTimeout(update,100);
 	}
 	ajaxterm.Terminal=function(id,width,height) {

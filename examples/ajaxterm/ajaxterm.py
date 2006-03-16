@@ -428,6 +428,8 @@ class Multiplex:
 class AjaxTerm:
 	def __init__(self):
 		self.template = file("ajaxterm.html").read()
+		self.sarissa = file("sarissa.js").read()
+		self.sarissa += file("sarissa_dhtml.js").read()
 		self.multi = Multiplex()
 		self.session = {}
 	def __call__(self, environ, start_response):
@@ -450,6 +452,9 @@ class AjaxTerm:
 			else:
 				del self.session[s]
 			print "sessions %r"%self.session
+		elif req.PATH_INFO.endswith('/sarissa.js'):
+			req.response_headers['Content-Type']='application/x-javascript'
+			req.write(self.sarissa)
 		else:
 			req.response_headers['Content-Type']='text/html; charset=UTF-8'
 			req.write(self.template)
