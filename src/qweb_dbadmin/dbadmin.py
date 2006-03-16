@@ -153,7 +153,7 @@ class DBAdmin:
 		pass
 
 	def rowsave(self,form,table,row=None,prefix="__"):
-#			v["row"].set(**d)
+#		v["row"].set(**d)
 #		resurce to rowadd
 		pass
 
@@ -161,6 +161,7 @@ class DBAdmin:
 		f=v["form"]=qweb.QWebForm()
 		self.rowform(arg,f,v["tableo"])
 		f.process_input(arg)
+		v['pf']='__'
 		if arg["save"] and f.valid:
 			print "VALID"
 			d=f.collect()
