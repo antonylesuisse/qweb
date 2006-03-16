@@ -1,6 +1,39 @@
 #!/usr/bin/python
 
-"""<h1>Tutorial 2 A Complete Demo</h1> """
+"""<h1>Ajaxterm</h1>
+
+TODO
+	multiplex thread
+	echo outbuf
+	color
+	a= to be k=
+	sizex=
+	sizey=
+
+
+
+
+To use with apache in modssl:
+-----------------------------
+
+Listen 443
+NameVirtualHost *:443
+
+<VirtualHost *:443>
+    ServerName localhost
+    SSLEngine On
+    SSLCertificateKeyFile ssl/apache.pem
+    SSLCertificateFile ssl/apache.pem
+    ProxyRequests Off
+    <Proxy *>
+        Order deny,allow
+        Allow from all
+    </Proxy>
+    ProxyPass / http://localhost:8080/
+    ProxyPassReverse / http://localhost:8080/
+</VirtualHost>
+
+"""
 
 import array, cgi, fcntl, glob, os, pty, re, signal, select, sys, time
 
@@ -336,10 +369,10 @@ class AjaxTerm:
 
 	def __call__(self, environ, start_response):
 		req = qweb.QWebRequest(environ, start_response)
-		if req.PATH_INFO.startswith('/test'):
+		if req.PATH_INFO.endswith('/u'):
 			req.response_gzencode=1
-			c=req.REQUEST["a"]
-			self.proc.write(c)
+			k=req.REQUEST["k"]
+			self.proc.write(k)
 			time.sleep(0.001)
 			r=self.proc.read()
 			self.term.write(r)
@@ -353,7 +386,6 @@ class AjaxTerm:
 				self.termp=s
 		else:
 			v={}
-			v['url']=qweb.QWebURL('/',req.PATH_INFO)
 			req.write(self.template.render("at_main",v))
 		return req
 #		qweb.qweb_control(self,'main',[req,req.REQUEST,{}])

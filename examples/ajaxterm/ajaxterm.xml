@@ -66,7 +66,7 @@
 				while(keybuf.length>0) {
 					send+=keybuf.pop();
 				}
-				r.open("GET", "/test?a="+send, true);
+				r.open("GET", "/u?k="+send, true);
 				if(ie)
 					r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 //				debug("xhr send ts:"+((new Date).getTime()));
