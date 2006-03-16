@@ -178,8 +178,11 @@
 			k=String.fromCharCode(kc);
 		}
 		if(k.length) {
-//			debug("send kc:"+kc+" len:"+k.length+"  val:"+escape(k)+"       ");
-			queue(escape(k));
+			if(k=="+") {
+				queue("%2B");
+			} else {
+				queue(escape(k));
+			}
 		}
 		ev.cancelBubble=true;
 		if (ev.stopPropagation) ev.stopPropagation();
