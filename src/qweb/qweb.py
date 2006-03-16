@@ -1288,7 +1288,7 @@ class QWebWSGIServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
             return SocketServer.ThreadingMixIn.process_request(self,*p)
         else:
             return BaseHTTPServer.HTTPServer.process_request(self,*p)
-def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1):
+def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1,callback_ready=None):
     if sys.platform=='win32':
         fcgi=0
     else:
@@ -1304,7 +1304,11 @@ def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1):
         fcgi.WSGIServer(wsgiapp,multithreaded=False).run()
     else:
         print 'Serving on %s:%d'%(ip,port)
-        QWebWSGIServer(wsgiapp,ip=ip,port=port,threaded=threaded).serve_forever()
+        s=QWebWSGIServer(wsgiapp,ip=ip,port=port,threaded=threaded)
+        if callback_ready:
+            print 'Callback ready'
+            callback_ready()
+        s.serve_forever()
 
 #----------------------------------------------------------
 # Qweb Documentation
