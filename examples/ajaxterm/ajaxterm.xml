@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <template>
 <t t-name="at_main">
 	<html>
@@ -5,10 +6,23 @@
 	<title>Ajaxterm</title>
 	<style type="text/css">
 	body { background-color: white; }
-	.termframe { float: left; background-color: rgb(63,63,161); padding: 0.4ex; }
-	.termframe p { margin: 0; color: white; font-weight: bold; }
-	.term { margin: 0.4ex; background-color: black; color: white; padding: 0.4ex; }
-	.cursor { background-color: #800; /*text-decoration: blink;*/ }
+	#term {
+		padding: 0.4ex;
+		background-color: #000088;
+		color: white;
+		float: left;
+	}
+	#term pre {
+		display: block;
+		padding: 0.4ex;
+		font-family: monospace;
+		white-space: pre;
+		background-color: black;
+		color: white;
+	}
+	#term pre span {
+		background-color: #800;
+	}
 	</style>
 	<script type="text/javascript">
 	ajaxterm={};
@@ -16,7 +30,8 @@
 		var ie=0;
 		if(window.ActiveXObject)
 			ie=1;
-		var pre=document.getElementById(id);
+		var div=document.getElementById(id);
+		div.innerHTML='Loading terminal...';
 		var sid=""+Math.round(Math.random()*1000000000);
 		var buf="";
 		var timeout;
@@ -25,7 +40,7 @@
 		var sending=0;
 		var rmax=1;
 		function display() {
-			pre.innerHTML=buf;
+			div.innerHTML=buf;
 		}
 		function replace(pos,s) {
 			buf=buf.substr(0,pos)+s+buf.substr(pos+s.length)
@@ -81,10 +96,15 @@
 					if (r.readyState==4) {
 						if(r.status==200) {
 							window.clearTimeout(error_timeout);
-							text=r.responseText;
-							if(text.length>80) {
-								show(text);
+							de=r.responseXML.documentElement;
+							if(de.tagName=="pre") {
+								old=div.firstChild;
+								div.replaceChild(de,old);
 								rmax=100;
+//								var items=de.getElementsByTagName("span");
+//								for (var i=0;i&lt;items.length;i++) {
+//									items[i].setAttribute('class','caca');
+//								}
 							} else {
 								rmax*=2;
 								if(rmax>2000)
@@ -203,7 +223,10 @@ debug(s);
 	</script>
 	</head>
 	<body>
+	<!--
 	<div style="float: left; padding: 1ex;"><pre id="term" class="term"></pre></div>
+	-->
+	<div id="term"><pre></pre></div>
 	</body>
 	</html>
 </t>

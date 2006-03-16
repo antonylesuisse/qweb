@@ -3,10 +3,11 @@
 """<h1>Ajaxterm</h1>
 
 TODO
-	echo outbuf
-	color
-	uset XML not ascii
+	insert
+	color and latin1
 	multiplex resize ioctl, sizex= sizey=
+	copy/paste
+	option color etc...
 
 To use with apache in modssl:
 -----------------------------
@@ -46,7 +47,7 @@ class Terminal:
 		self.esc_reset()
 	def init(self):
 		self.esc_seq={
-			"\x05": None,
+			"\x05": self.esc_da,
 			"\x07": None,
 			"\x08": self.esc_0x08,
 			"\x09": self.esc_0x09,
@@ -73,7 +74,7 @@ class Terminal:
 			"\x1bM": None,
 			"\x1bN": None,
 			"\x1bO": None,
-			"\x1bZ": None,
+			"\x1bZ": self.esc_da,
 			"\x1bc": self.esc_reset,
 			"\x1bn": None,
 			"\x1bo": None,
@@ -93,7 +94,9 @@ class Terminal:
 			r'\[([0-9]*)J' : self.esc_ed,
 			r'\[([0-9]*)K' : self.esc_el,
 			r'\[([0-9]*)P' : self.esc_dch,
+			r'\[([0-9]*)c' : self.esc_da,
 			r'\[([0-9]*)g' : None,
+			r'\[([0-9;]*)h' : None,
 			r'\[([0-9;]*)l' : None,
 			r'\[([0-9;]*)m' : self.esc_color,
 			r'\[([0-9;]+)r' : self.esc_csr,
@@ -207,6 +210,8 @@ class Terminal:
 		if len(l)<1: l=[1]
 		for i in range(l[0]):
 			self.cright()
+	def esc_da(self,s,l=[]):
+		self.outbuf="\x1b[?6c"
 	def esc_dch(self,s,l):
 		w,cx,cy=self.width,self.cx,self.cy
 		if len(l)<1: l=[1]
@@ -279,7 +284,7 @@ class Terminal:
 			else:
 #				print "ECHO %r"%i
 				self.echo(i)
-	def read():
+	def read(self):
 		b=self.outbuf
 		self.outbuf=""
 		return b
@@ -292,19 +297,19 @@ class Terminal:
 		w=self.width
 		s=self.dumpascii()
 		r=""
-		r+="&nbsp;"+("-"*w)+"<br/>"
 		for i in range(h):
 			line=s[w*i:w*(i+1)]
 			if self.cy==i:
 				pre=cgi.escape(line[:self.cx])
 				pos=cgi.escape(line[self.cx+1:])
-				r+="&nbsp;"+pre+'<span class="cursor">'+cgi.escape(line[self.cx])+'</span>'+pos+'<br/>'
+				r+=pre+'<span>'+cgi.escape(line[self.cx])+'</span>'+pos+'\n'
 			else:
-				r+="&nbsp;"+cgi.escape(line)+"&nbsp;<br/>"
-		r+="&nbsp;"+("-"*w)
+				r+=cgi.escape(line)+"\n"
+		# replace nbsp
+		r='<?xml version="1.0"?><pre>%s</pre>'%r
 		if self.last_html==r:
 			print "nochange"
-			return ""
+			return '<?xml version="1.0"?><idem></idem>'
 		else:
 			self.last_html=r
 			return r
@@ -370,9 +375,7 @@ class Multiplex:
 		t=time.time()
 		for i in self.proc.keys():
 			t0=self.proc[i]['time']
-			print "scanning",i,t0,t-t0
 			if (t-t0)>3600:
-				print "KILL ",i
 				try:
 					os.close(i)
 					os.kill(self.proc[i]['pid'],signal.SIGTERM)
@@ -381,7 +384,11 @@ class Multiplex:
 				del self.proc[i]
 	def proc_read(self,fd):
 		try:
-			self.proc[fd]['term'].write(os.read(fd,8192))
+			t=self.proc[fd]['term']
+			t.write(os.read(fd,65536))
+			reply=t.read()
+			if reply:
+				os.write(fd,reply)
 			self.proc[fd]['time']=time.time()
 		except (KeyError,IOError,OSError):
 			self.proc_kill(fd)
@@ -401,10 +408,12 @@ class Multiplex:
 			i,o,e=select.select(fds, [], [], 1.0)
 			for fd in i:
 				self.proc_read(fd)
+			if len(i):
+				time.sleep(0.002)
 
 class AjaxTerm:
 	def __init__(self):
-		self.template = qweb.QWebHtml("ajaxterm.xml")
+		self.template = file("ajaxterm.html").read()
 		self.multi = Multiplex()
 		self.session = {}
 	def __call__(self, environ, start_response):
@@ -421,14 +430,14 @@ class AjaxTerm:
 			time.sleep(0.002)
 			dump=self.multi.dump(term)
 			if isinstance(dump,str):
+				req.response_headers['Content-Type']='text/xml'
 				req.write(dump)
 				req.response_gzencode=1
 			else:
 				del self.session[s]
 			print "sessions %r"%self.session
 		else:
-			v={}
-			req.write(self.template.render("at_main",v))
+			req.write(self.template)
 		return req
 
 if __name__ == '__main__':

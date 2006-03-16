@@ -1,0 +1,219 @@
+<html>
+<head>
+	<title>Ajaxterm</title>
+	<style type="text/css">
+	body { background-color: white; }
+	#term {
+		padding: 0.4ex;
+		background-color: #000088;
+		color: white;
+		float: left;
+	}
+	#term pre {
+		display: block;
+		padding: 0.4ex;
+		font-family: monospace;
+		white-space: pre;
+		background-color: black;
+		color: white;
+	}
+	#term pre span {
+		background-color: #800;
+	}
+	</style>
+	<script type="text/javascript">
+	ajaxterm={};
+	ajaxterm.Terminal_ctor=function(id,width,height) {
+	var ie=0;
+	if(window.ActiveXObject)
+		ie=1;
+	var div=document.getElementById(id);
+	div.innerHTML='<pre>Loading terminal...</pre>';
+	var sid=""+Math.round(Math.random()*1000000000);
+	var buf="";
+	var timeout;
+	var error_timeout;
+	var keybuf=[];
+	var sending=0;
+	var rmax=1;
+	function display() {
+		div.innerHTML=buf;
+	}
+	function replace(pos,s) {
+		buf=buf.substr(0,pos)+s+buf.substr(pos+s.length)
+		display();
+	}
+	function debug(s) {
+		for(var i=s.length;i<80;i++)
+			s+=" ";
+		replace(6,s);
+	}
+	function xhr()  {
+		var req="";
+		if(window.XMLHttpRequest) {
+			req = new XMLHttpRequest();
+		} else if(window.ActiveXObject) {
+			try {
+				req = new ActiveXObject("Msxml2.XMLHTTP");
+			} catch(e) {
+				try {
+					req = new ActiveXObject("Microsoft.XMLHTTP");
+				} catch(e) { }
+			}
+		}
+		return req;
+	}
+	function error() {
+		debug("xhr timeout connection lost ts:"+((new Date).getTime()));
+	}
+	function update() {
+//		debug("ts: "+((new Date).getTime())+" rmax:"+rmax);
+		if(sending==0) {
+			sending=1;
+			var r=xhr();
+			var send="";
+			while(keybuf.length>0) {
+				send+=keybuf.pop();
+			}
+			r.open("GET", "/u?s="+sid+"&k="+send, true);
+			if(ie)
+				r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
+//			debug("xhr send ts:"+((new Date).getTime()));
+//			r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+//			r.send(query);
+			r.onerror = function () {
+				debug("xhr ERROR:"+((new Date).getTime())+" state:"+r.readyState+" status:"+r.status+" statusText:"+r.statusText);
+			}
+			r.onreadystatechange = function () {
+//				debug("xhr:"+((new Date).getTime())+" state:"+r.readyState+" status:"+r.status+" statusText:"+r.statusText);
+				if (r.readyState==4) {
+					if(r.status==200) {
+						window.clearTimeout(error_timeout);
+						de=r.responseXML.documentElement;
+						if(de.tagName=="pre") {
+							old=div.firstChild;
+							div.replaceChild(de,old);
+							rmax=100;
+//							var items=de.getElementsByTagName("span");
+//							for (var i=0;i<items.length;i++) {
+//								items[i].setAttribute('class','caca');
+//							}
+						} else {
+							rmax*=2;
+							if(rmax>2000)
+								rmax=2000;
+						}
+						sending=0;
+						timeout=window.setTimeout(update,rmax);
+					} else {
+//						debug("xhr error ts:"+((new Date).getTime())+" r:"+r.status);
+					}
+				}
+			}
+			error_timeout=window.setTimeout(error,5000);
+			r.send(null);
+		}
+	}
+	function queue(s) {
+		keybuf.unshift(s);
+		if(sending==0) {
+			window.clearTimeout(timeout);
+			timeout=window.setTimeout(update,1);
+		}
+	}
+	function keypress(ev) {
+		if (!ev) var ev=window.event;
+//		s="keypress keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
+//		debug(s);
+//		return false;
+//		else { if (!ev.ctrlKey || ev.keyCode==17) { return; }
+		var kc;
+		var k="";
+		if (ev.keyCode)
+			kc=ev.keyCode;
+		if (ev.which)
+			kc=ev.which;
+		if (ev.which==0) {
+			if (kc==9) k=String.fromCharCode(9);  // Tab
+			else if (kc==8) k=String.fromCharCode(8);  // Backspace
+			else if (kc==27) k=String.fromCharCode(27); // Escape
+			else {
+				if (kc==33) k="[5~";        // PgUp
+				else if (kc==34) k="[6~";   // PgDn
+				else if (kc==35) k="[4~";   // End
+				else if (kc==36) k="[1~";   // Home
+				else if (kc==37) k="[D";    // Left
+				else if (kc==38) k="[A";    // Up
+				else if (kc==39) k="[C";    // Right
+				else if (kc==40) k="[B";    // Down
+				else if (kc==45) k="[2~";   // Ins
+				else if (kc==46) k="[3~";   // Del
+				else if (kc==112) k="[[A";  // F1
+				else if (kc==113) k="[[B";  // F2
+				else if (kc==114) k="[[C";  // F3
+				else if (kc==115) k="[[D";  // F4
+				else if (kc==116) k="[[E";  // F5
+				else if (kc==117) k="[17~"; // F6
+				else if (kc==118) k="[18~"; // F7
+				else if (kc==119) k="[19~"; // F8
+				else if (kc==120) k="[20~"; // F9
+				else if (kc==121) k="[21~"; // F10
+				else if (kc==122) k="[23~"; // F11
+				else if (kc==123) k="[24~"; // F12
+				if (k.length) {
+					k=String.fromCharCode(27)+k;
+				}
+			}
+		} else if (ev.ctrlKey) {
+			if (kc>=97 && kc<=122) k=String.fromCharCode(kc-96); // Ctrl-A..Z
+			else if (kc==54)  k=String.fromCharCode(30); // Ctrl-^
+			else if (kc==109) k=String.fromCharCode(31); // Ctrl-_
+			else if (kc==219) k=String.fromCharCode(27); // Ctrl-[
+			else if (kc==220) k=String.fromCharCode(28); // Ctrl-\
+			else if (kc==221) k=String.fromCharCode(29); // Ctrl-]
+			else if (kc==219) k=String.fromCharCode(29); // Ctrl-]
+			else if (kc==219) k=String.fromCharCode(0);  // Ctrl-@
+		} else {
+			k=String.fromCharCode(kc);
+		}
+		if(k.length) {
+//			debug("send kc:"+kc+" len:"+k.length+"  val:"+escape(k)+"       ");
+			queue(escape(k));
+		}
+		ev.cancelBubble=true;
+		if (ev.stopPropagation) ev.stopPropagation();
+		if (ev.preventDefault)  ev.preventDefault();
+		return false;
+	}
+	function keydown(ev) {
+		if (!ev) var ev=window.event;
+		if (ie) {
+			if (ev.ctrlKey || ev.altKey) {
+s="keydown keyCode="+ev.keyCode+" which="+ev.which+" shiftKey="+ev.shiftKey+" ctrlKey="+ev.ctrlKey+" altKey="+ev.altKey+".";
+debug(s);
+//				keypress(ev);
+				ev.cancelBubble=true;
+				if (ev.stopPropagation) ev.stopPropagation();
+				if (ev.preventDefault)  ev.preventDefault();
+				return false;
+			}
+		}
+	}
+	document.onkeypress=keypress;
+	document.onkeydown=keydown;
+	timeout=window.setTimeout(update,100);
+	}
+	ajaxterm.Terminal=function(id,width,height) {
+		return new this.Terminal_ctor(id,width,height);
+	}
+	</script>
+	<script type="text/javascript">
+	window.onload=function() {
+		t=ajaxterm.Terminal("term",80,25);
+	};
+	</script>
+</head>
+<body>
+<div id="term"></div>
+</body>
+</html>
