@@ -18,6 +18,7 @@
 .form_red       { color: #990000; }
 
 
+table.form { margin: 3px 3px; padding: 6px; border: 1px solid #6666CC; }
 table.form td.label { padding: 4px 4px 4px 0px; text-align: right; font-weight: normal; }
 table.form td.input { padding: 4px 1px 4px 3px; text-align: left; }
 
@@ -172,46 +173,45 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 	</table>
 </t>
 <t t-name="dbview_table_rowform">
-	<table class="form" width="50%">
+	<table class="form" width="100%">
 	<t t-foreach="tableo.dba.cols" t-as="c">
+		<t t-set="ca" t-eval="c.dba"/>
+		<t t-set="fn" t-eval="pf+ca.name"/>
 		<tr>
-			<td class="label" valign="top">
-				<t t-raw="c.dba.name"/>:
+			<td class="label" valign="top" width="5%">
+				<t t-raw="ca.name"/>:
 			</td>
-			<td class="input">
-				<t t-if="c.dba.type=='scalar'">
-					<t t-set="val" t-eval="form[c.dba.name].value"/>
-
-					<t t-if="len(val)&lt;40">
-						<input type="text" t-att-name="c.dba.name" t-att-value="val" size="40"/>
+			<td class="input" valign="top" width="95%">
+				<t t-if="ca.type=='scalar'">
+					<t t-set="val" t-eval="form[fn].value"/>
+					<t t-if="len(val)&lt;40"> <input type="text" t-att-name="fn" t-att-value="val" size="40"/> </t>
+					<t t-if="len(val)>40"> <textarea t-att-name="fn" cols="50" rows="8"><t t-esc="val"/></textarea> </t>
+				</t>
+				<t t-if="ca.type=='many2one'">
+					<t t-set="val" t-eval="form[fn].value"/>
+					<t t-set="sub" t-eval="'%s__'%fn"/>
+					<t t-if="form.fields.has_key(sub)">
+						<input type="hidden" t-att-name="sub" value="1"/>
+						<input type="submit" t-att-name="sub" value="Cancel"/>
+						<t t-call="dbview_table_rowform">
+							<t t-set="pf" t-eval="sub"/>
+							<t t-set="tableo" t-eval="ca.dest"/>
+						</t>
 					</t>
-					<t t-if="len(val)>40">
-						<textarea t-att-name="c.dba.name" cols="50" rows="8"><t t-esc="val"/></textarea>
+					<t t-if="not form.fields.has_key(sub)">
+						<select t-att-name="fn">
+							<t t-if="ca.nullable"> <option value="None" t-selected="not val">---</option> </t>
+							<t t-foreach="ca.dest.select()" t-as="target">
+								<option t-att-value="target.id" t-selected="str(target.id)==val">id: <t t-esc="target.id"/></option>
+							</t>
+						</select>
+						<input type="submit" t-att-name="sub" value="New"/>
 					</t>
 				</t>
-				<t t-if="c.dba.type=='many2one'">
-					<select t-att-name="c.dba.name">
-					<t t-set="val" t-eval="form[c.dba.name].value"/>
-
-					<t t-if="c.dba.nullable">
-						<option value="None" t-selected="not val">---</option>
-					</t>
-					<t t-foreach="c.dba.dest.select()" t-as="target">
-						<option t-att-value="target.id" t-selected="str(target.id)==val">id: <t t-esc="target.id"/></option>
-					</t>
-					</select>
-				</t>
-				<t t-if="form[c.dba.name].invalid">
-					INVALID
-				</t>
+				<t t-if="form[fn].invalid"> INVALID </t>
 			</td>
 		</tr>
 	</t>
-		<tr>
-			<td class="label" colspan="2">
-				<input type="submit" name="save" value="Save"/>
-			</td>
-		</tr>
 	</table>
 </t>
 <t t-name="dbview_table_rowadd">
@@ -270,6 +270,9 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 	<t t-esc="table"/> <t t-esc="row.id"/>:
 	<form t-action="url/table_row_edit?table=%(table)s&amp;id=%(row.id)d" method="GET">
 		<t t-call="dbview_table_rowform"/>
+		<div style="text-align: center;">
+			<input type="submit" name="save" value="Save"/>
+		</div>
 	</form>
 </t>
 </template>

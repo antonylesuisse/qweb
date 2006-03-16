@@ -104,42 +104,52 @@ class DBAdmin:
 
 		v["body"]=self.template.render("dbview_table_list",v)
 
-	def rowform(self,form,table,prefix="row__",row=None):
-		#choir prefix
-		# si ca existe deja ou __add
+	def rowform(self,arg,form,table,row=None,prefix="__"):
+		print 'rowform %r'%table
 		# denial.consigneeID
-		# row_consignee_=1
-		# add=row_consignee
-		# row_consignee-name
-		# row_consignee-country
-		# 
 		for c in table.dba.cols:
-			#
-			# Choose the right default value le default
+			ca=c.dba
+			fn=prefix+ca.name
+			# ---------------------------------------------
+			# Recurse
+			# ---------------------------------------------
+			if ca.type=="many2one":
+				sub=fn+'__'
+				if sub in arg and arg[sub]!='Cancel':
+					fi=qweb.QWebField(sub,default='1')
+					form.add_field(fi)
+					self.rowform(arg,form,ca.dest,row=None,prefix=sub)
+			# ---------------------------------------------
+			# Default
+			# ---------------------------------------------
 			default=""
-			if c.dba.type=="scalar":
-				if row:
-					default=str(getattr(row,c.dba.name))
-				elif c.default:
-					# TODO
-					default=str(c.default)
-			elif c.dba.type=="many2one":
-				if row:
-					default=str(getattr(row,c.dba.name+'ID'))
-				elif c.default:
-					# TODO
-					default=str(c.default)
-			#
-			# Nullable attribut
+			if row:
+				default=str(getattr(row,ca.name))
+				if ca.type=="many2one":
+					default=str(getattr(row,ca.name+'ID'))
+			elif c.default:
+				default=str(c.default)
+			# ---------------------------------------------
+			# Null
+			# ---------------------------------------------
 			if c.dba.nullable:
 				check=None
 			else:
 				check="/.+/"
-			#
-			# Add field
+			# ---------------------------------------------
+			# Add
+			# ---------------------------------------------
 			fi=qweb.QWebField(prefix+c.dba.name,default=default,check=check)
-			f.add_field(fi)
-		return f
+			form.add_field(fi)
+		return form
+
+	def rowadd(self,form,table,row=None,prefix="__"):
+#		v["row"]=v["tableo"](**d)
+		pass
+
+	def rowsave(self,form,table,row=None,prefix="__"):
+#			v["row"].set(**d)
+		pass
 
 	def dbview_table_rowadd(self,req,arg,out,v):
 		f=v["form"]=qweb.QWebForm()
@@ -148,7 +158,7 @@ class DBAdmin:
 		if arg["save"] and f.valid:
 			print "VALID"
 			d=f.collect()
-			v["row"]=v["tableo"](**d)
+			print d
 			arg.clear()
 			return "dbview_table_row_edit"
 		else:
@@ -164,11 +174,14 @@ class DBAdmin:
 
 	# ajouter inline
 	def dbview_table_row_edit(self,req,arg,out,v):
-		f=v["form"]=self.rowformedit(v["tableo"],v["row"])
+		f=v["form"]=qweb.QWebForm()
+		self.rowform(arg,f,v["tableo"],v["row"])
 		f.process_input(arg)
+		v['pf']='__'
 		if arg["save"] and f.valid:
+			print "VALID"
 			d=f.collect()
-			v["row"].set(**d)
+			print d
 			v["saved"]=1
 			v["body"]=self.template.render("dbview_table_row_edit",v)
 		else:
