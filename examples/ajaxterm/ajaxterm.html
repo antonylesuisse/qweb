@@ -178,11 +178,7 @@
 			k=String.fromCharCode(kc);
 		}
 		if(k.length) {
-			if(k=="+") {
-				queue("%2B");
-			} else {
-				queue(escape(k));
-			}
+			queue(encodeURIComponent(k));
 		}
 		ev.cancelBubble=true;
 		if (ev.stopPropagation) ev.stopPropagation();
