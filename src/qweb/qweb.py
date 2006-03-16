@@ -827,8 +827,12 @@ class QWebSession(dict):
         if not os.path.isdir(self.session_path):
             os.makedirs(self.session_path)
         fname=os.path.join(self.session_path,'qweb_sess_%s'%self.session_id)
+        try:
+            oldtime=os.path.getmtime(fname)
+        except OSError,IOError:
+            oldtime=0
         dump=pickle.dumps(self.copy())
-        if dump != self.session_orig or (time.time() > os.path.getmtime(fname)+self.session_maxlifetime/4):
+        if (dump != self.session_orig) or (time.time() > oldtime+self.session_maxlifetime/4):
             tmpname=os.path.join(self.session_path,'qweb_sess_%s_%x'%(self.session_id,random.randint(1,2**32)))
             f=file(tmpname,'wb')
             f.write(dump)

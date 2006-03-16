@@ -3,15 +3,10 @@
 """<h1>Ajaxterm</h1>
 
 TODO
-	multiplex thread
 	echo outbuf
 	color
-	a= to be k=
-	sizex=
-	sizey=
-
-
-
+	uset XML not ascii
+	multiplex resize ioctl, sizex= sizey=
 
 To use with apache in modssl:
 -----------------------------
@@ -35,7 +30,8 @@ NameVirtualHost *:443
 
 """
 
-import array, cgi, fcntl, glob, os, pty, re, signal, select, sys, time
+import array,cgi,fcntl,glob,os,pty,re,signal,select,sys,threading,time
+
 
 # Optional: Add the QWeb .egg or ../qweb in sys path
 sys.path[0:0]=glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('../../src')
@@ -43,7 +39,7 @@ sys.path[0:0]=glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('..
 import qweb, qweb_static
 
 class Terminal:
-	def __init__(self,width=80,height=25):
+	def __init__(self,width=80,height=24):
 		self.width=width
 		self.height=height
 		self.init()
@@ -168,6 +164,7 @@ class Terminal:
 		self.cl=0
 		self.buf=""
 		self.outbuf=""
+		self.last_html=""
 	def esc_0x08(self,s):
 		self.cx=max(0,self.cx-1)
 	def esc_0x09(self,s):
@@ -305,7 +302,12 @@ class Terminal:
 			else:
 				r+="&nbsp;"+cgi.escape(line)+"&nbsp;<br/>"
 		r+="&nbsp;"+("-"*w)
-		return r
+		if self.last_html==r:
+			print "nochange"
+			return ""
+		else:
+			self.last_html=r
+			return r
 	def __repr__(self):
 		d=self.dumpascii()
 		r=""
@@ -315,86 +317,124 @@ class Terminal:
 			r+="|%r|\n"%self.scr[self.width*i:self.width*(i+1)]
 		return r
 
+class SynchronizedMethod:
+	def __init__(self,lock,orig):
+		self.lock=lock
+		self.orig=orig
+	def __call__(self,*l):
+		self.lock.acquire()
+		r=self.orig(*l)
+		self.lock.release()
+		return r
+
 class Multiplex:
-	def __init__(self,cmd):
+	def __init__(self,*l):
 		signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+		self.proc={}
+		self.lock=threading.RLock()
+		self.thread=threading.Thread(target=self.loop)
+		# synchronize methods
+		for name in ['create','fds','proc_read','proc_write','dump']:
+			orig=getattr(self,name)
+			setattr(self,name,SynchronizedMethod(self.lock,orig))
+		self.thread.start()
+	def create(self,cmd=[]):
+		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
+		cmd=['/bin/bash']
 		pid,fd=pty.fork()
 		if pid==0:
-#			try:
-#				fdl=[int(i) for i in os.listdir('/proc/self/fd')]
-#			except OSError:
-#				fdl=range(256)
-#			for i in fdl:
-#				if i!=fd:
-#					try:
-#						os.close(i)
-#					except OSError:
-#						pass
+			try:
+				fdl=[int(i) for i in os.listdir('/proc/self/fd')]
+			except OSError:
+				fdl=range(256)
+			for i in [i for i in fdl if i>2]:
+				try:
+					os.close(i)
+				except OSError:
+					pass
+			# TODO IOCTL lines
 			env={}
 			env["COLUMNS"]="80"
-			env["LINES"]="25"
+			env["LINES"]="24"
 			env["TERM"]="linux"
 			os.execve(cmd[0],cmd,env)
 		else:
-			self.pid=pid
-			self.fd=fd
-			self.buf=""
-#			fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
-	def read(self):
-		r=""
+			fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
+			self.proc[fd]={'pid':pid,'term':Terminal(),'buf':'','time':time.time()}
+			return fd
+	def fds(self):
+		return self.proc.keys()
+	def proc_kill(self,fd):
+		if fd in self.proc:
+			self.proc[fd]['time']=0
+		t=time.time()
+		for i in self.proc.keys():
+			t0=self.proc[i]['time']
+			print "scanning",i,t0,t-t0
+			if (t-t0)>3600:
+				print "KILL ",i
+				try:
+					os.close(i)
+					os.kill(self.proc[i]['pid'],signal.SIGTERM)
+				except (IOError,OSError):
+					pass
+				del self.proc[i]
+	def proc_read(self,fd):
+		try:
+			self.proc[fd]['term'].write(os.read(fd,8192))
+			self.proc[fd]['time']=time.time()
+		except (KeyError,IOError,OSError):
+			self.proc_kill(fd)
+	def proc_write(self,fd,s):
+		try:
+			os.write(fd,s)
+		except (IOError,OSError):
+			self.proc_kill(fd)
+	def dump(self,fd):
+		try:
+			return self.proc[fd]['term'].dumphtml()
+		except KeyError:
+			return False
+	def loop(self):
 		while 1:
-			i,o,e=select.select( [self.fd], [], [], 0.001)
-			if len(i):
-				r+=os.read(self.fd,8192)
-			else:
-				break
-#		print "proc:read:%r"%r
-		return r
-	def write(self,s):
-		i,o,e=select.select( [], [self.fd], [], 0.001)
-		if len(o):
-#			print "proc:write:%r"%s
-			os.write(self.fd,s)
-		else:
-			print "proc:BLOCK:%r"%s
+			fds=self.fds()
+			i,o,e=select.select(fds, [], [], 1.0)
+			for fd in i:
+				self.proc_read(fd)
 
 class AjaxTerm:
 	def __init__(self):
-		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
-		
 		self.template = qweb.QWebHtml("ajaxterm.xml")
-		self.proc = Multiplex(cmd)
-		self.term = Terminal()
-		self.termp = ""
-
+		self.multi = Multiplex()
+		self.session = {}
 	def __call__(self, environ, start_response):
-		req = qweb.QWebRequest(environ, start_response)
+		req = qweb.QWebRequest(environ, start_response,session=None)
 		if req.PATH_INFO.endswith('/u'):
-			req.response_gzencode=1
+			s=req.REQUEST["s"]
 			k=req.REQUEST["k"]
-			self.proc.write(k)
-			time.sleep(0.001)
-			r=self.proc.read()
-			self.term.write(r)
-			s=self.term.dumphtml()
-			if self.termp==s:
-				print "nochange"
-				req.write('')
+			if s in self.session:
+				term=self.session[s]
 			else:
-				print self.term
-				req.write(s)
-				self.termp=s
+				term=self.session[s]=self.multi.create()
+			if k:
+				self.multi.proc_write(term,k)
+			time.sleep(0.002)
+			dump=self.multi.dump(term)
+			if isinstance(dump,str):
+				req.write(dump)
+				req.response_gzencode=1
+			else:
+				del self.session[s]
+			print "sessions %r"%self.session
 		else:
 			v={}
 			req.write(self.template.render("at_main",v))
 		return req
-#		qweb.qweb_control(self,'main',[req,req.REQUEST,{}])
-
-		pass
 
 if __name__ == '__main__':
 	at=AjaxTerm()
-	qweb.qweb_wsgi_autorun(at,ip='',port=8080,callback_ready=lambda:os.system('firefox http://localhost:8080/&'))
+	f=lambda:os.system('firefox http://localhost:8080/&')
+	qweb.qweb_wsgi_autorun(at,ip='',port=8080,threaded=0,callback_ready=None)
 
 
 

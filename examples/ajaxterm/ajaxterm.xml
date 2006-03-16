@@ -17,6 +17,7 @@
 		if(window.ActiveXObject)
 			ie=1;
 		var pre=document.getElementById(id);
+		var sid=""+Math.round(Math.random()*1000000000);
 		var buf="";
 		var timeout;
 		var error_timeout;
@@ -66,7 +67,7 @@
 				while(keybuf.length>0) {
 					send+=keybuf.pop();
 				}
-				r.open("GET", "/u?k="+send, true);
+				r.open("GET", "/u?s="+sid+"&amp;k="+send, true);
 				if(ie)
 					r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 //				debug("xhr send ts:"+((new Date).getTime()));
