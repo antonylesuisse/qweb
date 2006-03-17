@@ -6,10 +6,10 @@
 TODO
 	ssh SKIP .ssh/known_hosts
 	insert
-	color and latin1
-	multiplex resize ioctl, sizex= sizey=
+	erase char bug in mutt
+	color
+	multiplex change sizex= sizey=
 	copy/paste
-	option color etc...
 
 To use with apache in modssl:
 -----------------------------
@@ -338,14 +338,13 @@ class Terminal:
 			return '<?xml version="1.0"?><idem></idem>'
 		else:
 			self.last_html=r
+#			print self
 			return r
 	def __repr__(self):
 		d=self.dumplatin1()
 		r=""
 		for i in range(self.height):
 			r+="|%s|\n"%d[self.width*i:self.width*(i+1)]
-		for i in range(self.height):
-			r+="|%r|\n"%self.scr[self.width*i:self.width*(i+1)]
 		return r
 
 class SynchronizedMethod:
@@ -374,6 +373,7 @@ class Multiplex:
 		cmd=['/bin/bash','-l']
 		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
 		w,h=100,30
+		w,h=80,25
 		pid,fd=pty.fork()
 		if pid==0:
 			try:
