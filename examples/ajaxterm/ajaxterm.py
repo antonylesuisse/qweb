@@ -117,7 +117,7 @@ class Terminal:
 		for k,v in d.items():
 			if v==None:
 				v=self.esc_ignore
-			self.esc_re.append(('\x1b'+k,v))
+			self.esc_re.append((re.compile('\x1b'+k),v))
 		self.tr=""
 		for i in range(256):
 			if i<32:
@@ -293,7 +293,7 @@ class Terminal:
 			self.buf=""
 		else:
 			for r,f in self.esc_re:
-				mo=re.match(r,e)
+				mo=r.match(e)
 				if mo:
 					f(e,self.csiarg(mo.group(1)))
 					self.buf=""
