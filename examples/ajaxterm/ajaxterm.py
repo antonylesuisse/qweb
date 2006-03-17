@@ -77,6 +77,7 @@ class Terminal:
 			"\x1bN": None,
 			"\x1bO": None,
 			"\x1bZ": self.esc_da,
+			"\x1ba": None,
 			"\x1bc": self.esc_reset,
 			"\x1bn": None,
 			"\x1bo": None,
@@ -331,7 +332,7 @@ class Terminal:
 		# replace nbsp
 #		or=unicode(r,'latin1').encode('utf8')
 		r=r.replace(' ','\xa0')
-		r='<?xml version="1.0" encoding="ISO-8859-1"?><pre>%s</pre>'%r
+		r='<?xml version="1.0" encoding="ISO-8859-1"?><pre class="term">%s</pre>'%r
 		if self.last_html==r:
 #			print "nochange"
 			return '<?xml version="1.0"?><idem></idem>'
