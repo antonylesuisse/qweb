@@ -4,6 +4,7 @@
 
 
 TODO
+	ssh SKIP .ssh/known_hosts
 	insert
 	color and latin1
 	multiplex resize ioctl, sizex= sizey=
