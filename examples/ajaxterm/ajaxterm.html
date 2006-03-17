@@ -7,13 +7,36 @@
 	#term {
 		float: left;
 	}
-	#term pre {
-		padding: 3px;
+	#term div.stat {
+		margin: 0px;
+		padding: 4px;
 		display: block;
 		font-family: monospace;
 		white-space: pre;
 		background-color: black;
-		border: 1px solid blue;
+		color: white;
+	}
+	#term div.stat span {
+		padding: 0px;
+	}
+	#term div.stat .on {
+		background-color: #080;
+		font-weight: bold;
+		color: white;
+	}
+	#term div.stat .off {
+		background-color: #888;
+		font-weight: bold;
+		color: white;
+	}
+	#term pre {
+		margin: 0px;
+		padding: 4px;
+		display: block;
+		font-family: monospace;
+		white-space: pre;
+		background-color: black;
+		border-top: 1px solid white;
 		color: white;
 	}
 	#term pre span {
@@ -28,7 +51,29 @@
 	if(window.ActiveXObject)
 		ie=1;
 	var div=document.getElementById(id);
-	div.innerHTML='<pre>Loading terminal...</pre>';
+	var dstat=document.createElement('div');
+	var sled=document.createElement('span');
+	var opt_color=document.createElement('a');
+	opt_color.className='off';
+	opt_color.innerHTML=' Colors ';
+	var opt_paste=document.createElement('a');
+	opt_paste.className='off';
+	opt_paste.innerHTML=' Paste ';
+	var sdebug=document.createElement('span');
+	var dterm=document.createElement('div');
+	sled.appendChild(document.createTextNode('\xb7'));
+	sled.className='off';
+	dstat.appendChild(sled);
+	dstat.appendChild(document.createTextNode(' '));
+	dstat.appendChild(opt_color);
+	dstat.appendChild(document.createTextNode(' '));
+	dstat.appendChild(opt_paste);
+	dstat.appendChild(document.createTextNode(' '));
+	dstat.appendChild(sdebug);
+	dstat.className='stat';
+	div.appendChild(dstat);
+	div.appendChild(dterm);
+
 	var sid=""+Math.round(Math.random()*1000000000);
 	var buf="";
 	var timeout;
@@ -37,17 +82,36 @@
 	var sending=0;
 	var rmax=1;
 	function debug(s) {
-		for(var i=s.length;i<80;i++)
-			s+=" ";
-		div.innerHTML=s;
+		sdebug.innerHTML=s;
 	}
 	function error() {
-		debug("xhr timeout connection lost ts:"+((new Date).getTime()));
+		sled.className='off';
+		debug("Connection lost timeout ts:"+((new Date).getTime()));
+	}
+	function switchcolor(event) {
+		if(opt_color.className=='off') {
+			opt_color.className='on';
+			debug('Should enable colors');
+		} else {
+			opt_color.className='off';
+			debug('Should disable colors');
+		}
+	}
+	function do_paste(event) {
+		debug('Should paste buffer');
+	}
+	if(opt_color.addEventListener) {
+		opt_color.addEventListener('click',switchcolor,true);
+		opt_paste.addEventListener('click',do_paste,true);
+	} else {
+		opt_color.attachEvent("onclick", switchcolor);
+		opt_paste.attachEvent("onclick", do_paste);
 	}
 	function update() {
 //		debug("ts: "+((new Date).getTime())+" rmax:"+rmax);
 		if(sending==0) {
 			sending=1;
+			sled.className='on';
 			var r=new XMLHttpRequest();
 			var send="";
 			while(keybuf.length>0) {
@@ -56,9 +120,6 @@
 			r.open("GET", "/u?s="+sid+"&k="+send, true);
 			if(ie)
 				r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
-//			debug("xhr send ts:"+((new Date).getTime()));
-//			r.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-//			r.send(query);
 			r.onreadystatechange = function () {
 //				debug("xhr:"+((new Date).getTime())+" state:"+r.readyState+" status:"+r.status+" statusText:"+r.statusText);
 				if (r.readyState==4) {
@@ -67,9 +128,9 @@
 						de=r.responseXML.documentElement;
 						if(de.tagName=="pre") {
 							if(ie) {
-								Sarissa.updateContentFromNode(de, div);
+								Sarissa.updateContentFromNode(de, dterm);
 							} else {
-								Sarissa.updateContentFromNode(de, div);
+								Sarissa.updateContentFromNode(de, dterm);
 //								old=div.firstChild;
 //								div.replaceChild(de,old);
 							}
@@ -80,9 +141,10 @@
 								rmax=2000;
 						}
 						sending=0;
+						sled.className='off';
 						timeout=window.setTimeout(update,rmax);
 					} else {
-//						debug("xhr error ts:"+((new Date).getTime())+" r:"+r.status);
+						debug("Connection error status:"+r.status);
 					}
 				}
 			}
@@ -153,7 +215,12 @@
 			k=String.fromCharCode(kc);
 		}
 		if(k.length) {
-			queue(encodeURIComponent(k));
+//			queue(encodeURIComponent(k));
+			if(k=="+") {
+				queue("%2B");
+			} else {
+				queue(escape(k));
+			}
 		}
 		ev.cancelBubble=true;
 		if (ev.stopPropagation) ev.stopPropagation();

@@ -2,6 +2,7 @@
 
 """<h1>Ajaxterm</h1>
 
+
 TODO
 	insert
 	color and latin1
@@ -31,7 +32,7 @@ NameVirtualHost *:443
 
 """
 
-import array,cgi,fcntl,glob,os,pty,re,signal,select,sys,threading,time
+import array,cgi,fcntl,glob,os,pty,random,re,signal,select,sys,threading,time
 
 
 # Optional: Add the QWeb .egg or ../qweb in sys path
@@ -71,7 +72,7 @@ class Terminal:
 			"\x1bD": None,
 			"\x1bE": None,
 			"\x1bH": None,
-			"\x1bM": None,
+			"\x1bM": self.esc_ri,
 			"\x1bN": None,
 			"\x1bO": None,
 			"\x1bZ": self.esc_da,
@@ -84,17 +85,23 @@ class Terminal:
 				self.esc_seq[k]=self.esc_ignore
 		d={
 #term:ignore: ('\x1b[4h', [4])
-#error '\x1b]R\r\nsh-3.1$ \r\nsh-3.1$ \r\nsh-3.1$ '
-#term:ignore: ('\x1b[?1h', [1])
+#term:ignore: ('\x1b[4l', [4])
+#error '\x1b[3M\x1b[1;24r\x1b[9;1H\x1b[37m\x1b[44m-   - '
+#error '\x1b[15X\x1b[9;40HDNS offer netforce.co'
+
 			r'\[([0-9]*)@' : self.esc_ich,
 			r'\[([0-9]*)A' : self.esc_cuu,
 			r'\[([0-9]*)C' : self.esc_cuf,
 			r'\[([0-9]*)L' : self.esc_il,
+			r'\[([0-9]*)G' : self.esc_hpa,
 			r'\[([0-9;]*)H' : self.esc_cup,
 			r'\[([0-9]*)J' : self.esc_ed,
 			r'\[([0-9]*)K' : self.esc_el,
+			r'\[([0-9]*)M' : self.esc_dl,
 			r'\[([0-9]*)P' : self.esc_dch,
+			r'\[([0-9]*)X' : self.esc_ech,
 			r'\[([0-9]*)c' : self.esc_da,
+			r'\[([0-9]*)d' : self.esc_vpa,
 			r'\[([0-9]*)g' : None,
 			r'\[([0-9;]*)h' : None,
 			r'\[([0-9;]*)l' : None,
@@ -126,23 +133,18 @@ class Terminal:
 		self.scr[pos:pos+len(s)]=s
 	def zero(self,y,x,w):
 		self.poke(y,x,' '*w)
-	def lineup(self):
-		s=self.scr
-		w=self.width
-		st=self.st
-		sb=self.sb
-		ss=(sb-st)*w
-		l0=w*st
-		l1=w*(st+1)
-		ll=w*(sb)
-		s[l0:l0+ss]=s[l1:l1+ss]
-		s[ll:ll+w]=array.array('c'," "*w)
+	def scroll_up(self,y1,y2):
+		self.poke(y1,0,self.peek(y1+1,0,y2,self.width))
+		self.zero(y2,0,self.width)
+	def scroll_down(self,y1,y2):
+		self.poke(y1+1,0,self.peek(y1,0,y2-1,self.width))
+		self.zero(y1,0,self.width)
 	def cdown(self):
 		if self.cy>=self.st and self.cy<=self.sb:
 			self.cl=0
 			q,r=divmod(self.cy+1,self.sb+1)
 			if q:
-				self.lineup()
+				self.scroll_up(self.st,self.sb)
 				self.cy=self.sb
 			else:
 				self.cy=r
@@ -186,6 +188,10 @@ class Terminal:
 		self.cx=self.cx_bak
 		self.cy=self.cy_bak
 		self.cl=0
+	def esc_ri(self,s):
+		self.cy=min(self.st,self.cy-1)
+		if self.cy==self.st:
+			self.scroll_down(self.st,self.sb)
 	# CSI sequences
 	def esc_ich(self,s,l):
 		if len(l)<1: l=[1]
@@ -218,6 +224,16 @@ class Terminal:
 		end=self.peek(cy,cx,cy,w)
 		self.esc_el(s,[0])
 		self.poke(cy,cx,end[l[0]:])
+	def esc_dl(self,s,l):
+		if len(l)<1: l=[1]
+		if self.cy>=self.st and self.cy<=self.sb:
+			for i in range(l[0]):
+				self.scroll_up(self.cy,self.sb)
+	def esc_ech(self,s,l):
+		if len(l)<1: l=[1]
+		cx,cy,cl=self.cx,self.cy,self.cl
+		self.echo(" ")
+		self.cx,self.cy,self.cl=cx,cy,cl
 	def esc_ed(self,s,l):
 		self.scr=array.array('c'," "*(self.width*self.height))
 	def esc_el(self,s,l):
@@ -233,6 +249,10 @@ class Terminal:
 			e=self.width*(self.cy+1)
 		size=e-s
 		self.scr[s:e]=array.array('c'," "*size)
+	def esc_hpa(self,s,l):
+		if len(l)<1: l=[1]
+		self.cl=0
+		self.cx=min(self.width,l[0])-1
 	def esc_il(self,s,l):
 		w=self.width
 		cy=self.cy
@@ -246,17 +266,19 @@ class Terminal:
 				ss=(sb-cy)*w
 				self.scr[l1:l1+ss]=self.scr[l0:l0+ss]
 			self.esc_el(s,[2])
+	def esc_vpa(self,s,l):
+		if len(l)<1: l=[1]
+		self.cy=min(self.height,l[0])-1
 	def esc_color(self,*s):
 		pass
 	def esc_ignore(self,*s):
 		print "term:ignore: %s"%repr(s)
 	def csiarg(self,s):
 		l=[]
-		for i in s.split(';'):
-			try:
-				l.append(int(i))
-			except ValueError:
-				pass
+		try:
+			l=[int(i) for i in s.split(';') if len(i)<4]
+		except ValueError:
+			pass
 		return l
 	def escape(self):
 		e=self.buf
@@ -306,8 +328,9 @@ class Terminal:
 			else:
 				r+=cgi.escape(line)+"\n"
 		# replace nbsp
-		r=unicode(r,'latin1').encode('utf8')
-		r='<?xml version="1.0"?><pre>%s</pre>'%r
+#		or=unicode(r,'latin1').encode('utf8')
+		r=r.replace(' ','\xa0')
+		r='<?xml version="1.0" encoding="ISO-8859-1"?><pre>%s</pre>'%r
 		if self.last_html==r:
 			print "nochange"
 			return '<?xml version="1.0"?><idem></idem>'
@@ -451,10 +474,12 @@ class AjaxTerm:
 				req.response_gzencode=1
 			else:
 				del self.session[s]
-			print "sessions %r"%self.session
+#			print "sessions %r"%self.session
 		elif req.PATH_INFO.endswith('/sarissa.js'):
 			req.response_headers['Content-Type']='application/x-javascript'
 			req.write(self.sarissa)
+#		elif not req.REQUEST['sid']:
+#			req.http_redirect('terminal?sid=%s'%('%012x'%random.randint(1,2**48)))
 		else:
 			req.response_headers['Content-Type']='text/html; charset=UTF-8'
 			req.write(self.template)
