@@ -59,7 +59,7 @@
 	var div=document.getElementById(id);
 	var dstat=document.createElement('div');
 	var sled=document.createElement('span');
-	var opt_post=document.createElement('a');
+	var opt_get=document.createElement('a');
 	var opt_color=document.createElement('a');
 	var opt_paste=document.createElement('a');
 	var sdebug=document.createElement('span');
@@ -68,7 +68,7 @@
 	sled.className='off';
 	dstat.appendChild(sled);
 	dstat.appendChild(document.createTextNode(' '));
-	opt_add(opt_post,'POST');
+	opt_add(opt_get,'GET');
 	opt_add(opt_color,'Colors');
 	opt_add(opt_paste,'Paste');
 	dstat.appendChild(sdebug);
@@ -90,9 +90,9 @@
 		sled.className='off';
 		debug("Connection lost timeout ts:"+((new Date).getTime()));
 	}
-	function do_post(event) {
-		opt_post.className=(opt_post.className=='off')?'on':'off';
-		debug('POST '+opt_post.className);
+	function do_get(event) {
+		opt_get.className=(opt_get.className=='off')?'on':'off';
+		debug('GET '+opt_get.className);
 	}
 	function do_color(event) {
 		opt_color.className=(opt_color.className=='off')?'on':'off';
@@ -102,11 +102,11 @@
 		debug('Should paste browser clipboard');
 	}
 	if(opt_color.addEventListener) {
-		opt_post.addEventListener('click',do_post,true);
+		opt_get.addEventListener('click',do_get,true);
 		opt_color.addEventListener('click',do_color,true);
 		opt_paste.addEventListener('click',do_paste,true);
 	} else {
-		opt_post.attachEvent("onclick", do_post);
+		opt_get.attachEvent("onclick", do_get);
 		opt_color.attachEvent("onclick", do_color);
 		opt_paste.attachEvent("onclick", do_paste);
 	}
@@ -121,7 +121,7 @@
 				send+=keybuf.pop();
 			}
 			var query="s="+sid+"&k="+send;
-			if(opt_post.className=='off') {
+			if(opt_get.className=='on') {
 				r.open("GET","u?"+query,true);
 			} else {
 				r.open("POST","u",true);
@@ -156,7 +156,7 @@
 				}
 			}
 			error_timeout=window.setTimeout(error,5000);
-			if(opt_post.className=='off') {
+			if(opt_get.className=='on') {
 				r.send(null);
 			} else {
 				r.send(query);
