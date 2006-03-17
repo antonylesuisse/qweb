@@ -491,7 +491,7 @@ class AjaxTerm:
 if __name__ == '__main__':
 	at=AjaxTerm()
 	f=lambda:os.system('firefox http://localhost:8080/&')
-	qweb.qweb_wsgi_autorun(at,ip='',port=8080,threaded=0,callback_ready=None)
+	qweb.qweb_wsgi_autorun(at,ip='localhost',port=8080,threaded=0,callback_ready=None)
 	at.multi.die()
 
 
