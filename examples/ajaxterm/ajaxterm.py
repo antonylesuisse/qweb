@@ -32,7 +32,7 @@ NameVirtualHost *:443
 
 """
 
-import array,cgi,fcntl,glob,os,pty,random,re,signal,select,sys,threading,time
+import array,cgi,fcntl,glob,os,pty,random,re,signal,select,sys,threading,time,termios,struct
 
 
 # Optional: Add the QWeb .egg or ../qweb in sys path
@@ -332,7 +332,7 @@ class Terminal:
 		r=r.replace(' ','\xa0')
 		r='<?xml version="1.0" encoding="ISO-8859-1"?><pre>%s</pre>'%r
 		if self.last_html==r:
-			print "nochange"
+#			print "nochange"
 			return '<?xml version="1.0"?><idem></idem>'
 		else:
 			self.last_html=r
@@ -369,8 +369,9 @@ class Multiplex:
 			setattr(self,name,SynchronizedMethod(self.lock,orig))
 		self.thread.start()
 	def create(self,cmd=[]):
-		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
 		cmd=['/bin/bash','-l']
+		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
+		w,h=100,30
 		pid,fd=pty.fork()
 		if pid==0:
 			try:
@@ -384,13 +385,14 @@ class Multiplex:
 					pass
 			# TODO IOCTL lines
 			env={}
-			env["COLUMNS"]="80"
-			env["LINES"]="24"
+			env["COLUMNS"]=str(w)
+			env["LINES"]=str(h)
 			env["TERM"]="linux"
 			os.execve(cmd[0],cmd,env)
 		else:
 			fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
-			self.proc[fd]={'pid':pid,'term':Terminal(),'buf':'','time':time.time()}
+			fcntl.ioctl(fd, termios.TIOCSWINSZ , struct.pack("HHHH",h,w,0,0))
+			self.proc[fd]={'pid':pid,'term':Terminal(w,h),'buf':'','time':time.time()}
 			return fd
 	def die(self):
 		self.alive=0

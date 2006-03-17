@@ -117,7 +117,7 @@
 			while(keybuf.length>0) {
 				send+=keybuf.pop();
 			}
-			r.open("GET", "/u?s="+sid+"&k="+send, true);
+			r.open("GET", "u?s="+sid+"&k="+send, true);
 			if(ie)
 				r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 			r.onreadystatechange = function () {
