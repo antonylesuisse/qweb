@@ -370,7 +370,10 @@ class Multiplex:
 		self.thread.start()
 	def create(self,cmd=[]):
 		cmd=['/bin/bash','-l']
-		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','-oNoHostAuthenticationForLocalhost=yes','localhost']
+		if os.getuid()==0:
+			cmd=['/bin/login']
+		else:
+			cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','-oNoHostAuthenticationForLocalhost=yes','localhost']
 		w,h=100,30
 		w,h=80,25
 		pid,fd=pty.fork()
@@ -384,7 +387,6 @@ class Multiplex:
 					os.close(i)
 				except OSError:
 					pass
-			# TODO IOCTL lines
 			env={}
 			env["COLUMNS"]=str(w)
 			env["LINES"]=str(h)
@@ -471,12 +473,13 @@ class AjaxTerm:
 				self.multi.proc_write(term,k)
 			time.sleep(0.002)
 			dump=self.multi.dump(term)
+			req.response_headers['Content-Type']='text/xml'
 			if isinstance(dump,str):
-				req.response_headers['Content-Type']='text/xml'
 				req.write(dump)
 				req.response_gzencode=1
 			else:
 				del self.session[s]
+				req.write('<?xml version="1.0"?><idem></idem>')
 #			print "sessions %r"%self.session
 		elif req.PATH_INFO.endswith('/sarissa.js'):
 			req.response_headers['Content-Type']='application/x-javascript'
