@@ -4,7 +4,6 @@
 
 
 TODO
-	ssh SKIP .ssh/known_hosts
 	insert
 	erase char bug in mutt
 	color
