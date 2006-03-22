@@ -371,7 +371,7 @@ class Multiplex:
 		self.thread.start()
 	def create(self,cmd=[]):
 		cmd=['/bin/bash','-l']
-		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','localhost']
+		cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','-oNoHostAuthenticationForLocalhost=yes','localhost']
 		w,h=100,30
 		w,h=80,25
 		pid,fd=pty.fork()
