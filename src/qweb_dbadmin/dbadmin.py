@@ -46,20 +46,21 @@ class DBAdmin:
 	def pretable(self,mod,table):
 		if not hasattr(table,'dba'):
 			table.dba=DBATable([])
-			tmp=[(col.creationOrder, col) for col in table.sqlmeta.columns.values() if col.name!='childName']
+			tmp=[(col.creationOrder, col) for col in table.sqlmeta.columns.values() if col.name!='childName' if not getattr(col, 'hidden', False)]
 			tmp.sort()
 			for order, col in tmp:
 				col.dba=DBACol()
 				col.dba.name=col.name
-				col.dba.longname=getattr(col, 'longname', col.name.replace('_',' '))
 				col.dba.nullable=not col.notNone
 				col.dba.sqltype=col._sqliteType()
 				if col.foreignKey:
+					col.dba.longname=getattr(col, 'longname', col.name[:-2].replace('_',' '))
 					col.dba.type="many2one"
 					col.dba.name=col.name[:-2]
 					col.dba.dest=getattr(mod, col.foreignKey)
 					col.dba.form="select"
 				else:
+					col.dba.longname=getattr(col, 'longname', col.name.replace('_',' '))
 					col.dba.type="scalar"
 				table.dba.cols.append(col)
 			table.dba.count=table.select().count()

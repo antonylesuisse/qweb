@@ -97,7 +97,8 @@ table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align
 		color: red;
 	}
 
-table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-space: nowrap; } 
+table.pager { border-collapse: collapse; border: 1px solid #dfc3df ; }
+table.pager tbody tr td { padding: 5px 3px; background-color: #f0e8f0; white-space: nowrap; }
 
 	</style>
 </t>
@@ -122,13 +123,13 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 # DBView
 #----------------------------------------------------------
 <t t-name="dbview_pager">
-   <table class="pager" width="100%" cellpadding="0" cellspacing="0">
+   <table class="pager" width="100%">
     <tr>
         <t t-pager="pager" t-total="total" t-start="start" t-step="step" t-scope="5"/>
-        <td width="15%" align="left">
+        <td align="left">
             <t t-esc="table"/>: <t t-esc="pager_win_start1"/> - <t t-esc="pager_win_end1"/> of <t t-esc="pager_tot_size"/>
         </td>
-        <td width="70%" align="center">
+        <td align="center">
             <t t-if="pager_active">
                 <t t-if="pager_prev"><a t-href="pagerurl?start=%(pager_prev_start)d">&amp;#171; Previous</a> &amp;nbsp; </t>
                 <t t-foreach="pager_list">
@@ -138,7 +139,7 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
                 <t t-if="pager_next"> &amp;nbsp; <a t-href="pagerurl?start=%(pager_next_start)d">Next &amp;#187;</a></t>
             </t>
         </td>
-        <td width="15%" align="right">
+        <td align="right">
             <form t-action="pagerurl?%(param)s" method="GET">
                 <input type="text" name="search" t-att-value="search"/>
                 <input type="submit" name="submit" value="Search"/>
@@ -250,7 +251,7 @@ table.pager tbody tr td { padding: 5px 3px; background-color: #f0f0f0; white-spa
 					<t t-esc="val[:64]"/>
 				</t>
 				<t t-if="c.dba.type=='many2one'">
-					id: <t t-esc="getattr(rows,c.dba.name+'ID')" />
+					<t t-esc="getattr(getattr(rows,c.dba.name),'row_summary')" />
 				</t>
 			</td>
 		</t>
