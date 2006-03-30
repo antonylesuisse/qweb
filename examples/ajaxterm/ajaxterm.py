@@ -44,7 +44,7 @@ class Terminal:
 		self.width=width
 		self.height=height
 		self.init()
-		self.esc_reset()
+		self.reset()
 	def init(self):
 		self.esc_seq={
 			"\x05": self.esc_da,
@@ -76,7 +76,7 @@ class Terminal:
 			"\x1bO": None,
 			"\x1bZ": self.esc_da,
 			"\x1ba": None,
-			"\x1bc": self.esc_reset,
+			"\x1bc": self.reset,
 			"\x1bn": None,
 			"\x1bo": None,
 		}
@@ -102,26 +102,42 @@ class Terminal:
 			if not self.csi_seq.has_key(i):
 				self.csi_seq[i]=(getattr(self,'csi_'+i),[1])
 		# Init 0-256 to latin1 translation table
-		self.tr=""
+		self.trl1=""
 		for i in range(256):
 			if i<32:
-				self.tr+=" "
+				self.trl1+=" "
 			elif i<127 or i>160:
-				self.tr+=chr(i)
+				self.trl1+=chr(i)
 			else:
-				self.tr+="?"
+				self.trl1+="?"
+		self.trhtml=""
+		for i in range(256):
+			if i==0x0a or (i>32 and i<127) or i>160:
+				self.trhtml+=chr(i)
+			elif i<=32:
+				self.trhtml+="\xa0"
+			else:
+				self.trhtml+="?"
+	def reset(self,s=""):
+		self.scr=array.array('i',[0x000700]*(self.width*self.height))
+		self.st=0
+		self.sb=self.height-1
+		self.cx_bak=self.cx=0
+		self.cy_bak=self.cy=0
+		self.cl=0
+		self.sgr=0x000700
+		self.buf=""
+		self.outbuf=""
+		self.last_html=""
 	def peek(self,y1,x1,y2,x2):
 		return self.scr[self.width*y1+x1:self.width*y2+x2]
 	def poke(self,y,x,s):
 		pos=self.width*y+x
-		if isinstance(s,str):
-			s=array.array('c',s)
 		self.scr[pos:pos+len(s)]=s
 	def zero(self,y1,x1,y2,x2):
-		s=self.width*y1+x1
-		e=self.width*y2+x2
-		w=e-s+1
-		self.poke(y1,x1,' '*w)
+		w=self.width*(y2-y1)+x2-x1+1
+		z=array.array('i',[0x000700]*w)
+		self.scr[self.width*y1+x1:self.width*y2+x2+1]=z
 	def scroll_up(self,y1,y2):
 		self.poke(y1,0,self.peek(y1+1,0,y2,self.width))
 		self.zero(y2,0,y2,self.width-1)
@@ -150,18 +166,8 @@ class Terminal:
 		if self.cl:
 			self.cursor_down()
 			self.cx=0
-		self.scr[(self.cy*self.width)+self.cx]=c
+		self.scr[(self.cy*self.width)+self.cx]=self.sgr|ord(c)
 		self.cursor_right()
-	def esc_reset(self,s=""):
-		self.scr=array.array('c'," "*(self.width*self.height))
-		self.st=0
-		self.sb=self.height-1
-		self.cx_bak=self.cx=0
-		self.cy_bak=self.cy=0
-		self.cl=0
-		self.buf=""
-		self.outbuf=""
-		self.last_html=""
 	def esc_0x08(self,s):
 		self.cx=max(0,self.cx-1)
 	def esc_0x09(self,s):
@@ -279,7 +285,16 @@ class Terminal:
 		if l[0]==4:
 			print "insert off"
 	def csi_m(self,l):
-		pass
+		for i in l:
+			if i==0:
+				self.sgr=0x000700
+			elif i>=30 and i<=37:
+				c=i-30
+				self.sgr=(self.sgr&0xff00ff)|(c<<8)
+			elif i>=40 and i<=47:
+				c=i-40
+				self.sgr=(self.sgr&0x00ffff)|(c<<16)
+#		print 'sgr: %x'%self.sgr
 	def csi_r(self,l):
 		if len(l)<2: l=[0,self.height]
 		self.st=min(self.height-1,l[0]-1)
@@ -319,23 +334,34 @@ class Terminal:
 		self.outbuf=""
 		return b
 	def dump(self):
-		return self.scr.tostring()
+		r=''
+		for i in self.scr:
+			r+=chr(i&255)
+		return r
 	def dumplatin1(self):
-		return self.dump().translate(self.tr)
+		return self.dump().translate(self.trl1)
 	def dumphtml(self):
 		h=self.height
 		w=self.width
-		s=self.dumplatin1()
 		r=""
-		for i in range(h):
-			line=s[w*i:w*(i+1)]
-			if self.cy==i:
-				pre=cgi.escape(line[:self.cx])
-				pos=cgi.escape(line[self.cx+1:])
-				r+=pre+'<span>'+cgi.escape(line[self.cx])+'</span>'+pos+'\n'
-			else:
-				r+=cgi.escape(line)+"\n"
-		r=r.replace(' ','\xa0')
+		span=""
+		span_bg=-1
+		span_fg=-1
+		for i in range(h*w):
+			q,c=divmod(self.scr[i],256)
+			bg,fg=divmod(q,256)
+			if i==self.cy*w+self.cx:
+				bg=1
+				fg=7
+			if (bg!=span_bg or fg!=span_fg or i==h*w-1):
+				if len(span):
+					r+='<span class="f%d b%d">%s</span>'%(span_fg,span_bg,cgi.escape(span.translate(self.trhtml)))
+				span=""
+				span_bg=bg
+				span_fg=fg
+			span+=chr(c)
+			if i%w==w-1:
+				span+='\n'
 		r='<?xml version="1.0" encoding="ISO-8859-1"?><pre class="term">%s</pre>'%r
 		if self.last_html==r:
 			return '<?xml version="1.0"?><idem></idem>'
