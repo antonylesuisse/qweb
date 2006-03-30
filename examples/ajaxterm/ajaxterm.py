@@ -286,15 +286,21 @@ class Terminal:
 			print "insert off"
 	def csi_m(self,l):
 		for i in l:
-			if i==0:
+			if i==0 or i==39 or i==49 or i==27:
 				self.sgr=0x000700
+			elif i==1:
+				self.sgr=(self.sgr|0x000800)
+			elif i==7:
+				self.sgr=0x070000
 			elif i>=30 and i<=37:
 				c=i-30
-				self.sgr=(self.sgr&0xff00ff)|(c<<8)
+				self.sgr=(self.sgr&0xff08ff)|(c<<8)
 			elif i>=40 and i<=47:
 				c=i-40
 				self.sgr=(self.sgr&0x00ffff)|(c<<16)
-#		print 'sgr: %x'%self.sgr
+#			else:
+#				print "CSI sgr ignore",l,i
+#		print 'sgr: %r %x'%(l,self.sgr)
 	def csi_r(self,l):
 		if len(l)<2: l=[0,self.height]
 		self.st=min(self.height-1,l[0]-1)
@@ -340,25 +346,25 @@ class Terminal:
 		return r
 	def dumplatin1(self):
 		return self.dump().translate(self.trl1)
-	def dumphtml(self):
+	def dumphtml(self,color=1):
 		h=self.height
 		w=self.width
 		r=""
 		span=""
-		span_bg=-1
-		span_fg=-1
+		span_bg,span_fg=-1,-1
 		for i in range(h*w):
 			q,c=divmod(self.scr[i],256)
-			bg,fg=divmod(q,256)
+			if color:
+				bg,fg=divmod(q,256)
+			else:
+				bg,fg=0,7
 			if i==self.cy*w+self.cx:
-				bg=1
-				fg=7
+				bg,fg=1,7
 			if (bg!=span_bg or fg!=span_fg or i==h*w-1):
 				if len(span):
 					r+='<span class="f%d b%d">%s</span>'%(span_fg,span_bg,cgi.escape(span.translate(self.trhtml)))
 				span=""
-				span_bg=bg
-				span_fg=fg
+				span_bg,span_fg=bg,fg
 			span+=chr(c)
 			if i%w==w-1:
 				span+='\n'
@@ -461,9 +467,9 @@ class Multiplex:
 			os.write(fd,s)
 		except (IOError,OSError):
 			self.proc_kill(fd)
-	def dump(self,fd):
+	def dump(self,fd,color=1):
 		try:
-			return self.proc[fd]['term'].dumphtml()
+			return self.proc[fd]['term'].dumphtml(color)
 		except KeyError:
 			return False
 
@@ -494,6 +500,7 @@ class AjaxTerm:
 		if req.PATH_INFO.endswith('/u'):
 			s=req.REQUEST["s"]
 			k=req.REQUEST["k"]
+			c=req.REQUEST["c"]
 			if s in self.session:
 				term=self.session[s]
 			else:
@@ -501,7 +508,7 @@ class AjaxTerm:
 			if k:
 				self.multi.proc_write(term,k)
 			time.sleep(0.002)
-			dump=self.multi.dump(term)
+			dump=self.multi.dump(term,c)
 			req.response_headers['Content-Type']='text/xml'
 			if isinstance(dump,str):
 				req.write(dump)
