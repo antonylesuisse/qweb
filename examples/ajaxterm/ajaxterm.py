@@ -2,14 +2,6 @@
 
 """<h1>Ajaxterm</h1>
 
-
-TODO
-	insert
-	erase char bug in mutt
-	color
-	multiplex change sizex= sizey=
-	copy/paste
-
 To use with apache in modssl:
 -----------------------------
 
@@ -29,6 +21,13 @@ NameVirtualHost *:443
     ProxyPass / http://localhost:8080/
     ProxyPassReverse / http://localhost:8080/
 </VirtualHost>
+
+TODO
+----
+	insert [ 4 h
+	color
+	multiplex change sizex= sizey=
+	copy/paste
 
 """
 
@@ -64,8 +63,8 @@ class Terminal:
 			"\x1b(0": None,
 			"\x1b(A": None,
 			"\x1b(B": None,
-			"\x1b[s": self.esc_save,
-			"\x1b[u": self.esc_restore,
+			"\x1b[?1c": None,
+			"\x1b[?0c": None,
 			"\x1b]R": None,
 			"\x1b7": self.esc_save,
 			"\x1b8": self.esc_restore,
@@ -84,39 +83,25 @@ class Terminal:
 		for k,v in self.esc_seq.items():
 			if v==None:
 				self.esc_seq[k]=self.esc_ignore
+		# regex
 		d={
-#term:ignore: ('\x1b[4h', [4])
-#term:ignore: ('\x1b[4l', [4])
-#error '\x1b[3M\x1b[1;24r\x1b[9;1H\x1b[37m\x1b[44m-   - '
-#error '\x1b[15X\x1b[9;40HDNS offer netforce.co'
-
-			r'\[([0-9]*)@' : self.esc_ich,
-			r'\[([0-9]*)A' : self.esc_cuu,
-			r'\[([0-9]*)C' : self.esc_cuf,
-			r'\[([0-9]*)L' : self.esc_il,
-			r'\[([0-9]*)G' : self.esc_hpa,
-			r'\[([0-9;]*)H' : self.esc_cup,
-			r'\[([0-9]*)J' : self.esc_ed,
-			r'\[([0-9]*)K' : self.esc_el,
-			r'\[([0-9]*)M' : self.esc_dl,
-			r'\[([0-9]*)P' : self.esc_dch,
-			r'\[([0-9]*)X' : self.esc_ech,
-			r'\[([0-9]*)c' : self.esc_da,
-			r'\[([0-9]*)d' : self.esc_vpa,
-			r'\[([0-9]*)g' : None,
-			r'\[([0-9;]*)h' : None,
-			r'\[([0-9;]*)l' : None,
-			r'\[([0-9;]*)m' : self.esc_color,
-			r'\[([0-9;]+)r' : self.esc_csr,
-			r'\[([0-9;\>]+)c' : None,
-			r'\[\?([0-9;]+)[chlrst]' : None,
-			r'\]([^\x07]+)\x07' : None,
+			r'\[\??([0-9;]*)([@ABCDEFGHJKLMPXacdefghlmnqrstu`])' : self.csi_dispatch,
+			r'\]([^\x07]+)\x07' : self.esc_ignore,
 		}
 		self.esc_re=[]
 		for k,v in d.items():
-			if v==None:
-				v=self.esc_ignore
 			self.esc_re.append((re.compile('\x1b'+k),v))
+		# define csi sequences
+		self.csi_seq={
+			'@': (self.csi_at,[1]),
+			'`': (self.csi_G,[1]),
+			'J': (self.csi_J,[0]),
+			'K': (self.csi_K,[0]),
+		}
+		for i in [i[4] for i in dir(self) if i.startswith('csi_') and len(i)==5]:
+			if not self.csi_seq.has_key(i):
+				self.csi_seq[i]=(getattr(self,'csi_'+i),[1])
+		# Init 0-256 to latin1 translation table
 		self.tr=""
 		for i in range(256):
 			if i<32:
@@ -132,15 +117,21 @@ class Terminal:
 		if isinstance(s,str):
 			s=array.array('c',s)
 		self.scr[pos:pos+len(s)]=s
-	def zero(self,y,x,w):
-		self.poke(y,x,' '*w)
+	def zero(self,y1,x1,y2,x2):
+		s=self.width*y1+x1
+		e=self.width*y2+x2
+		w=e-s+1
+		self.poke(y1,x1,' '*w)
 	def scroll_up(self,y1,y2):
 		self.poke(y1,0,self.peek(y1+1,0,y2,self.width))
-		self.zero(y2,0,self.width)
+		self.zero(y2,0,y2,self.width-1)
 	def scroll_down(self,y1,y2):
 		self.poke(y1+1,0,self.peek(y1,0,y2-1,self.width))
-		self.zero(y1,0,self.width)
-	def cdown(self):
+		self.zero(y1,0,y1,self.width-1)
+	def scroll_right(self,y,x):
+		self.poke(y,x+1,self.peek(y,x,y,self.width))
+		self.zero(y,x,y,x)
+	def cursor_down(self):
 		if self.cy>=self.st and self.cy<=self.sb:
 			self.cl=0
 			q,r=divmod(self.cy+1,self.sb+1)
@@ -149,7 +140,7 @@ class Terminal:
 				self.cy=self.sb
 			else:
 				self.cy=r
-	def cright(self):
+	def cursor_right(self):
 		q,r=divmod(self.cx+1,self.width)
 		if q:
 			self.cl=1
@@ -157,10 +148,10 @@ class Terminal:
 			self.cx=r
 	def echo(self,c):
 		if self.cl:
-			self.cdown()
+			self.cursor_down()
 			self.cx=0
 		self.scr[(self.cy*self.width)+self.cx]=c
-		self.cright()
+		self.cursor_right()
 	def esc_reset(self,s=""):
 		self.scr=array.array('c'," "*(self.width*self.height))
 		self.st=0
@@ -178,7 +169,7 @@ class Terminal:
 		q,r=divmod(x,8)
 		self.cx=(q*8)%self.width
 	def esc_0x0a(self,s):
-		self.cdown()
+		self.cursor_down()
 	def esc_0x0d(self,s):
 		self.cl=0
 		self.cx=0
@@ -189,98 +180,115 @@ class Terminal:
 		self.cx=self.cx_bak
 		self.cy=self.cy_bak
 		self.cl=0
+	def esc_da(self,s):
+		self.outbuf="\x1b[?6c"
 	def esc_ri(self,s):
 		self.cy=min(self.st,self.cy-1)
-		if self.cy==self.st:
+		if self.cy<=self.st:
 			self.scroll_down(self.st,self.sb)
+	def esc_ignore(self,*s):
+		pass
+#		print "term:ignore: %s"%repr(s)
+	def csi_dispatch(self,seq,mo):
 	# CSI sequences
-	def esc_ich(self,s,l):
-		if len(l)<1: l=[1]
-		x,y=self.cx,self.cy
+		s=mo.group(1)
+		c=mo.group(2)
+#		if not (c in ['m','h','l']): print 'csi',c,repr(seq)
+		f=self.csi_seq.get(c,None)
+		if f:
+			try:
+				l=[min(int(i),1024) for i in s.split(';') if len(i)<4]
+			except ValueError:
+				l=[]
+			if len(l)==0:
+				l=f[1]
+			f[0](l)
+#		else:
+#			print 'csi ignore',c,l
+	def csi_at(self,l):
 		for i in range(l[0]):
-			self.echo(" ")
-		self.cx,self.cy=x,y
-	def esc_csr(self,s,l):
-		if len(l)<2: l=(0,self.height)
-		self.st=min(self.height-1,l[0]-1)
-		self.sb=min(self.height-1,l[1]-1)
-		self.sb=max(self.st,self.sb)
-	def esc_cup(self,s,l):
-		if len(l)<2: l=(1,1)
+			self.scroll_right(self.cy,self.cx)
+	def csi_A(self,l):
+		self.cy=max(self.st,self.cy-l[0])
+	def csi_B(self,l):
+		self.cy=min(self.sb,self.cy+l[0])
+	def csi_C(self,l):
+		self.cx=min(self.width-1,self.cx+l[0])
 		self.cl=0
+	def csi_D(self,l):
+		self.cx=max(0,self.cx-l[0])
+		self.cl=0
+	def csi_E(self,l):
+		self.csi_B(l)
+		self.cx=0
+		self.cl=0
+	def csi_F(self,l):
+		self.csi_A(l)
+		self.cx=0
+		self.cl=0
+	def csi_G(self,l):
+		self.cx=min(self.width,l[0])-1
+	def csi_H(self,l):
+		if len(l)<2: l=[1,1]
 		self.cx=min(self.width,l[1])-1
 		self.cy=min(self.height,l[0])-1
-	def esc_cuu(self,s,l):
-		if len(l)<1: l=[1]
-		self.cy=max(self.st,self.cy-l[0])
-	def esc_cuf(self,s,l):
-		if len(l)<1: l=[1]
+		self.cl=0
+	def csi_J(self,l):
+		if l[0]==0:
+			self.zero(self.cy,self.cx,self.height-1,self.width-1)
+		elif l[0]==1:
+			self.zero(0,0,self.cy,self.cx)
+		elif l[0]==2:
+			self.zero(0,0,self.height-1,self.width-1)
+	def csi_K(self,l):
+		if l[0]==0:
+			self.zero(self.cy,self.cx,self.cy,self.width-1)
+		elif l[0]==1:
+			self.zero(self.cy,0,self.cy,self.cx)
+		elif l[0]==2:
+			self.zero(self.cy,0,self.cy,self.width-1)
+	def csi_L(self,l):
 		for i in range(l[0]):
-			self.cright()
-	def esc_da(self,s,l=[]):
-		self.outbuf="\x1b[?6c"
-	def esc_dch(self,s,l):
-		w,cx,cy=self.width,self.cx,self.cy
-		if len(l)<1: l=[1]
-		end=self.peek(cy,cx,cy,w)
-		self.esc_el(s,[0])
-		self.poke(cy,cx,end[l[0]:])
-	def esc_dl(self,s,l):
-		if len(l)<1: l=[1]
+			if self.cy<self.sb:
+				self.scroll_down(self.cy,self.sb)
+	def csi_M(self,l):
 		if self.cy>=self.st and self.cy<=self.sb:
 			for i in range(l[0]):
 				self.scroll_up(self.cy,self.sb)
-	def esc_ech(self,s,l):
-		if len(l)<1: l=[1]
-		cx,cy,cl=self.cx,self.cy,self.cl
-		self.echo(" ")
-		self.cx,self.cy,self.cl=cx,cy,cl
-	def esc_ed(self,s,l):
-		self.scr=array.array('c'," "*(self.width*self.height))
-	def esc_el(self,s,l):
-		if len(l)<1: l=[0]
-		if l[0]==0:
-			s=self.width*self.cy+self.cx
-			e=self.width*(self.cy+1)
-		elif l[0]==1:
-			e=self.width*self.cy
-			s=self.width*self.cy+self.cx
-		elif l[0]==2:
-			s=self.width*self.cy
-			e=self.width*(self.cy+1)
-		size=e-s
-		self.scr[s:e]=array.array('c'," "*size)
-	def esc_hpa(self,s,l):
-		if len(l)<1: l=[1]
-		self.cl=0
-		self.cx=min(self.width,l[0])-1
-	def esc_il(self,s,l):
-		w=self.width
-		cy=self.cy
-		sb=self.sb
-		if len(l)<1:
-			l=[1]
-		for i in range(l[0]):
-			if cy<sb:
-				l0=cy*w
-				l1=(cy+1)*w
-				ss=(sb-cy)*w
-				self.scr[l1:l1+ss]=self.scr[l0:l0+ss]
-			self.esc_el(s,[2])
-	def esc_vpa(self,s,l):
-		if len(l)<1: l=[1]
+	def csi_P(self,l):
+		w,cx,cy=self.width,self.cx,self.cy
+		end=self.peek(cy,cx,cy,w)
+		self.csi_K([0])
+		self.poke(cy,cx,end[l[0]:])
+	def csi_X(self,l):
+		self.zero(self.cy,self.cx,self.cy,self.cx+l[0])
+	def csi_a(self,l):
+		self.csi_C(l)
+	def csi_c(self,l):
+		self.esc_da(0)
+	def csi_d(self,l):
 		self.cy=min(self.height,l[0])-1
-	def esc_color(self,*s):
+	def csi_e(self,l):
+		self.csi_B(l)
+	def csi_f(self,l):
+		self.csi_H(l)
+	def csi_h(self,l):
+		if l[0]==4:
+			print "insert on"
+	def csi_l(self,l):
+		if l[0]==4:
+			print "insert off"
+	def csi_m(self,l):
 		pass
-	def esc_ignore(self,*s):
-		print "term:ignore: %s"%repr(s)
-	def csiarg(self,s):
-		l=[]
-		try:
-			l=[int(i) for i in s.split(';') if len(i)<4]
-		except ValueError:
-			pass
-		return l
+	def csi_r(self,l):
+		if len(l)<2: l=[0,self.height]
+		self.st=min(self.height-1,l[0]-1)
+		self.sb=min(self.height-1,l[1]-1)
+		self.sb=max(self.st,self.sb)
+	def csi_s(self,l):
+		self.esc_save(0)
+	def csi_u(self,l):
+		self.esc_restore(0)
 	def escape(self):
 		e=self.buf
 #		print "ESC %r %r"%(e,(self.st,self.sb))
@@ -294,7 +302,7 @@ class Terminal:
 			for r,f in self.esc_re:
 				mo=r.match(e)
 				if mo:
-					f(e,self.csiarg(mo.group(1)))
+					f(e,mo)
 					self.buf=""
 					break
 	def write(self,s):
@@ -305,7 +313,6 @@ class Terminal:
 			elif i == '\x1b':
 				self.buf+=i
 			else:
-#				print "ECHO %r"%i
 				self.echo(i)
 	def read(self):
 		b=self.outbuf
@@ -328,12 +335,9 @@ class Terminal:
 				r+=pre+'<span>'+cgi.escape(line[self.cx])+'</span>'+pos+'\n'
 			else:
 				r+=cgi.escape(line)+"\n"
-		# replace nbsp
-#		or=unicode(r,'latin1').encode('utf8')
 		r=r.replace(' ','\xa0')
 		r='<?xml version="1.0" encoding="ISO-8859-1"?><pre class="term">%s</pre>'%r
 		if self.last_html==r:
-#			print "nochange"
 			return '<?xml version="1.0"?><idem></idem>'
 		else:
 			self.last_html=r
@@ -452,7 +456,6 @@ class Multiplex:
 			except (IOError,OSError):
 				pass
 
-
 class AjaxTerm:
 	def __init__(self):
 		self.template = file("ajaxterm.html").read()
@@ -490,7 +493,6 @@ class AjaxTerm:
 			req.response_headers['Content-Type']='text/html; charset=UTF-8'
 			req.write(self.template)
 		return req
-
 
 if __name__ == '__main__':
 	at=AjaxTerm()
