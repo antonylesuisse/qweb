@@ -134,7 +134,8 @@ class StaticZip(StaticBase):
 		self.zipentry={}
 
 		for zi in self.zipfile.infolist():
-			self.zipentry[zi.filename]=Entry(zi.filename,"file",self.zipmtime,zi.file_size)
+			if not zi.filename.endswith('/'):
+				self.zipentry[zi.filename]=Entry(zi.filename,"file",self.zipmtime,zi.file_size)
 
 		if listdir:
 			# Build a directory index
@@ -156,7 +157,7 @@ class StaticZip(StaticBase):
 						self.zipdir[d]={n:e}
 					i=d
 	def fs_stat(self,path):
-		fs_path=os.path.join(self.ziproot,path)
+		fs_path=os.path.join(self.ziproot,path).strip('/')
 		if fs_path in self.zipentry:
 			return self.zipentry[fs_path]
 		elif fs_path in self.zipdir:
@@ -164,10 +165,10 @@ class StaticZip(StaticBase):
 		else:
 			return None
 	def fs_getfile(self,path):
-		fs_path = self.ziproot[1:]+path
+		fs_path = os.path.join(self.ziproot,path).strip('/')
 		return self.zipfile.read(fs_path)
 	def fs_listdir(self,path):
-		fs_path = self.ziproot[1:]+path
+		fs_path = os.path.join(self.ziproot,path).strip('/')
 		return self.zipdir[fs_path].values()
 
 class StaticModule(StaticBase):
