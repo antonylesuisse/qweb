@@ -1,37 +1,6 @@
 #!/usr/bin/python
 
-"""<h1>Ajaxterm</h1>
-
-To use with apache with mod_ssl and mod_proxy:
-----------------------------------------------
-
-	Listen 443
-	NameVirtualHost *:443
-
-	<VirtualHost *:443>
-		ServerName localhost
-		SSLEngine On
-		SSLCertificateKeyFile ssl/apache.pem
-		SSLCertificateFile ssl/apache.pem
-
-		ProxyRequests Off
-		<Proxy *>
-			Order deny,allow
-			Allow from all
-		</Proxy>
-		ProxyPass /ajaxterm/ http://localhost:8080/
-		ProxyPassReverse /ajaxterm/ http://localhost:8080/
-
-	</VirtualHost>
-
-TODO
-----
-	insert mode ESC [ 4 h
-	multiplex change sizex= sizey=
-	paste from browser
-	vt102 graphic codepage
-
-"""
+""" Ajaxterm """
 
 import array,cgi,fcntl,glob,optparse,os,pty,random,re,signal,select,sys,threading,time,termios,struct
 
