@@ -2,8 +2,8 @@
 
 """<h1>Ajaxterm</h1>
 
-To use with apache with mod_ssl:
--------------------------------
+To use with apache with mod_ssl and mod_proxy:
+----------------------------------------------
 
 	Listen 443
 	NameVirtualHost *:443
@@ -13,13 +13,15 @@ To use with apache with mod_ssl:
 		SSLEngine On
 		SSLCertificateKeyFile ssl/apache.pem
 		SSLCertificateFile ssl/apache.pem
+
 		ProxyRequests Off
 		<Proxy *>
 			Order deny,allow
 			Allow from all
 		</Proxy>
-		ProxyPass / http://localhost:8080/
-		ProxyPassReverse / http://localhost:8080/
+		ProxyPass /ajaxterm/ http://localhost:8080/
+		ProxyPassReverse /ajaxterm/ http://localhost:8080/
+
 	</VirtualHost>
 
 TODO
