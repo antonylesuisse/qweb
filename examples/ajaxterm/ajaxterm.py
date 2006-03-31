@@ -395,8 +395,10 @@ class SynchronizedMethod:
 		return r
 
 class Multiplex:
-	def __init__(self,*l):
+	def __init__(self,size='80x25',cmd=None):
 		signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+		self.size=size
+		self.cmd=cmd
 		self.proc={}
 		self.lock=threading.RLock()
 		self.thread=threading.Thread(target=self.loop)
@@ -407,13 +409,14 @@ class Multiplex:
 			setattr(self,name,SynchronizedMethod(self.lock,orig))
 		self.thread.start()
 	def create(self,cmd=[]):
-		cmd=['/bin/bash','-l']
-		if os.getuid()==0:
+		if self.cmd:
+			cmd=['/bin/bash','-c',self.cmd]
+		elif os.getuid()==0:
 			cmd=['/bin/login']
 		else:
 			cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','-oNoHostAuthenticationForLocalhost=yes','localhost']
-		w,h=100,30
-		w,h=80,25
+		s=self.size.split('x')
+		w,h=int(s[0]),int(s[1])
 		pid,fd=pty.fork()
 		if pid==0:
 			try:
@@ -429,6 +432,7 @@ class Multiplex:
 			env["COLUMNS"]=str(w)
 			env["LINES"]=str(h)
 			env["TERM"]="linux"
+			env["PATH"]=os.environ['PATH']
 			os.execve(cmd[0],cmd,env)
 		else:
 			fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
@@ -491,11 +495,11 @@ class Multiplex:
 				pass
 
 class AjaxTerm:
-	def __init__(self):
+	def __init__(self,size='80x25',cmd=None):
 		self.template = file("ajaxterm.html").read()
 		self.sarissa = file("sarissa.js").read()
 		self.sarissa += file("sarissa_dhtml.js").read()
-		self.multi = Multiplex()
+		self.multi = Multiplex(size,cmd)
 		self.session = {}
 	def __call__(self, environ, start_response):
 		req = qweb.QWebRequest(environ, start_response,session=None)
@@ -532,10 +536,12 @@ class AjaxTerm:
 def main():
 	parser = optparse.OptionParser()
 	parser.add_option("-p", "--port", dest="port", default="8080", help="Set the TCP port (default: 8080)")
+	parser.add_option("-s", "--size", dest="size", default="80x25",help="set the terminal size (default: 80x25)")
+	parser.add_option("-c", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 	parser.add_option("-l", "--log", action="store_true", dest="log",default=0,help="log requests to stderr (default: quiet mode)")
 	(o, a) = parser.parse_args()
 	print 'AjaxTerm serving at http://localhost:%s/'%o.port
-	at=AjaxTerm()
+	at=AjaxTerm(o.size,o.cmd)
 #	f=lambda:os.system('firefox http://localhost:%s/&'%o.port)
 	qweb.qweb_wsgi_autorun(at,ip='localhost',port=int(o.port),threaded=0,log=o.log,callback_ready=None)
 	at.multi.die()
