@@ -66,8 +66,8 @@ class Terminal:
 			"\x1b(0": None,
 			"\x1b(A": None,
 			"\x1b(B": None,
-			"\x1b[?1c": None,
-			"\x1b[?0c": None,
+			"\x1b[c": self.esc_da,
+			"\x1b[0c": self.esc_da,
 			"\x1b]R": None,
 			"\x1b7": self.esc_save,
 			"\x1b8": self.esc_restore,
@@ -273,7 +273,10 @@ class Terminal:
 	def csi_a(self,l):
 		self.csi_C(l)
 	def csi_c(self,l):
-		self.esc_da(0)
+		#'\x1b[?0c'
+		#'\x1b[?1c'
+		#'\x1b[?8c'
+		pass
 	def csi_d(self,l):
 		self.cy=min(self.height,l[0])-1
 	def csi_e(self,l):
