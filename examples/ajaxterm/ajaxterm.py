@@ -273,9 +273,7 @@ class Terminal:
 	def csi_a(self,l):
 		self.csi_C(l)
 	def csi_c(self,l):
-		#'\x1b[?0c'
-		#'\x1b[?1c'
-		#'\x1b[?8c'
+		#'\x1b[?0c' 0-8 cursor size
 		pass
 	def csi_d(self,l):
 		self.cy=min(self.height,l[0])-1
