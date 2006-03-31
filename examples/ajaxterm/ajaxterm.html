@@ -232,7 +232,7 @@
 			else if (kc==219) k=String.fromCharCode(0);  // Ctrl-@
 		} else if (ev.which==0) {
 			if (kc==9) k=String.fromCharCode(9);  // Tab
-			else if (kc==8) k=String.fromCharCode(8);  // Backspace
+			else if (kc==8) k=String.fromCharCode(127);  // Backspace
 			else if (kc==27) k=String.fromCharCode(27); // Escape
 			else {
 				if (kc==33) k="[5~";        // PgUp
@@ -262,7 +262,10 @@
 				}
 			}
 		} else {
-			k=String.fromCharCode(kc);
+			if (kc==8)
+				k=String.fromCharCode(127);  // Backspace
+			else
+				k=String.fromCharCode(kc);
 		}
 		if(k.length) {
 //			queue(encodeURIComponent(k));
