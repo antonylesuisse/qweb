@@ -2,36 +2,36 @@
 
 """<h1>Ajaxterm</h1>
 
-To use with apache in modssl:
------------------------------
+To use with apache with mod_ssl:
+-------------------------------
 
-Listen 443
-NameVirtualHost *:443
+	Listen 443
+	NameVirtualHost *:443
 
-<VirtualHost *:443>
-    ServerName localhost
-    SSLEngine On
-    SSLCertificateKeyFile ssl/apache.pem
-    SSLCertificateFile ssl/apache.pem
-    ProxyRequests Off
-    <Proxy *>
-        Order deny,allow
-        Allow from all
-    </Proxy>
-    ProxyPass / http://localhost:8080/
-    ProxyPassReverse / http://localhost:8080/
-</VirtualHost>
+	<VirtualHost *:443>
+		ServerName localhost
+		SSLEngine On
+		SSLCertificateKeyFile ssl/apache.pem
+		SSLCertificateFile ssl/apache.pem
+		ProxyRequests Off
+		<Proxy *>
+			Order deny,allow
+			Allow from all
+		</Proxy>
+		ProxyPass / http://localhost:8080/
+		ProxyPassReverse / http://localhost:8080/
+	</VirtualHost>
 
 TODO
 ----
-	insert [ 4 h
-	color
+	insert mode ESC [ 4 h
 	multiplex change sizex= sizey=
-	copy/paste
+	paste from browser
+	vt102 graphic codepage
 
 """
 
-import array,cgi,fcntl,glob,os,pty,random,re,signal,select,sys,threading,time,termios,struct
+import array,cgi,fcntl,glob,optparse,os,pty,random,re,signal,select,sys,threading,time,termios,struct
 
 
 # Optional: Add the QWeb .egg or ../qweb in sys path
@@ -47,6 +47,7 @@ class Terminal:
 		self.reset()
 	def init(self):
 		self.esc_seq={
+			"\x00": None,
 			"\x05": self.esc_da,
 			"\x07": None,
 			"\x08": self.esc_0x08,
@@ -101,7 +102,7 @@ class Terminal:
 		for i in [i[4] for i in dir(self) if i.startswith('csi_') and len(i)==5]:
 			if not self.csi_seq.has_key(i):
 				self.csi_seq[i]=(getattr(self,'csi_'+i),[1])
-		# Init 0-256 to latin1 translation table
+		# Init 0-256 to latin1 and html translation table
 		self.trl1=""
 		for i in range(256):
 			if i<32:
@@ -189,8 +190,8 @@ class Terminal:
 	def esc_da(self,s):
 		self.outbuf="\x1b[?6c"
 	def esc_ri(self,s):
-		self.cy=min(self.st,self.cy-1)
-		if self.cy<=self.st:
+		self.cy=max(self.st,self.cy-1)
+		if self.cy==self.st:
 			self.scroll_down(self.st,self.sb)
 	def esc_ignore(self,*s):
 		pass
@@ -199,7 +200,6 @@ class Terminal:
 	# CSI sequences
 		s=mo.group(1)
 		c=mo.group(2)
-#		if not (c in ['m','h','l']): print 'csi',c,repr(seq)
 		f=self.csi_seq.get(c,None)
 		if f:
 			try:
@@ -280,10 +280,12 @@ class Terminal:
 		self.csi_H(l)
 	def csi_h(self,l):
 		if l[0]==4:
-			print "insert on"
+			pass
+#			print "insert on"
 	def csi_l(self,l):
 		if l[0]==4:
-			print "insert off"
+			pass
+#			print "insert off"
 	def csi_m(self,l):
 		for i in l:
 			if i==0 or i==39 or i==49 or i==27:
@@ -312,9 +314,8 @@ class Terminal:
 		self.esc_restore(0)
 	def escape(self):
 		e=self.buf
-#		print "ESC %r %r"%(e,(self.st,self.sb))
 		if len(e)>32:
-			print "error %r"%e
+#			print "error %r"%e
 			self.buf=""
 		elif e in self.esc_seq:
 			self.esc_seq[e](e)
@@ -326,6 +327,7 @@ class Terminal:
 					f(e,mo)
 					self.buf=""
 					break
+#		if self.buf=='': print "ESC %r\n"%e
 	def write(self,s):
 		for i in s:
 			if len(self.buf) or (i in self.esc_seq):
@@ -527,12 +529,17 @@ class AjaxTerm:
 			req.write(self.template)
 		return req
 
-if __name__ == '__main__':
+def main():
+	parser = optparse.OptionParser()
+	parser.add_option("-p", "--port", dest="port", default="8080", help="Set the TCP port (default: 8080)")
+	parser.add_option("-l", "--log", action="store_true", dest="log",default=0,help="log requests to stderr (default: quiet mode)")
+	(o, a) = parser.parse_args()
+	print 'AjaxTerm serving at http://localhost:%s/'%o.port
 	at=AjaxTerm()
-	f=lambda:os.system('firefox http://localhost:8080/&')
-	qweb.qweb_wsgi_autorun(at,ip='localhost',port=8080,threaded=0,callback_ready=None)
+#	f=lambda:os.system('firefox http://localhost:%s/&'%o.port)
+	qweb.qweb_wsgi_autorun(at,ip='localhost',port=int(o.port),threaded=0,log=o.log,callback_ready=None)
 	at.multi.die()
 
-
-
+if __name__ == '__main__':
+	main()
 

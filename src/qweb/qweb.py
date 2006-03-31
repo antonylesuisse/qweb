@@ -1198,6 +1198,9 @@ class QWebRequest:
 # autorun, run an app as FCGI or CGI otherwise launch the server
 #----------------------------------------------------------
 class QWebWSGIHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    def log_message(self,*p):
+        if self.server.log:
+            return BaseHTTPServer.BaseHTTPRequestHandler.log_message(self,*p)
     def address_string(self):
         return self.client_address[0]
     def start_response(self,status,headers):
@@ -1283,16 +1286,17 @@ class QWebWSGIServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
         this function will select the approriate running mode according to the
         calling environement (http-server, FastCGI or CGI).
     """
-    def __init__(self, wsgiapp, ip, port, threaded=1):
+    def __init__(self, wsgiapp, ip, port, threaded=1, log=1):
         BaseHTTPServer.HTTPServer.__init__(self, (ip, port), QWebWSGIHandler)
         self.wsgiapp = wsgiapp
         self.threaded = threaded
+        self.log = log
     def process_request(self,*p):
         if self.threaded:
             return SocketServer.ThreadingMixIn.process_request(self,*p)
         else:
             return BaseHTTPServer.HTTPServer.process_request(self,*p)
-def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1,callback_ready=None):
+def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1,log=1,callback_ready=None):
     if sys.platform=='win32':
         fcgi=0
     else:
@@ -1307,10 +1311,10 @@ def qweb_wsgi_autorun(wsgiapp,ip='127.0.0.1',port=8080,threaded=1,callback_ready
         import fcgi
         fcgi.WSGIServer(wsgiapp,multithreaded=False).run()
     else:
-        print 'Serving on %s:%d'%(ip,port)
-        s=QWebWSGIServer(wsgiapp,ip=ip,port=port,threaded=threaded)
+        if log:
+            print 'Serving on %s:%d'%(ip,port)
+        s=QWebWSGIServer(wsgiapp,ip=ip,port=port,threaded=threaded,log=log)
         if callback_ready:
-            print 'Callback ready'
             callback_ready()
         try:
             s.serve_forever()
