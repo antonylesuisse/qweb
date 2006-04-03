@@ -26,6 +26,9 @@ def path_clean(path):
 	pl=[i for i in path.split('/') if (i!='..' and i!='')]
 	return '/'.join(pl)
 
+def path_join(*l):
+	return path_clean(os.path.join(*l))
+
 class Entry:
 	def  __init__(self,path,type,mtime,size,data=None):
 		self.path=path
@@ -157,7 +160,7 @@ class StaticZip(StaticBase):
 						self.zipdir[d]={n:e}
 					i=d
 	def fs_stat(self,path):
-		fs_path=os.path.join(self.ziproot,path).strip('/')
+		fs_path = path_join(self.ziproot,path)
 		if fs_path in self.zipentry:
 			return self.zipentry[fs_path]
 		elif fs_path in self.zipdir:
@@ -165,10 +168,10 @@ class StaticZip(StaticBase):
 		else:
 			return None
 	def fs_getfile(self,path):
-		fs_path = os.path.join(self.ziproot,path).strip('/')
+		fs_path = path_join(self.ziproot,path)
 		return self.zipfile.read(fs_path)
 	def fs_listdir(self,path):
-		fs_path = os.path.join(self.ziproot,path).strip('/')
+		fs_path = path_join(self.ziproot,path)
 		return self.zipdir[fs_path].values()
 
 class StaticModule(StaticBase):
@@ -178,7 +181,7 @@ class StaticModule(StaticBase):
 		self.mtime=time.time()
 		self.module_root=path_clean(module_root)
 	def fs_stat(self,path):
-		name=os.path.join(self.module_root,path)
+		name=path_join(self.module_root,path)
 		try:
 			d=get_module_data(self.module,name)
 			e=Entry(path,"file",self.mtime,len(d))
