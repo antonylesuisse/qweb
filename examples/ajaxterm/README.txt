@@ -4,6 +4,8 @@ About Ajaxterm
 Ajaxterm is a web based terminal. It was totally inspired and works almost
 exactly like http://anyterm.org/ except it's much more easy to install.
 
+Written by Antony Lesuisse (email: al AT udev.org)
+
 Homepage: http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm
 
 Usage:
