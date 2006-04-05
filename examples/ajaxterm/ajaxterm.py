@@ -4,11 +4,11 @@
 
 import array,cgi,fcntl,glob,optparse,os,pty,random,re,signal,select,sys,threading,time,termios,struct
 
-# Optional: Add the QWeb .egg or ../qweb in sys path
 os.chdir(os.path.normpath(os.path.dirname(__file__)))
-sys.path[0:0]=glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('../../src')
+# Optional: Add QWeb in sys path
+sys.path[0:0]=glob.glob('../../src')
 
-import qweb, qweb_static
+import qweb
 
 class Terminal:
 	def __init__(self,width=80,height=24):

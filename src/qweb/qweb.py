@@ -34,6 +34,11 @@ QWeb applications are runnable:
 QWeb doesn't provide any database access but it intergrates nicely with ORMs
 such as SQLObject, SQLAlchemy or plain DB-API.
 
+Written by Antony Lesuisse (email al AT udev.org)
+
+Homepage: http://antony.lesuisse.org/qweb/trac/
+Forum: [http://antony.lesuisse.org/qweb/forum/viewforum.php?id=1 Forum]
+
 == Quick Start (for Linux, MacOS X and cygwin) ==
 
 Make sure you have at least python 2.3 installed and run the following commands:

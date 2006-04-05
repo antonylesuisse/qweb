@@ -26,9 +26,10 @@ tgz:
 	cp dist/QWeb-*.egg ${DEMODIR}
 	cp examples/demo/[A-Za-z]* ${DEMODIR}
 	tar czf dist/${DEMOTGZ} ${DEMODIR}
-	# DemoApp
+	# AjaxTerm
 	mkdir ${ATDIR} || true
-	cp dist/QWeb-*.egg ${ATDIR}
+#	cp dist/QWeb-*.egg ${ATDIR}
+	cp src/qweb/qweb.py ${ATDIR}
 	cp examples/ajaxterm/[A-Za-z]* ${ATDIR}
 	tar czf dist/${ATTGZ} ${ATDIR}
 
