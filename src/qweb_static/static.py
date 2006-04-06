@@ -69,7 +69,7 @@ class StaticBase:
 		if req.SESSION!=None:
 			req.SESSION.session_limit_cache=0
 		lastmod=time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(entry.mtime))
-		etag=md5.new(lastmod).hexdigest()
+		etag=md5.new(lastmod).hexdigest()[:16]
 		req.response_headers['Last-Modified']=lastmod
 		req.response_headers['ETag']=etag
 		# cached output
