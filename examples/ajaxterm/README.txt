@@ -11,12 +11,11 @@ Use the [/qweb/forum/viewforum.php?id=2 Forum], if you have any question or rema
 
 == News ==
 
- * 2005-04-05: Added Paste from clipboard.
+ * 2005-04-07: Added Paste from clipboard.
  * 2005-04-05: Removed the qweb egg, size is now 26kb
  * 2005-04-05: Getting popular on [http://programming.reddit.com/info/3xsl/comments reddit.com],
    [http://del.icio.us/url/93b77e52e1ae45c67b95a0a2d5bdc758 del.icio.us],
    [http://digg.com/programming/Ajaxterm_-_a_web_based_terminal digg.com]
- * 2005-03-31: Added a forum [http://antony.lesuisse.org/qweb/forum/viewforum.php?id=2 Forum]
 
 == Download and Install ==
 
