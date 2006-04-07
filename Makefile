@@ -30,7 +30,7 @@ tgz:
 	mkdir ${ATDIR} || true
 #	cp dist/QWeb-*.egg ${ATDIR}
 	cp src/qweb/qweb.py ${ATDIR}
-	cp examples/ajaxterm/[A-Za-z]* ${ATDIR}
+	cp examples/ajaxterm/R*.txt examples/ajaxterm/[a-z]* ${ATDIR}
 	tar czf dist/${ATTGZ} ${ATDIR}
 
 dist: tgz
