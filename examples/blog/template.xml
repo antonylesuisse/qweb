@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<template>
+<!--
+	vim:noet foldmethod=syntax foldcolumn=3 foldnestmax=2 foldlevel=1:
+-->
+#----------------------------------------------------------
+# Demo blog
+#----------------------------------------------------------
+<t t-name="html">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+	<html>
+	<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+	<t t-if="refresh"><meta http-equiv="refresh" t-att-content="refresh"/></t>
+	<title><t t-raw="title"/></title>
+	<style type="text/css">
+a:link          { color: #0000ee; }
+a:visited       { color: #551a8b; }
+a:active        { color: #880000; }
+a.none          { text-decoration : none; }
+
+h1              { margin: 0.5ex 0px 0.5ex 0px;}
+h2              { margin: 0px; padding: 0px 0px 2px 0px; color: #000066; font-weight: bold; font-size: 115%; }
+hr.hide         { display: none;}
+
+.form_table     { padding: 0px; }
+.form_cell      { padding: 2px 0px 2px 0px; }
+.form_left      { padding: 4px 4px 4px 0px; text-align: right; font-weight: bold; white-space: nowrap;}
+.form_right     { padding: 4px 1px 4px 3px; text-align: left; }
+
+.form_valid     { font-family: monospace; font-size: 115%;}
+.form_error     { font-family: monospace; font-size: 115%; background-color: #FFFFD5; }
+.form_invalid   { font-family: monospace; font-size: 115%; background-color: #FFFFD5; }
+.form_red       { color: #990000; }
+.form_next      { border: 2px solid green; display: inline; padding: 2px; }
+.form_submit    { }
+
+
+.form_alert     { margin: 0px 0px 6px 0px; padding: 6px; border: 1px solid #DD9988; background-color: #FFFFD5; color: #990000; }
+.form_warn      { margin: 0px 0px 6px 0px; padding: 6px; border: 1px solid #6666CC; background-color: #F8F8FF; color: #000099; }
+.form_info      {
+	margin: 4px 0px 4px 0px;
+	padding: 4px 2px 4px 2px;
+	color: #000066;
+	background-color: #f9f9f9;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+}
+
+/* pager above tables */
+table.pager tbody tr td {
+	padding: 5px 3px;
+	background-color: #f0f0f0;
+	white-space: nowrap;
+}
+
+/* taken from trac */
+table.listing {
+	clear: both;
+	border-bottom: 1px solid #d7d7d7;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+table.listing th { text-align: left; padding: 0 1em .1em 0; font-size: 12px }
+table.listing thead { background: #dbeaf5 }
+table.listing thead th {
+	border: 1px solid #d7d7d7;
+	border-bottom-color: #999;
+	font-size: 11px;
+	font-weight: bold;
+	padding: 3px .5em;
+	vertical-align: bottom;
+}
+table.listing thead th :link:hover, table.listing thead th :visited:hover {
+	background-color: transparent;
+}
+table.listing thead th a { border: none; padding-right: 12px }
+table.listing th.asc a, table.listing th.desc a { font-weight: bold }
+table.listing th.asc a, table.listing th.desc a {
+	background-position: 100% 50%;
+	background-repeat: no-repeat;
+}
+table.listing th.asc a { background-image: url(../image/listings_asc1.png) }
+table.listing th.desc a { background-image: url(../image/listings_desc1.png) }
+table.listing tbody td, table.listing tbody th {
+	border: 1px dotted #ddd;
+	padding: .33em .5em;
+	vertical-align: top;
+}
+table.listing tbody td a:hover, table.listing tbody th a:hover {
+	background-color: transparent;
+}
+table.listing tbody tr { border-top: 1px solid #ddd }
+table.listing tbody tr.even { background-color: #fcfcfc }
+table.listing tbody tr.odd { background-color: #f7f7f7 }
+table.listing tbody tr:hover { background: #eed !important }
+
+table.listing tbody td.index { font-size: 9px; text-align: right; vertical-align: middle;}
+
+table.listing thead .nowrap,
+table.listing tbody .nowrap { white-space: nowrap; }
+
+table.listing thead .action a,
+table.listing tbody .action a { text-decoration: underline; font-weight: bold; padding: 3px; }
+
+table.listing thead .action a:hover,
+table.listing tbody .action a:hover { background-color: #ccc; }
+ 
+/*
+table.listing tbody tr.even td.action { background-color: #fff7e5 }
+table.listing tbody tr.odd td.action { background-color: #faf2e1 }
+*/
+
+.nav {
+	padding: 3px 0;
+	margin-left: 0;
+	border-bottom: 1px solid #778;
+	font: bold 12px Verdana, sans-serif;
+}
+.nav li {
+	list-style: none;
+	margin: 0;
+	display: inline;
+}
+.nav li a {
+	padding: 3px 0.5em;
+	margin-left: 3px;
+	border: 1px solid #778;
+	border-bottom: none;
+	background: #DDE;
+	text-decoration: none;
+}
+.nav li a:link { color: #448; }
+.nav li a:visited { color: #667; }
+.nav li a:hover { color: #000; background: #AAE; border-color: #227; }
+.nav li a.sel1 { background: white; border-bottom: 1px solid white; }
+
+</style>
+	</head>
+	<body>
+	<t t-raw="0"/>
+	</body>
+	</html>
+</t>
+<t t-name="body">
+	<t t-call="html">
+		<table align="center" border="0" cellpadding="0" cellspacing="0" width="85%">
+		<tr>
+		<td class="top" align="left" valign="top" width="100%">
+			<h1>QWeb Demo BLOG</h1>
+			<div>
+			<ul class="nav">
+				<li><a t-href="url/home" t-att-class="'sel%d'%int(menu=='home')">Home</a></li>
+				<li><a t-href="url/postlist" t-att-class="'sel%d'%int(menu=='postlist')">List all posts</a></li>
+				<li><a t-href="url/postadd" t-att-class="'sel%d'%int(menu=='postadd')" >Add a post</a></li>
+			</ul>
+			</div>
+			<t t-raw="0"/>
+		</td>
+		</tr>
+		</table>
+	</t>
+</t>
+<t t-name="pager">
+	<table class="pager" width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<t t-pager="pager" t-total="total" t-start="start" t-step="step" t-scope="5"/>
+		<td width="15%" align="left">
+			Records: <t t-esc="pager_win_start1"/> - <t t-esc="pager_win_end1"/> of <t t-esc="pager_tot_size"/>
+		</td>
+		<td width="70%" align="center">
+			<t t-if="pager_active">
+				<t t-if="pager_prev"><a t-href="pagerurl?start=%(pager_prev_start)d">&amp;#171; Previous</a> &amp;nbsp; </t>
+				<t t-foreach="pager_list">
+					<t t-if="pager_sel"> <span style="color:#000;"><b><t t-esc="pager_page1"/></b></span> </t>
+					<t t-if="not pager_sel"> <a t-href="pagerurl?start=%(pager_start)d"><t t-esc="pager_page1"/></a> </t>
+				</t>
+				<t t-if="pager_next"> &amp;nbsp; <a t-href="pagerurl?start=%(pager_next_start)d">Next &amp;#187;</a></t>
+			</t>
+		</td>
+		<td width="15%" align="right">
+			<form t-action="pagerurl?%(param)s" method="GET">
+				<input type="text" name="search" t-att-value="search"/>
+				<input type="submit" name="submit" value="Search"/>
+			</form>
+		</td>
+	</tr>
+	</table>
+</t>
+<t t-name="home">
+	<t t-call="body">
+		<t t-set="title">Home</t>
+		<t t-set="menu">home</t>
+
+		<t t-foreach="posts" t-as="p">
+			<div style="border: 1px solid #000; padding: 10px; margin: 5px 0px;">
+			Date: <t t-esc="p.ctime"/><br/>
+			Title: <t t-esc="p.title"/><br/>
+			<br/>
+			<t t-esc="p.body"/>
+			<br/>
+			<br/>
+			<a t-href="url/post_view?post=%(p.id)d">Comments...</a>
+			</div>
+		</t>
+
+
+	</t>
+</t>
+<t t-name="postlist">
+	<t t-call="body">
+		<t t-set="title">List all posts</t>
+		<t t-set="menu">postlist</t>
+<!--
+		<t t-call="pager"><t t-set="pagerurl" t-eval="url.copy('index',{'p':'admin_prodlist','search':search})"/></t>
+-->
+		<table class="listing" width="100%" cellpadding="0" cellspacing="0">
+		<thead>
+		<tr>
+			<th>ID</th>
+			<th class="asc">Date</th>
+			<th>Title</th>
+			<th class="nowrap action">
+				Actions: <a t-href="url/postadd">[Add a new post]</a>
+			</th>
+		</tr>
+		</thead>
+		<tbody>
+		<t t-foreach="posts" t-as="p">
+			<tr t-att-class="p_parity">
+				<td class=""><t t-esc="p.id"/></td>
+				<td class="nowrap"><t t-esc="p.ctime"/></td>
+				<td class="nowrap"><t t-esc="p.title"/></td>
+				<td class="nowrap action">
+					<a t-href="url/post_view?post=%(p.id)d">View</a>
+					<a t-href="url/post_edit?post=%(p.id)d">Edit</a>
+					<a t-href="url/post_delete?post=%(p.id)d">Delete</a>
+				</td>
+			</tr>
+		</t>
+		</tbody>
+		</table>
+	</t>
+</t>
+<t t-name="post_view">
+	<t t-call="body">
+		<t t-set="title">Edit a product</t>
+		<t t-set="tab">post_view</t>
+
+		<div style="border: 1px solid #000; padding: 10px; margin: 5px 0px;">
+		Date: <t t-esc="post.ctime"/><br/>
+		Title: <t t-esc="post.title"/><br/>
+		<br/>
+		<t t-esc="post.body"/>
+		</div>
+
+		Comments:<br/>
+		<t t-foreach="post.comments" t-as="c">
+			<div style="border: 1px solid #888; padding: 10px; margin: 5px 0px;">
+			Name: <t t-esc="c.name"/><br/>
+			Email: <t t-esc="c.email"/><br/>
+			Title: <t t-esc="c.title"/><br/>
+			<br/>
+			<t t-esc="c.body"/>
+			</div>
+		</t>
+	</t>
+</t>
+<t t-name="post_edit">
+	<t t-call="body">
+		<t t-set="title">Edit a post</t>
+		<t t-set="menu">post_edit</t>
+		<h1>Edit post: <t t-esc="post.title"/></h1>
+		<form t-action="url/post_edit?post=%(post.id)d" method="POST">
+		<table width="100%" cellspacing="0" cellpadding="0" align="center" class="form_table">
+			<tr t-if="form.valid">
+				<td colspan="2" width="100%" class="form_warn">
+					Your changes have been successfully saved.
+				</td>
+			</tr>
+			<tr t-if="form.invalid">
+				<td colspan="2" width="100%" class="form_alert">
+					<img src="../image/alert.gif" alt="!"/> <b>Important Message</b><br/>
+					<br/>
+					There was a problem with your submission.<br/>
+				</td>
+			</tr>
+			<tr>
+				<td width="30%" class="form_left" valign="top">Post Title:</td>
+				<td width="70%" class="form_right" valign="top">
+					<input t-form-text="form.f.title" t-check="/.+/" size="60"/>
+					<span t-if="form.f.title.invalid" class="form_red"><br/>Please supply a title</span>
+				</td>
+			</tr>
+			<!--
+			<tr>
+				<td class="form_left" valign="top">Status:</td>
+				<td class="form_right" valign="top">
+					<select t-form-select="form.f.state">
+						<option t-option="active">Active</option>
+						<option t-option="offline">Offline</option>
+						<option t-option="hidden">Hidden</option>
+					</select>
+				</td>
+			</tr>
+			-->
+			<tr>
+				<td width="30%" class="form_left" valign="top">Post body:</td>
+				<td width="70%" class="form_right" valign="top">
+					<textarea t-form-textarea="form.f.body" t-check="/.+/" cols="80" rows="15"/>
+					<span t-if="form.f.body.invalid" class="form_red"><br/>Please supply a body</span>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" class="form_cell" align="right">
+					<div class="form_info"><input type="submit" class="form_submit" name="save" value="Save change"/></div>
+				</td>
+			</tr>
+		</table>
+		</form>
+	</t>
+</t>
+</template>
