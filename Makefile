@@ -44,10 +44,7 @@ tgz:
 
 dist: tgz
 	# cleanup
-	rm -Rf ${SRCDIR}
-	rm -Rf ${DEMODIR}
-	rm -Rf ${BLOGDIR}
-	rm -Rf ${ATDIR}
+	rm -Rf ${SRCDIR} ${DEMODIR} ${BLOGDIR} ${ATDIR}
 
 pub: tgz
 	# publish
@@ -55,8 +52,7 @@ ifeq ($(USER),wis)
 	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
 	rsync -av --delete ${DEMODIR}/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/demo/
 endif
-	rm -Rf ${SRCDIR}
-	rm -Rf ${DEMODIR}
-	rm -Rf ${ATDIR}
-
+	rm -Rf ${SRCDIR} ${DEMODIR} ${BLOGDIR} ${ATDIR}
+	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/WikiStart' 'dist/QWeb-README-wiki.txt'
+	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm' 'examples/ajaxterm/README.txt'
 

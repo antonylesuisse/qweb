@@ -6,9 +6,6 @@ ez_setup.use_setuptools()
 sys.path[0:0]=['src']
 import qweb
 
-if not os.path.isfile("README.txt"):
-	file("README.txt","w").write(qweb.qweb_doc())
-
 setuptools.setup(
 	name = 'QWeb',
 	version = '0.5',
@@ -25,3 +22,10 @@ setuptools.setup(
 		'qweb_dbadmin': ['*.xml','*.txt'],
 	}
 )
+
+if not os.path.isfile("README.txt"):
+	s=qweb.qweb_doc()
+	pub=s.split('QWeb Components:\n')[0]
+	file("README.txt","w").write(s)
+	file("dist/QWeb-README-wiki.txt","w").write(pub)
+

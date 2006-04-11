@@ -1,4 +1,4 @@
-QWeb Framework
+= QWeb Framework =
 
 == What is QWeb ? ==
 
@@ -14,14 +14,8 @@ applications consisting of:
  * A startup function that starts cgi, factgi or standalone according to the
    evironement (qweb_autorun).
 
-QWeb applications are runnable:
-
-  * in standalone mode (run it from commandline)
-  * in FastCGI mode (via a FastCGI compatible webserver)
-  * in Regular CGI mode (via a CGI compatible webserver)
-  * by any python WSGI compliant server
-  * from php using support/php/pyphp wrapper
-  * from asp.net using support/aspnet wrapper
+QWeb applications are runnable in standalone mode (from commandline), via
+FastCGI, Regular CGI or by any python WSGI compliant server.
 
 QWeb doesn't provide any database access but it intergrates nicely with ORMs
 such as SQLObject, SQLAlchemy or plain DB-API.
@@ -29,6 +23,7 @@ such as SQLObject, SQLAlchemy or plain DB-API.
 Written by Antony Lesuisse (email al AT udev.org)
 
 Homepage: http://antony.lesuisse.org/qweb/trac/
+
 Forum: [http://antony.lesuisse.org/qweb/forum/viewforum.php?id=1 Forum]
 
 == Quick Start (for Linux, MacOS X and cygwin) ==
@@ -36,23 +31,49 @@ Forum: [http://antony.lesuisse.org/qweb/forum/viewforum.php?id=1 Forum]
 Make sure you have at least python 2.3 installed and run the following commands:
 
 {{{
-$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5-demo.tar.gz
-$ tar zxvf QWeb-0.5-demo.tar.gz
-$ cd QWeb-0.5-demo
-$ ./demoapp.fcgi
+$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5.tar.gz
+$ tar zxvf QWeb-0.5.tar.gz
+$ cd QWeb-0.5/examples/blog
+$ ./blog.py
 }}}
 
 And point your browser to http://localhost:8080/
 
-You may also try the [http://antony.lesuisse.org/qweb/demo/ online demo]
+You may also try standalone example applications:
 
-WARNING:
+ * AjaxTerm
+ * Qweb blog [/qweb/files/QWeb-0.5-blog.tar.gz QWeb-0.5-blog.tar.gz]
+ * Qweb demo [/qweb/files/QWeb-0.5-demo.tar.gz QWeb-0.5-demo.tar.gz]
 
-Despite his naming in .fcgi, the demo is RUNNABLE FROM COMMANDLINE.  When
-runned from command line it will start its own webserver on port 8080.  The demo
-also may be run as FastCGI or regular CGI by any FastCGI or CGI compatible web
-server.
+== Download ==
 
+ * Version 0.5:
+   * Source [/qweb/files/QWeb-0.5.tar.gz QWeb-0.5.tar.gz]
+   * Python 2.3 Egg [/qweb/files/QWeb-0.5-py2.3.egg QWeb-0.5-py2.3.egg]
+   * Python 2.4 Egg [/qweb/files/QWeb-0.5-py2.4.egg QWeb-0.5-py2.4.egg]
+
+ * Standalone Demos (untar, execute and point your browser to http://locahost:8080/ ):
+   * Qweb AjaxTerm [/qweb/files/QWeb-0.5-ajaxterm.tar.gz QWeb-0.5-ajaxterm.tar.gz]
+   * Qweb blog [/qweb/files/QWeb-0.5-blog.tar.gz QWeb-0.5-blog.tar.gz]
+   * Qweb demo [/qweb/files/QWeb-0.5-demo.tar.gz QWeb-0.5-demo.tar.gz]
+
+ 
+ * [/qweb/files/ Browse all the released files]
+ * [/qweb/trac/browser Browse the source repository]
+
+== Documentation ==
+
+ * [/qweb/trac/browser/trunk/README.txt?format=raw Read the included documentation] 
+ * QwebTemplating
+
+== Mailin-list ==
+
+ * Forum: [http://antony.lesuisse.org/qweb/forum/viewforum.php?id=1 Forum]
+ * No mailing-list exists yet, in the mean time discussion should happen on: web-sig@python.org
+
+   info page: http://mail.python.org/mailman/listinfo/web-sig
+ 
+   archives: http://mail.python.org/pipermail/web-sig/
 
 QWeb Components:
 ----------------
@@ -66,7 +87,8 @@ Default qweb components:
         A qweb component to serve static content from the filesystem or from
         zipfiles.
 
-
+    - qweb_dbadmin:
+        scaffolding for sqlobject
 
 License
 -------
