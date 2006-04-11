@@ -14,18 +14,8 @@ class QWebDemoApp:
 	def __init__(self):
 		self.template = qweb.QWebHtml("template.xml")
 		self.fileserver = qweb_static.StaticDir(urlroot="/static",root=".")
-#		import qweb_dbadmin
-#		self.fileserver = qweb_static.StaticModule(urlroot="/static",module='qweb_dbadmin')
 
 	def __call__(self, environ, start_response):
-#		mtime=os.path.getmtime("dbview.xml")
-#		if self.mtime!=mtime:
-#			self.mtime=mtime
-#			self.template = QWebHtml("dbview.xml")
-#		self.filetime = os.path.getmtime(__file__)
-#		if self.filetime != os.path.getmtime(__file__):
-#			environ["wsgi.errors"]._req.server._exit()
-
 		req = qweb.QWebRequest(environ, start_response)
 
 		if req.PATH_INFO == "" or req.PATH_INFO=="/static":
@@ -52,7 +42,6 @@ class QWebDemoApp:
 		v["doc"]=qweb.__doc__
 		req.write(self.template.render("demo_home", v))
 
-
 	def demo_request(self, req, arg, v):
 		v["doc"] = qweb.QWebRequest.__doc__.replace("\n\t","\n")
 		v["debug"] = req.debug()
@@ -66,6 +55,7 @@ class QWebDemoApp:
 		req.write(self.template.render("demo_session", v))
 
 	def demo_template(self, req, arg, v):
+		v["varname"]="some text with a tag <tag>"
 		req.write(self.template.render("demo_template", v))
 
 	def demo_form(self, req, arg, v):
@@ -109,9 +99,6 @@ class QWebDemoApp:
 
 	def demo_control_logged_page2(self, req, arg, v):
 		req.write(self.template.render("demo_control_logged_page2", v))
-
-	def demo_blog(self, req, arg, v):
-		req.write("TODO")
 
 if __name__ == '__main__':
 	qweb.qweb_wsgi_autorun(QWebDemoApp())

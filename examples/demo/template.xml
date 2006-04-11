@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <template>
 <!--
-	vim:foldmethod=syntax foldcolumn=3 foldnestmax=2 foldlevel=1:
-	vim:set noet:
+	vim:noet fdm=syntax fdc=3 fdn=2 fdl=1:
 -->
 
 <t t-name="html">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
@@ -78,7 +77,6 @@ h2              { color: #000066; font-weight: bold; font-size: 115%; }
 				<li><a t-href="url/form" t-att-class="'sel%d'%int(menu=='form')" >Forms</a></li>
 				<li><a t-href="url/control_home" t-att-class="'sel%d'%int(menu=='control')" >Controller</a></li>
 				<li><a t-href="url/static" t-att-class="'sel%d'%int(menu=='static')" >Static files</a></li>
-				<li><a t-href="url/blog" t-att-class="'sel%d'%int(menu=='blog')" >Mini Blog</a></li>
 			</ul>
 			</div>
 
@@ -169,39 +167,86 @@ req.SESSION["counter"]+=1
 	</t>
 </t>
 
+<t t-name="democall">
+	democall called, <br/>
+	&lt;t t-esc="0"&gt; outputs <t t-esc="0"/> <br/>
+	&lt;t t-esc="arg1"&gt; outputs <t t-esc="arg1"/> <br/>
+	&lt;t t-esc="arg2"&gt; outputs <t t-esc="arg2"/> <br/>
+</t>
 <t t-name="demo_template">
 	<t t-call="nav">
 		<t t-set="title">QWeb Templates</t>
 		<t t-set="menu">template</t>
-		<h2>The QWebXml and QWebHTML templateing system</h2>
+		<h2>The QWebXml and QWebHTML templating system</h2>
 
 <pre>
-
-t-raw t-esc
-
-t-if
-
-t-foreach
-
-t-call t-set
-
-t-trim
-
+Basic tags: t-raw t-esc t-if t-foreach t-call t-set t-trim
 </pre>
+
+	<h1>Example of basic tags</h1>
+	<table border="1">
+	<tr>
+		<td width="50%">Expression</td>
+		<td width="50%">Result</td>
+	</tr>
+	<tr>
+		<td style="white-space: pre;"> &amp;lt;a t-att-class="varname"&amp;gt;test&amp;lt;/a&amp;gt; </td>
+		<td> <a t-att-class="varname">test</a> </td>
+	</tr>
+	<tr>
+		<td style="white-space: pre;"> &amp;lt;t t-raw="varname"&amp;gt; </td>
+		<td> <t t-raw="varname"/> </td>
+	</tr>
+	<tr>
+		<td style="white-space: pre;"> &amp;lt;t t-esc="varname"&amp;gt; </td>
+		<td> <t t-esc="varname"/> </td>
+	</tr>
+	<tr>
+		<td style="white-space: pre;">
+&amp;lt;t t-if="1==2"&amp;gt;KO&amp;lt;/t&amp;gt;
+&amp;lt;t t-if="1==2"&amp;gt;OK&amp;lt;/t&amp;gt;
+		</td>
+		<td>
+			<t t-if="1==2">KO</t>
+			<t t-if="1!=2">OK</t>
+		</td>
+	</tr>
+	<tr>
+		<td style="white-space: pre;">
+&amp;lt;t t-call="democall"&amp;gt;
+	&amp;lt;t t-set="arg1"&amp;gt;the value of arg1&amp;lt;/t&amp;gt;
+	&amp;lt;t t-set="arg2" t-eval="2+2"/&amp;gt;
+	body of the call
+&amp;lt;/t&amp;gt;
+		</td>
+		<td>
+			<t t-call="democall">
+				<t t-set="arg1">the value of arg1</t>
+				<t t-set="arg2" t-eval="2+2"/>
+				body of the call
+			</t>
+		</td>
+	</tr>
+	<tr>
+		<td style="white-space: pre;">
+&amp;lt;t t-foreach="range(10)" t-as="i"&amp;gt;
+	i= &amp;lt;t t-esc="i"&amp;gt;&amp;gt;br/&amp;gt;
+&amp;lt;/t&amp;gt;
+		</td>
+		<td>
+			<t t-foreach="range(10)" t-as="i">
+				i= <t t-esc="i"/><br/>
+			</t>
+		</td>
+	</tr>
+	</table>
 
 <pre>
-t-href t-action
-
-t-form-text t-form-password t-form-textarea
-
-t-form-radio t-form-checkbox
-
-t-form-select t-option
-
-t-selected t-checked
-
-t-pager
+HTML specific tags: t-href t-action t-pager
+HTML form tags: t-form-text t-form-password t-form-textarea t-form-radio t-form-checkbox t-form-select t-option t-selected t-checked
 </pre>
+
+	TODO
 
 	</t>
 </t>
