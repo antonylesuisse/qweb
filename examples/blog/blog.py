@@ -43,7 +43,7 @@ def initdb():
 		i.createTable()
 	for i in range(10):
 		p=post(title='Post %d'%(i+1),body=("Body of %d, "%(i+1))*10)
-		for j in range(5):
+		for j in range(3):
 			comment(post=p,title='comment %d on post %d'%(j+1,i+1),name='John Doe%d'%(j+1),email='john.doe%d@example.com'%(j+1))
 
 #---------------------------------------------------------
@@ -81,7 +81,7 @@ class BlogApp:
 		req.write(self.t.render("home", v))
 
 	def blog_postlist(self, req, arg, v):
-		v["posts"] = post.select()
+		v["posts"] = post.select(orderBy='-id')
 		req.write(self.t.render("postlist", v))
 
 	def blog_postadd(self, req, arg, v):
@@ -105,6 +105,24 @@ class BlogApp:
 		if f.valid:
 			v["post"].set(**f.collect())
 		req.write(self.t.render("post_edit", v))
+
+	def blog_post_commentadd(self, req, arg, v):
+		v["comment"] = comment(post=v['post'])
+		return "blog_comment_edit"
+
+	# Ensure that all blog_comment_* handlers have a valid 'comment' argument
+	def blog_comment(self, req, arg, v):
+		if not "comment" in v:
+			v['comment'] = comment.get(arg.int('comment'))
+			v['post']=v['comment'].post
+
+	def blog_comment_edit(self, req, arg, v):
+		f=v["form"]=self.t.form("comment_edit",arg,so2dict(v["comment"]))
+		if f.valid:
+			v["comment"].set(**f.collect())
+			return "blog_post_view"
+		req.write(self.t.render("comment_edit", v))
+
 
 if __name__=='__main__':
 	initdb()

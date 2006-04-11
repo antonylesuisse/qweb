@@ -22,7 +22,8 @@ tgz:
 	# Source
 	mkdir ${SRCDIR} || true
 	cp -r Makefile README* contrib examples ez_setup.py setup.py src ${SRCDIR}
-	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn --exclude=examples/blog ${SRCDIR}
+#	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn --exclude=examples/blog/lib ${SRCDIR}
+	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
 
 	# DemoApp
 	mkdir ${DEMODIR} || true

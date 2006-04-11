@@ -199,7 +199,7 @@ table.listing tbody tr.odd td.action { background-color: #faf2e1 }
 			<t t-esc="p.body"/>
 			<br/>
 			<br/>
-			<a t-href="url/post_view?post=%(p.id)d">Comments...</a>
+			<a t-href="url/post_view?post=%(p.id)d">(<t t-esc="len(p.comments)"/>) Comments...</a>
 			</div>
 		</t>
 
@@ -253,7 +253,7 @@ table.listing tbody tr.odd td.action { background-color: #faf2e1 }
 		<t t-esc="post.body"/>
 		</div>
 
-		Comments:<br/>
+		Comments: <a t-href="url/post_commentadd?post=%(post.id)d">Add a comment</a><br/>
 		<t t-foreach="post.comments" t-as="c">
 			<div style="border: 1px solid #888; padding: 10px; margin: 5px 0px 5px 10px;">
 			Name: <t t-esc="c.name"/><br/>
@@ -305,6 +305,64 @@ table.listing tbody tr.odd td.action { background-color: #faf2e1 }
 			-->
 			<tr>
 				<td width="30%" class="form_left" valign="top">Post body:</td>
+				<td width="70%" class="form_right" valign="top">
+					<textarea t-form-textarea="form.f.body" t-check="/.+/" cols="80" rows="15"/>
+					<span t-if="form.f.body.invalid" class="form_red"><br/>Please supply a body</span>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" class="form_cell" align="right">
+					<div class="form_info"><input type="submit" class="form_submit" name="save" value="Save change"/></div>
+				</td>
+			</tr>
+		</table>
+		</form>
+	</t>
+</t>
+<t t-name="comment_edit">
+	<t t-call="body">
+		<t t-set="title">Edit a comment</t>
+		<t t-set="menu">comment_edit</t>
+
+		<h1>Edit comment: <t t-esc="comment.title"/></h1>
+
+		<div style="border: 1px solid #000; padding: 10px; margin: 5px 0px;">
+		Date: <t t-esc="post.ctime"/><br/>
+		Title: <t t-esc="post.title"/><br/>
+		<br/>
+		<t t-esc="post.body"/>
+		</div>
+
+		<form t-action="url/comment_edit?comment=%(comment.id)d" method="POST">
+		<table width="100%" cellspacing="0" cellpadding="0" align="center" class="form_table">
+			<tr t-if="form.valid">
+				<td colspan="2" width="100%" class="form_warn">
+					Your changes have been successfully saved.
+				</td>
+			</tr>
+			<tr t-if="form.invalid">
+				<td colspan="2" width="100%" class="form_alert">
+					<img src="../image/alert.gif" alt="!"/> <b>Important Message</b><br/>
+					<br/>
+					There was a problem with your submission.<br/>
+				</td>
+			</tr>
+			<tr>
+				<td width="30%" class="form_left" valign="top">Comment Title:</td>
+				<td width="70%" class="form_right" valign="top">
+					<input t-form-text="form.f.name" t-check="/.+/" size="60"/>
+					<span t-if="form.f.name.invalid" class="form_red"><br/>Please supply a name</span>
+				</td>
+			</tr>
+			<tr>
+				<td width="30%" class="form_left" valign="top">Comment Email:</td>
+				<td width="70%" class="form_right" valign="top">
+					<input t-form-text="form.f.email" t-check="email" size="60"/>
+					<span t-if="form.f.email.invalid" class="form_red"><br/>Please supply a email</span>
+				</td>
+			</tr>
+			<tr>
+				<td width="30%" class="form_left" valign="top">Comment body:</td>
 				<td width="70%" class="form_right" valign="top">
 					<textarea t-form-textarea="form.f.body" t-check="/.+/" cols="80" rows="15"/>
 					<span t-if="form.f.body.invalid" class="form_red"><br/>Please supply a body</span>
