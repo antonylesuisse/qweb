@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<template>
+<!--
+	vim:noet fdm=syntax fdc=3 fdn=2 fdl=1:
+-->
+<t t-name="democall">
+	democall called, <br/>
+	&lt;t t-esc="0"&gt; outputs <t t-esc="0"/> <br/>
+	&lt;t t-esc="arg1"&gt; outputs <t t-esc="arg1"/> <br/>
+	&lt;t t-esc="arg2"&gt; outputs <t t-esc="arg2"/> <br/>
+</t>
+<t t-name="demo">
+	<h1>This is a demo</h1>
+
+	<table>
+	<tr>
+		<td>Expression</td>
+		<td>Result</td>
+	</tr>
+	<tr>
+		<td> &lt;a t-att-class="varname"&gt;test&lt;/a&gt; </td>
+		<td> <a t-att-class="varname">test</a> </td>
+	</tr>
+	<tr>
+		<td> &lt;t t-raw="varname"&gt; </td>
+		<td> <t t-raw="varname"/> </td>
+	</tr>
+	<tr>
+		<td> &lt;t t-esc="varname"&gt; </td>
+		<td> <t t-esc="varname"/> </td>
+	</tr>
+	<tr>
+		<td>
+			&lt;t t-if="1==2"&gt;KO&lt;/t&gt;
+			&lt;t t-if="1==2"&gt;OK&lt;/t&gt;
+		</td>
+		<td>
+			<t t-if="1==2">KO</t>
+			<t t-if="1!=2">OK</t>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			&lt;t t-call="democall"&gt;
+				&lt;t t-set="arg1"&gt;the value of arg1&lt;/t&gt;
+				&lt;t t-set="arg2" t-eval="2+2"/&gt;
+				body of the call
+			&lt;/t&gt;
+		</td>
+		<td>
+			<t t-call="democall">
+				<t t-set="arg1">the value of arg1</t>
+				<t t-set="arg2" t-eval="2+2"/>
+				body of the call
+			</t>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			&lt;t t-foreach="1..10" t-as="i"&gt;
+				i= &lt;t t-esc="i"&gt;
+			&lt;/t&gt;
+		</td>
+		<td>
+			<t t-foreach="1..10" t-as="i">
+				i= <t t-esc="i"/>
+			</t>
+		</td>
+	</tr>
+	</table>
+
+</t>
+</template>
