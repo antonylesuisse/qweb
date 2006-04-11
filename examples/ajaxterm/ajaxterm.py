@@ -2,7 +2,7 @@
 
 """ Ajaxterm """
 
-import array,cgi,fcntl,glob,optparse,os,pty,random,re,signal,select,sys,threading,time,termios,struct
+import array,cgi,fcntl,glob,mimetypes,optparse,os,pty,random,re,signal,select,sys,threading,time,termios,struct
 
 os.chdir(os.path.normpath(os.path.dirname(__file__)))
 # Optional: Add QWeb in sys path
@@ -367,9 +367,8 @@ class SynchronizedMethod:
 		return r
 
 class Multiplex:
-	def __init__(self,size='80x25',cmd=None):
+	def __init__(self,cmd=None):
 		signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-		self.size=size
 		self.cmd=cmd
 		self.proc={}
 		self.lock=threading.RLock()
@@ -380,15 +379,13 @@ class Multiplex:
 			orig=getattr(self,name)
 			setattr(self,name,SynchronizedMethod(self.lock,orig))
 		self.thread.start()
-	def create(self,cmd=[]):
+	def create(self,w=80,h=25):
 		if self.cmd:
 			cmd=['/bin/bash','-c',self.cmd]
 		elif os.getuid()==0:
 			cmd=['/bin/login']
 		else:
 			cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','-oNoHostAuthenticationForLocalhost=yes','localhost']
-		s=self.size.split('x')
-		w,h=int(s[0]),int(s[1])
 		pid,fd=pty.fork()
 		if pid==0:
 			try:
@@ -467,11 +464,14 @@ class Multiplex:
 				pass
 
 class AjaxTerm:
-	def __init__(self,size='80x25',cmd=None):
-		self.template = file("ajaxterm.html").read()
-		self.sarissa = file("sarissa.js").read()
-		self.sarissa += file("sarissa_dhtml.js").read()
-		self.multi = Multiplex(size,cmd)
+	def __init__(self,cmd=None):
+		self.files={}
+		for i in ['css','html','js']:
+			for j in glob.glob('*.%s'%i):
+				self.files[j]=file(j).read()
+		self.mime = mimetypes.types_map.copy()
+		self.mime['.html']= 'text/html; charset=UTF-8'
+		self.multi = Multiplex(cmd)
 		self.session = {}
 	def __call__(self, environ, start_response):
 		req = qweb.QWebRequest(environ, start_response,session=None)
@@ -479,10 +479,14 @@ class AjaxTerm:
 			s=req.REQUEST["s"]
 			k=req.REQUEST["k"]
 			c=req.REQUEST["c"]
+			w=req.REQUEST.int("w")
+			h=req.REQUEST.int("h")
 			if s in self.session:
 				term=self.session[s]
 			else:
-				term=self.session[s]=self.multi.create()
+				if not (w>2 and w<100 and h>2 and h<100):
+					w,h=80,25
+				term=self.session[s]=self.multi.create(w,h)
 			if k:
 				self.multi.proc_write(term,k)
 			time.sleep(0.002)
@@ -495,25 +499,24 @@ class AjaxTerm:
 				del self.session[s]
 				req.write('<?xml version="1.0"?><idem></idem>')
 #			print "sessions %r"%self.session
-		elif req.PATH_INFO.endswith('/sarissa.js'):
-			req.response_headers['Content-Type']='application/x-javascript'
-			req.write(self.sarissa)
-#		elif not req.REQUEST['sid']:
-#			req.http_redirect('terminal?sid=%s'%('%012x'%random.randint(1,2**48)))
 		else:
-			req.response_headers['Content-Type']='text/html; charset=UTF-8'
-			req.write(self.template)
+			n=os.path.basename(req.PATH_INFO)
+			if n in self.files:
+				req.response_headers['Content-Type'] = self.mime.get(os.path.splitext(n)[1].lower(), 'application/octet-stream')
+				req.write(self.files[n])
+			else:
+				req.response_headers['Content-Type'] = 'text/html; charset=UTF-8'
+				req.write(self.files['ajaxterm.html'])
 		return req
 
 def main():
 	parser = optparse.OptionParser()
 	parser.add_option("-p", "--port", dest="port", default="8080", help="Set the TCP port (default: 8080)")
-	parser.add_option("-s", "--size", dest="size", default="80x25",help="set the terminal size (default: 80x25)")
 	parser.add_option("-c", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 	parser.add_option("-l", "--log", action="store_true", dest="log",default=0,help="log requests to stderr (default: quiet mode)")
 	(o, a) = parser.parse_args()
 	print 'AjaxTerm serving at http://localhost:%s/'%o.port
-	at=AjaxTerm(o.size,o.cmd)
+	at=AjaxTerm(o.cmd)
 #	f=lambda:os.system('firefox http://localhost:%s/&'%o.port)
 	qweb.qweb_wsgi_autorun(at,ip='localhost',port=int(o.port),threaded=0,log=o.log,callback_ready=None)
 	at.multi.die()
