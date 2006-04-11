@@ -3,7 +3,7 @@
 
 import StringIO,cPickle,csv,datetime,email.Header,email.MIMEText,glob,os,quopri,random,re,sets,shutil,socket,sys,time,zipfile
 
-sys.path[0:0]=glob.glob('lib/*.egg')+glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('../../src')
+sys.path.extend(glob.glob('lib/*.egg')+glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('../../src'))
 
 import sqlobject as so
 import qweb
