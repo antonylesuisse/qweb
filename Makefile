@@ -3,6 +3,8 @@ SRCDIR=QWeb-${VERSION}
 SRCTGZ=${SRCDIR}.tar.gz
 DEMODIR=${SRCDIR}-demo
 DEMOTGZ=${DEMODIR}.tar.gz
+BLOGDIR=${SRCDIR}-blog
+BLOGTGZ=${BLOGDIR}.tar.gz
 ATDIR=${SRCDIR}-ajaxterm
 ATTGZ=${ATDIR}.tar.gz
 
@@ -21,14 +23,21 @@ tgz:
 	mkdir ${SRCDIR} || true
 	cp -r Makefile README* contrib examples ez_setup.py setup.py src ${SRCDIR}
 	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn --exclude=examples/blog ${SRCDIR}
+
 	# DemoApp
 	mkdir ${DEMODIR} || true
 	cp dist/QWeb-*.egg ${DEMODIR}
 	cp examples/demo/[A-Za-z]* ${DEMODIR}
 	tar czf dist/${DEMOTGZ} ${DEMODIR}
+
+	# Blog
+	mkdir ${BLOGDIR} || true
+	cp dist/QWeb-*.egg ${BLOGDIR}
+	rsync -a examples/blog/ ${BLOGDIR}/
+	tar czf dist/${BLOGTGZ} --exclude=.svn ${BLOGDIR}
+
 	# AjaxTerm
 	mkdir ${ATDIR} || true
-#	cp dist/QWeb-*.egg ${ATDIR}
 	cp src/qweb/qweb.py ${ATDIR}
 	cp examples/ajaxterm/R*.txt examples/ajaxterm/[a-z]* ${ATDIR}
 	tar czf dist/${ATTGZ} ${ATDIR}
@@ -37,6 +46,7 @@ dist: tgz
 	# cleanup
 	rm -Rf ${SRCDIR}
 	rm -Rf ${DEMODIR}
+	rm -Rf ${BLOGDIR}
 	rm -Rf ${ATDIR}
 
 pub: tgz

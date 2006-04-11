@@ -255,7 +255,7 @@ table.listing tbody tr.odd td.action { background-color: #faf2e1 }
 
 		Comments:<br/>
 		<t t-foreach="post.comments" t-as="c">
-			<div style="border: 1px solid #888; padding: 10px; margin: 5px 0px;">
+			<div style="border: 1px solid #888; padding: 10px; margin: 5px 0px 5px 10px;">
 			Name: <t t-esc="c.name"/><br/>
 			Email: <t t-esc="c.email"/><br/>
 			Title: <t t-esc="c.title"/><br/>

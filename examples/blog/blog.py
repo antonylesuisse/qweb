@@ -3,7 +3,7 @@
 
 import StringIO,cPickle,csv,datetime,email.Header,email.MIMEText,glob,os,quopri,random,re,sets,shutil,socket,sys,time,zipfile
 
-sys.path[0:0]=glob.glob('lib/*.egg')+glob.glob('../../src')
+sys.path[0:0]=glob.glob('lib/*.egg')+glob.glob('QWeb-*-py%d.%d.egg'%sys.version_info[:2])+glob.glob('../../src')
 
 import sqlobject as so
 import qweb
@@ -42,9 +42,9 @@ def initdb():
 		i.dropTable(ifExists=True)
 		i.createTable()
 	for i in range(10):
-		p=post(title='Post %d'%(i+1))
+		p=post(title='Post %d'%(i+1),body=("Body of %d, "%(i+1))*10)
 		for j in range(5):
-			comment(post=p,title='comment %d on post %d'%(j+1,i+1))
+			comment(post=p,title='comment %d on post %d'%(j+1,i+1),name='John Doe%d'%(j+1),email='john.doe%d@example.com'%(j+1))
 
 #---------------------------------------------------------
 # Web interface
