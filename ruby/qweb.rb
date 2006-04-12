@@ -2,7 +2,7 @@
 # vim:set noet fdm=syntax fdl=0 fdc=3 fdn=2:
 
 require "rexml/document"
-require "pp"
+#require "pp"
 
 class QWebEval
 	def initialize(context)
@@ -221,7 +221,6 @@ class QWeb
 				if enum.kind_of?(Hash)
 					d.merge(i)
 				else
-					puts var
 					d[var]=i
 				end
 				ru << render_element(e,g_att,d)
@@ -258,6 +257,6 @@ class QWeb
 	end
 end
 
-q=QWeb.new("demo.xml")
-print q.render("demo",{'varname'=>"This is a tag <tag>"})
+#q=QWeb.new("demo.xml")
+#print q.render("demo",{'varname'=>"This is a tag <tag>"})
 
