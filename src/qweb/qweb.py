@@ -51,7 +51,6 @@ You may also try standalone example applications:
 
  * AjaxTerm
  * Qweb blog [/qweb/files/QWeb-0.5-blog.tar.gz QWeb-0.5-blog.tar.gz]
- * Qweb demo [/qweb/files/QWeb-0.5-demo.tar.gz QWeb-0.5-demo.tar.gz]
 
 == Download ==
 
@@ -60,12 +59,6 @@ You may also try standalone example applications:
    * Python 2.3 Egg [/qweb/files/QWeb-0.5-py2.3.egg QWeb-0.5-py2.3.egg]
    * Python 2.4 Egg [/qweb/files/QWeb-0.5-py2.4.egg QWeb-0.5-py2.4.egg]
 
- * Standalone Demos (untar, execute and point your browser to http://locahost:8080/ ):
-   * Qweb AjaxTerm [/qweb/files/QWeb-0.5-ajaxterm.tar.gz QWeb-0.5-ajaxterm.tar.gz]
-   * Qweb blog [/qweb/files/QWeb-0.5-blog.tar.gz QWeb-0.5-blog.tar.gz]
-   * Qweb demo [/qweb/files/QWeb-0.5-demo.tar.gz QWeb-0.5-demo.tar.gz]
-
- 
  * [/qweb/files/ Browse all the released files]
  * [/qweb/trac/browser Browse the source repository]
 
@@ -80,7 +73,7 @@ You may also try standalone example applications:
  * No mailing-list exists yet, in the mean time discussion should happen on: web-sig@python.org
 
    info page: http://mail.python.org/mailman/listinfo/web-sig
- 
+
    archives: http://mail.python.org/pipermail/web-sig/
 
 QWeb Components:

@@ -1,7 +1,7 @@
 = [http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm Ajaxterm] =
 
 Ajaxterm is a web based terminal. It was totally inspired and works almost
-exactly like http://anyterm.org/ except it's much more easy to install.
+exactly like http://anyterm.org/ except it's much easier to install.
 
 Ajaxterm written in python (and some AJAX javascript for client side) and depends only on python2.3 or better.[[BR]]
 Ajaxterm is '''very simple to install''' on Linux, Unix, MacOS X and cygwin.[[BR]]
@@ -11,9 +11,9 @@ Use the [/qweb/forum/viewforum.php?id=2 Forum], if you have any question or rema
 
 == News ==
 
- * 2005-04-07: Added Paste from clipboard.
- * 2005-04-05: Removed the qweb egg, size is now 26kb
- * 2005-04-05: Getting popular on [http://programming.reddit.com/info/3xsl/comments reddit.com],
+ * 2006-04-07: Added Paste from clipboard.
+ * 2006-04-05: Removed the qweb egg, size is now 26kb
+ * 2006-04-05: Getting popular on [http://programming.reddit.com/info/3xsl/comments reddit.com],
    [http://del.icio.us/url/93b77e52e1ae45c67b95a0a2d5bdc758 del.icio.us],
    [http://digg.com/programming/Ajaxterm_-_a_web_based_terminal digg.com]
 
