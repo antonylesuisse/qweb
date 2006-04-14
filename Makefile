@@ -1,8 +1,6 @@
 VERSION=0.5
 SRCDIR=QWeb-${VERSION}
 SRCTGZ=${SRCDIR}.tar.gz
-DEMODIR=${SRCDIR}-demo
-DEMOTGZ=${DEMODIR}.tar.gz
 BLOGDIR=${SRCDIR}-blog
 BLOGTGZ=${BLOGDIR}.tar.gz
 ATDIR=${SRCDIR}-ajaxterm
@@ -25,12 +23,6 @@ tgz:
 #	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn --exclude=examples/blog/lib ${SRCDIR}
 	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
 
-	# DemoApp
-	mkdir ${DEMODIR} || true
-	cp dist/QWeb-*.egg ${DEMODIR}
-	cp examples/demo/[A-Za-z]* ${DEMODIR}
-	tar czf dist/${DEMOTGZ} ${DEMODIR}
-
 	# Blog
 	mkdir ${BLOGDIR} || true
 	cp dist/QWeb-*.egg ${BLOGDIR}
@@ -51,9 +43,8 @@ pub: tgz
 	# publish
 ifeq ($(USER),wis)
 	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
-	rsync -av --delete ${DEMODIR}/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/demo/
-endif
 	rm -Rf ${SRCDIR} ${DEMODIR} ${BLOGDIR} ${ATDIR}
 	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/WikiStart' 'dist/QWeb-README-wiki.txt'
 	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm' 'examples/ajaxterm/README.txt'
+endif
 
