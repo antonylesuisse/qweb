@@ -45,8 +45,6 @@ Then point your browser to this URL : http://localhost:8080/
  * If run as root ajaxterm will run /bin/login, otherwise it will run ssh
    localhost. To use an other command use the -c option.
 
- * Ajaxterm was first written as a demo for qweb (my web framework), but actually doesn't use many features of qweb.
-
  * By default Ajaxterm only listen at 127.0.0.1:8080. For remote access, it is
    strongly recommended to use '''https SSL/TLS''', and that is simple to
    configure if you use the apache web server using mod_proxy. Here is an
@@ -74,9 +72,9 @@ Then point your browser to this URL : http://localhost:8080/
 
  * Using GET HTTP request seems to speed up ajaxterm, just click on GET in the
    interface, but be warned that your keystrokes might be loggued (by apache or
-   any proxy). I usually enable it after the login process.
+   any proxy). I usually enable it after the login.
 
- * ./ajaxterm.py --help ouput:
+ * Ajaxterm commandline usage:
 
 {{{
 usage: ajaxterm.py [options]
@@ -84,11 +82,11 @@ usage: ajaxterm.py [options]
 options:
   -h, --help            show this help message and exit
   -pPORT, --port=PORT   Set the TCP port (default: 8080)
-  -sSIZE, --size=SIZE   set the terminal size (default: 80x25)
   -cCMD, --command=CMD  set the command (default: /bin/login or ssh localhost)
   -l, --log             log requests to stderr (default: quiet mode)
 }}}
 
+ * Ajaxterm was first written as a demo for qweb (my web framework), but actually doesn't use many features of qweb.
 
  * Ajaxterm files are released in the Public Domain, (except [http://sarissa.sourceforge.net/doc/ sarissa*] which are LGPL).
 

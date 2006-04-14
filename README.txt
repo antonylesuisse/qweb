@@ -51,7 +51,6 @@ You may also try standalone example applications:
    * Python 2.3 Egg [/qweb/files/QWeb-0.5-py2.3.egg QWeb-0.5-py2.3.egg]
    * Python 2.4 Egg [/qweb/files/QWeb-0.5-py2.4.egg QWeb-0.5-py2.4.egg]
 
- * [/qweb/files/ Browse all the released files]
  * [/qweb/trac/browser Browse the source repository]
 
 == Documentation ==
@@ -62,11 +61,7 @@ You may also try standalone example applications:
 == Mailin-list ==
 
  * Forum: [http://antony.lesuisse.org/qweb/forum/viewforum.php?id=1 Forum]
- * No mailing-list exists yet, in the mean time discussion should happen on: web-sig@python.org
-
-   info page: http://mail.python.org/mailman/listinfo/web-sig
-
-   archives: http://mail.python.org/pipermail/web-sig/
+ * No mailing-list exists yet, discussion should happen on: [http://mail.python.org/mailman/listinfo/web-sig web-sig] [http://mail.python.org/pipermail/web-sig/ archives]
 
 QWeb Components:
 ----------------
