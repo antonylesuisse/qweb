@@ -405,7 +405,8 @@ class Multiplex:
 			os.execve(cmd[0],cmd,env)
 		else:
 			fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
-			fcntl.ioctl(fd, termios.TIOCSWINSZ , struct.pack("HHHH",h,w,0,0))
+			# python bug http://python.org/sf/1112949 on amd64
+			fcntl.ioctl(fd, struct.unpack('i',struct.pack('I',termios.TIOCSWINSZ))[0], struct.pack("HHHH",w,h,0,0))
 			self.proc[fd]={'pid':pid,'term':Terminal(w,h),'buf':'','time':time.time()}
 			return fd
 	def die(self):

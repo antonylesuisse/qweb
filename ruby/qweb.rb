@@ -2,33 +2,63 @@
 # vim:set noet fdm=syntax fdl=0 fdc=3 fdn=2:
 
 require "rexml/document"
-#require "pp"
 
-class QWebEval
+class QWebContext
 	def initialize(context)
-		@context = context
+		@qweb_context={};
+		context.each { |key, value|
+			self[key]=val;
+		}
 	end
-	def method_missing(m)
-		@context[m.to_s]
-	end
-	def eval_object(expr)
-		return instance_eval(expr)
-	end
-	def eval_str(expr)
-		if expr=="0":
-			return @context[0]
-		else
-			return eval_object(expr).to_s
+	def method_missing(name,*args)
+		if m=@qweb_context[name.to_s]
+			return m
+		elsif t=@qweb_context["template"]
+			return t.send(name, *args)
 		end
 	end
-	def eval_bool(expr)
-		if eval_object(expr)
+
+	def []=(key,val)
+		@qweb_context[key]=val
+		instance_variable_set("@#{key}", value) if key.kind_of?(String)
+		return val
+	end
+	def [](key)
+		return @qweb_context[key]
+	end
+	def clone
+		return QWebContext.new(@qweb_context)
+	end
+
+	def qweb_eval_object(expr)
+		if r=@qweb_context[expr]
+			return r
+		else
+			begin
+				r=instance_eval(expr)
+			rescue SyntaxError, NameError => boom
+				r="String doesn't compile: " + boom
+			rescue StandardError => bang
+				r="Error running script: " + bang
+			end
+			return r
+		end
+	end
+	def qweb_eval_str(expr)
+		if expr=="0":
+			return @qweb_context[0]
+		else
+			return qweb_eval_object(expr).to_s
+		end
+	end
+	def qweb_eval_bool(expr)
+		if qweb_eval_object(expr)
 			return true
 		else
 			return false
 		end
 	end
-	def eval_format(expr)
+	def qweb_eval_format(expr)
 		return ""
 #        try:
 #            return str(expr%self)
@@ -40,14 +70,8 @@ class QWebEval
 #        r=None
 #        try:
 #            r=eval(expr,self.data)
-#        except NameError,e:
-#            pass
-#        except AttributeError,e:
-#            pass
 #        except Exception,e:
 #            print "qweb: expression error '%s' "%expr,e
-#        if self.data.has_key("__builtins__"):
-#            del self.data["__builtins__"]
 #        return r
 	end
 end
@@ -81,16 +105,16 @@ class QWeb
 	end
 	# Evaluation
 	def eval_object(e,v)
-		return QWebEval.new(v).eval_object(e)
+		return v.qweb_eval_object(e)
 	end
 	def eval_format(e,v)
-		return QWebEval.new(v).eval_format(e)
+		return v.qweb_eval_format(e)
 	end
 	def eval_str(e,v)
-		return QWebEval.new(v).eval_str(e)
+		return v.qweb_eval_str(e)
 	end
 	def eval_bool(e,v)
-		return QWebEval.new(v).eval_bool(e)
+		return v.qweb_eval_bool(e)
 	end
 	# Escaping
 	def escape_text(string)
@@ -101,6 +125,9 @@ class QWeb
 	end
 	# Rendering
 	def render(tname,v={})
+		return render_context(tname,QWebContext.new(v))
+	end
+	def render_context(tname,v)
 		if n=@t[tname]
 			return render_node(n,v)
 		else
@@ -218,7 +245,7 @@ class QWeb
 				d["%s_odd"%var]=(index+1)%2
 				d["%s_last"%var]=index+1==size
 				d["%s_parity"%var]=(index%2==1 ? 'odd' : 'even')
-				if enum.kind_of?(Hash)
+				if i.kind_of?(Hash)
 					d.merge(i)
 				else
 					d[var]=i
@@ -245,7 +272,7 @@ class QWeb
 			d=v.clone
 		end
 		d[0]=render_element(e,g_att,d)
-		return render(t_att["call"],d)
+		return render_context(t_att["call"],d)
 	end
 	def render_tag_set(e,t_att,g_att,v)
 		if t_att["eval"]
@@ -257,6 +284,6 @@ class QWeb
 	end
 end
 
-#q=QWeb.new("demo.xml")
-#print q.render("demo",{'varname'=>"This is a tag <tag>"})
+#q=QWeb.new("qweb_template.xml")
+#p q.render("demo",{'varname'=>"This is a tag <tag>"})
 
