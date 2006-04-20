@@ -25,7 +25,7 @@ applications consisting of:
 QWeb applications are runnable in standalone mode (from commandline), via
 FastCGI, Regular CGI or by any python WSGI compliant server.
 
-QWeb doesn't provide any database access but it intergrates nicely with ORMs
+QWeb doesn't provide any database access but it integrates nicely with ORMs
 such as SQLObject, SQLAlchemy or plain DB-API.
 
 Written by Antony Lesuisse (email al AT udev.org)
