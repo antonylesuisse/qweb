@@ -2,8 +2,8 @@
 
 # AjaxTerm Gentoo script, 08 May 2006 Mark Gillespie 
 
-DAEMON=/bin/ajaxterm.py
-PORT=7080 
+DAEMON=%(bin)s/ajaxterm.py
+PORT=%(port)s
 PIDFILE=/var/run/ajaxterm.pid 
 
 depend()

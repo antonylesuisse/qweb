@@ -17,7 +17,11 @@ cmd=o.cmd
 
 file("ajaxterm.bin","w").write('#!/bin/sh\nexec "%(lib)s/ajaxterm.py" "$@"\n'%locals())
 file("Makefile","w").write(file("configure.makefile").read()%locals())
-file("ajaxterm.initd","w").write(file("configure.initd.debian").read()%locals())
+
+if os.path.isfile("/etc/gentoo-release"):
+	file("ajaxterm.initd","w").write(file("configure.initd.gentoo").read()%locals())
+else:
+	file("ajaxterm.initd","w").write(file("configure.initd.debian").read()%locals())
 
 os.system("chmod a+x ajaxterm.bin")
 os.system("chmod a+x ajaxterm.initd")
