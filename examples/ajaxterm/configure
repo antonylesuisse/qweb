@@ -4,6 +4,7 @@ import optparse,os
 
 parser = optparse.OptionParser()
 parser.add_option("", "--prefix", dest="prefix",default="/usr/local",help="installation prefix (default: /usr/local)")
+parser.add_option("", "--confdir", dest="confdir", default="/etc",help="configuration files directory prefix (default: /etc)")
 parser.add_option("", "--port", dest="port", default="8080", help="set the listening TCP port (default: 8080)")
 parser.add_option("", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 (o, a) = parser.parse_args()
@@ -11,7 +12,8 @@ parser.add_option("", "--command", dest="cmd", default=None,help="set the comman
 print "Configuring prefix=",o.prefix," port=",o.port
 
 bin=os.path.join(o.prefix,"bin")
-lib=os.path.join(o.prefix,"lib/ajaxterm")
+lib=os.path.join(o.prefix,"share/ajaxterm")
+etc=o.confdir
 port=o.port
 cmd=o.cmd
 
