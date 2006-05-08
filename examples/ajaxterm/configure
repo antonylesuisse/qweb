@@ -8,63 +8,16 @@ parser.add_option("", "--port", dest="port", default="8080", help="set the liste
 parser.add_option("", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 (o, a) = parser.parse_args()
 
+print "Configuring prefix=",o.prefix," port=",o.port
+
 bin=os.path.join(o.prefix,"bin")
 lib=os.path.join(o.prefix,"lib/ajaxterm")
 port=o.port
 cmd=o.cmd
 
 file("ajaxterm.bin","w").write('#!/bin/sh\nexec "%(lib)s/ajaxterm.py" "$@"\n'%locals())
+file("Makefile","w").write(file("configure.makefile").read()%locals())
+file("ajaxterm.initd","w").write(file("configure.initd.debian").read()%locals())
+
 os.system("chmod a+x ajaxterm.bin")
-
-file("Makefile","w").write("""
-build:
-	true
-
-install:
-	install -d "%(bin)s"
-	install -d "%(lib)s"
-	install ajaxterm.bin "%(bin)s/ajaxterm"
-	install ajaxterm.css ajaxterm.html ajaxterm.js ajaxterm.py sarissa.js sarissa_dhtml.js "%(lib)s"
-	install ajaxterm.initd "/etc/init.d/ajaxterm"
-
-clean:
-	rm ajaxterm.bin
-	rm ajaxterm.initd
-	rm Makefile
-"""%locals())
-
-file("ajaxterm.initd","w").write("""#!/bin/sh
-
-PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
-DAEMON=%(bin)s/ajaxterm
-PORT=%(port)s
-PIDFILE=/var/run/ajaxterm.pid
-
-[ -x "$DAEMON" ] || exit 0
-
-#. /lib/lsb/init-functions
-
-case "$1" in
-	start)
-		echo "Starting ajaxterm on port $PORT"
-		start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --background --exec $DAEMON -- --port=$PORT || return 2
-	;;
-	stop)
-		echo "Stopping ajaxterm"
-		start-stop-daemon  --stop --pidfile $PIDFILE
-		rm -f $PIDFILE
-	;;
-	restart|force-reload)
-		$0 stop
-		sleep 1
-		$0 start
-	;;
-	*)
-		echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2
-		exit 3
-	;;
-esac
-
-:
-"""%locals())
 os.system("chmod a+x ajaxterm.initd")
