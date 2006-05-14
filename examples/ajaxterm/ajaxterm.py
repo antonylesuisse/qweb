@@ -512,7 +512,7 @@ class AjaxTerm:
 
 def main():
 	parser = optparse.OptionParser()
-	parser.add_option("-p", "--port", dest="port", default="8080", help="Set the TCP port (default: 8080)")
+	parser.add_option("-p", "--port", dest="port", default="8022", help="Set the TCP port (default: 8022)")
 	parser.add_option("-c", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 	parser.add_option("-l", "--log", action="store_true", dest="log",default=0,help="log requests to stderr (default: quiet mode)")
 	(o, a) = parser.parse_args()

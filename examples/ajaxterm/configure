@@ -5,7 +5,7 @@ import optparse,os
 parser = optparse.OptionParser()
 parser.add_option("", "--prefix", dest="prefix",default="/usr/local",help="installation prefix (default: /usr/local)")
 parser.add_option("", "--confdir", dest="confdir", default="/etc",help="configuration files directory prefix (default: /etc)")
-parser.add_option("", "--port", dest="port", default="8080", help="set the listening TCP port (default: 8080)")
+parser.add_option("", "--port", dest="port", default="8022", help="set the listening TCP port (default: 8022)")
 parser.add_option("", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 (o, a) = parser.parse_args()
 

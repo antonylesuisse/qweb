@@ -29,7 +29,7 @@ tar zxvf QWeb-0.5-ajaxterm.tar.gz
 cd QWeb-0.5-ajaxterm
 ./ajaxterm.py
 }}}
-Then point your browser to this URL : http://localhost:8080/
+Then point your browser to this URL : http://localhost:8022/
 
 == Screenshot ==
 
@@ -45,7 +45,7 @@ Then point your browser to this URL : http://localhost:8080/
  * If run as root ajaxterm will run /bin/login, otherwise it will run ssh
    localhost. To use an other command use the -c option.
 
- * By default Ajaxterm only listen at 127.0.0.1:8080. For remote access, it is
+ * By default Ajaxterm only listen at 127.0.0.1:8022. For remote access, it is
    strongly recommended to use '''https SSL/TLS''', and that is simple to
    configure if you use the apache web server using mod_proxy. Here is an
    configuration example:
@@ -65,8 +65,8 @@ Then point your browser to this URL : http://localhost:8080/
                Order deny,allow
                Allow from all
        </Proxy>
-       ProxyPass /ajaxterm/ http://localhost:8080/
-       ProxyPassReverse /ajaxterm/ http://localhost:8080/
+       ProxyPass /ajaxterm/ http://localhost:8022/
+       ProxyPassReverse /ajaxterm/ http://localhost:8022/
     </VirtualHost>
 }}}
 
@@ -81,7 +81,7 @@ usage: ajaxterm.py [options]
 
 options:
   -h, --help            show this help message and exit
-  -pPORT, --port=PORT   Set the TCP port (default: 8080)
+  -pPORT, --port=PORT   Set the TCP port (default: 8022)
   -cCMD, --command=CMD  set the command (default: /bin/login or ssh localhost)
   -l, --log             log requests to stderr (default: quiet mode)
 }}}
