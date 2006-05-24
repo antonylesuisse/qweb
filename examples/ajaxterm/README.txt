@@ -11,22 +11,19 @@ Use the [/qweb/forum/viewforum.php?id=2 Forum], if you have any question or rema
 
 == News ==
 
+ * 2006-05-23: v0.6 Applied debian and gentoo patches, renamed to Ajaxterm, default port 8022
  * 2006-04-07: Added Paste from clipboard.
- * 2006-04-05: Removed the qweb egg, size is now 26kb
- * 2006-04-05: Getting popular on [http://programming.reddit.com/info/3xsl/comments reddit.com],
-   [http://del.icio.us/url/93b77e52e1ae45c67b95a0a2d5bdc758 del.icio.us],
-   [http://digg.com/programming/Ajaxterm_-_a_web_based_terminal digg.com]
 
 == Download and Install ==
 
- * Release: [/qweb/files/QWeb-0.5-ajaxterm.tar.gz QWeb-0.5-ajaxterm.tar.gz]
+ * Release: [/qweb/files/Ajaxterm-0.6.tar.gz Ajaxterm-0.6.tar.gz]
  * Browse src: [/qweb/trac/browser/trunk/examples/ajaxterm/ ajaxterm/]
 
 To install Ajaxterm issue the following commands:
 {{{
-wget http://antony.lesuisse.org/qweb/files/QWeb-0.5-ajaxterm.tar.gz
-tar zxvf QWeb-0.5-ajaxterm.tar.gz
-cd QWeb-0.5-ajaxterm
+wget http://antony.lesuisse.org/qweb/files/Ajaxterm-0.6.tar.gz
+tar zxvf Ajaxterm-0.6.tar.gz
+cd Ajaxterm-0.6
 ./ajaxterm.py
 }}}
 Then point your browser to this URL : http://localhost:8022/
@@ -90,14 +87,9 @@ options:
 
  * Ajaxterm files are released in the Public Domain, (except [http://sarissa.sourceforge.net/doc/ sarissa*] which are LGPL).
 
-{{{
-#!html
-<!--
-TODO
-----
-	insert mode ESC [ 4 h
-	multiplex change sizex= sizey=
-	paste from browser
-	vt102 graphic codepage
--->
-}}}
+== TODO ==
+
+ * insert mode ESC [ 4 h
+ * multiplex change size x,y from gui
+ * vt102 graphic codepage
+

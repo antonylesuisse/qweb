@@ -3,7 +3,7 @@
 import cgi,glob,os,re,sys
 
 os.chdir(os.path.normpath(os.path.dirname(__file__)))
-sys.path[0:0]=glob.glob('../../src')
+sys.path[0:0]=glob.glob('../../python')
 import qweb, qweb_static
 
 class QWebDemoApp:

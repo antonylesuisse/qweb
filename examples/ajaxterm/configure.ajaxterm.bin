@@ -1,0 +1,3 @@
+#!/bin/sh
+export PYTHONPATH=%(lib)s
+%(lib)s/ajaxterm.py $@

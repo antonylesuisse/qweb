@@ -98,6 +98,9 @@ class QWeb
 	def get_template(name)
 		return @t[name]
 	end
+	def template_exists?(name)
+		return @t.has_key?(name)
+	end
 	# Evaluation
 	def eval_object(e,v)
 		return v.qweb_eval_object(e)
@@ -349,7 +352,7 @@ EOS
 		inner=render_element(e,g_att,v)
 		pre="#{n}_all=#{expr};#{n}_size=-1;#{n}_size=#{n}_all.length if #{n}_all.respond_to? 'length';#{n}_index=0;"
 		inner0="qweb_vars['#{n}']=#{n}_value=#{n}; #{n}_first=#{n}_index==0; #{n}_even=#{n}_index%2; #{n}_odd=(#{n}_index+1)%2;"
-		inner1="#{n}_last=#{n}_index+1==#{n}_size; #{n}_parity=(#{n}_index%2==1 ? 'odd' : 'even');%>#{inner}<%#{n}_index+=1;"
+		inner1="#{n}_last=#{n}_index+1==#{n}_size; #{n}_parity=(#{n}_index%2==1 ? 'odd' : 'even');\n%>#{inner}<%\n#{n}_index+=1;"
 		code="<% \n#{pre}\n #{n}_all.each do |#{n}|\n #{inner0} \n #{inner1}\n end %>"
 		return code
 	end
@@ -393,197 +396,3 @@ if __FILE__ == $0
 	q=QWebRHTML.new("qweb_template.xml").render_rhtml("../views")
 end
 
-
-
-#class QWebField:
-#    def __init__(self,name=None,default="",check=None):
-#        self.name=name
-#        self.default=default
-#        self.check=check
-#        # optional attributes
-#        self.type=None
-#        self.trim=1
-#        self.required=1
-#        self.cssvalid="form_valid"
-#        self.cssinvalid="form_invalid"
-#        # set by addfield
-#        self.form=None
-#        # set by processing
-#        self.input=None
-#        self.css=None
-#        self.value=None
-#        self.valid=None
-#        self.invalid=None
-#        self.validate(1)
-#    def validate(self,val=1,update=1):
-#        if val:
-#            self.valid=1
-#            self.invalid=0
-#            self.css=self.cssvalid
-#        else:
-#            self.valid=0
-#            self.invalid=1
-#            self.css=self.cssinvalid
-#        if update and self.form:
-#            self.form.update()
-#    def invalidate(self,update=1):
-#        self.validate(0,update)
-#class QWebForm:
-#    class QWebFormF:
-#        pass
-#    def __init__(self,e=None,arg=None,default=None):
-#        self.fields={}
-#        # all fields have been submitted
-#        self.submitted=False
-#        self.missing=[]
-#        # at least one field is invalid or missing
-#        self.invalid=False
-#        self.error=[]
-#        # all fields have been submitted and are valid
-#        self.valid=False
-#        # fields under self.f for convenience
-#        self.f=self.QWebFormF()
-#        if e:
-#            self.add_template(e)
-#        # assume that the fields are done with the template
-#        if default:
-#            self.set_default(default,e==None)
-#        if arg!=None:
-#            self.process_input(arg)
-#    def __getitem__(self,k):
-#        return self.fields[k]
-#    def set_default(self,default,add_missing=1):
-#        for k,v in default.items():
-#            if self.fields.has_key(k):
-#                self.fields[k].default=str(v)
-#            elif add_missing:
-#                self.add_field(QWebField(k,v))
-#    def add_field(self,f):
-#        self.fields[f.name]=f
-#        f.form=self
-#        setattr(self.f,f.name,f)
-#    def add_template(self,e):
-#        att={}
-#        for (an,av) in e.attributes.items():
-#            an=str(an)
-#            if an.startswith("t-"):
-#                att[an[2:]]=av.encode("utf8")
-#        for i in ["form-text", "form-password", "form-radio", "form-checkbox", "form-select","form-textarea"]:
-#            if att.has_key(i):
-#                name=att[i].split(".")[-1]
-#                default=att.get("default","")
-#                check=att.get("check",None)
-#                f=QWebField(name,default,check)
-#                if i=="form-textarea":
-#                    f.type="textarea"
-#                    f.trim=0
-#                if i=="form-checkbox":
-#                    f.type="checkbox"
-#                    f.required=0
-#                self.add_field(f)
-#        for n in e.childNodes:
-#            if n.nodeType==n.ELEMENT_NODE:
-#                self.add_template(n)
-#    def process_input(self,arg):
-#        for f in self.fields.values():
-#            if arg.has_key(f.name):
-#                f.input=arg[f.name]
-#                f.value=f.input
-#                if f.trim:
-#                    f.input=f.input.strip()
-#                f.validate(1,False)
-#                if f.check==None:
-#                    continue
-#                elif callable(f.check):
-#                    pass
-#                elif isinstance(f.check,str):
-#                    v=f.check
-#                    if f.check=="email":
-#                        v=r"/^[^@#!& ]+@[A-Za-z0-9-][.A-Za-z0-9-]{0,64}\.[A-Za-z]{2,5}$/"
-#                    if f.check=="date":
-#                        v=r"/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/"
-#                    if not re.match(v[1:-1],f.input):
-#                        f.validate(0,False)
-#            else:
-#                f.value=f.default
-#        self.update()
-#    def validate_all(self,val=1):
-#        for f in self.fields.values():
-#            f.validate(val,0)
-#        self.update()
-#    def invalidate_all(self):
-#        self.validate_all(0)
-#    def update(self):
-#        self.submitted=True
-#        self.valid=True
-#        self.errors=[]
-#        for f in self.fields.values():
-#            if f.required and f.input==None:
-#                self.submitted=False
-#                self.valid=False
-#                self.missing.append(f.name)
-#            if f.invalid:
-#                self.valid=False
-#                self.error.append(f.name)
-#        # invalid have been submitted and 
-#        self.invalid=self.submitted and self.valid==False
-#    def collect(self):
-#        d={}
-#        for f in self.fields.values():
-#            d[f.name]=f.value
-#        return d
-#class QWebHtml(QWebXml):
-#    # QWebForm from a template
-#    def form(self,tname,arg=None,default=None):
-#        form=QWebForm(self._t[tname],arg,default)
-#        return form
-#
-#    # HTML Att
-#    def render_att_checked(self,e,an,av,v):
-#        if self.eval_bool(av,v):
-#            return ' %s="%s"'%(an[2:],an[2:])
-#        else:
-#            return ''
-#    def render_att_selected(self,e,an,av,v):
-#        return self.render_att_checked(e,an,av,v)
-#
-#    # HTML Tags forms
-#    def render_tag_form_text(self,e,t_att,g_att,v):
-#        f=self.eval_object(t_att["form-text"],v)
-#        g_att+=' type="text" name="%s" value="%s" class="%s"'%(f.name,cgi.escape(f.value,1),f.css)
-#        return self.render_element(e,g_att,v)
-#    def render_tag_form_password(self,e,t_att,g_att,v):
-#        f=self.eval_object(t_att["form-password"],v)
-#        g_att+=' type="password" name="%s" value="%s" class="%s"'%(f.name,cgi.escape(f.value,1),f.css)
-#        return self.render_element(e,g_att,v)
-#    def render_tag_form_textarea(self,e,t_att,g_att,v):
-#        type="textarea"
-#        f=self.eval_object(t_att["form-textarea"],v)
-#        g_att+=' name="%s" class="%s"'%(f.name,f.css)
-#        r="<%s%s>%s</%s>"%(type,g_att,cgi.escape(f.value,1),type)
-#        return r
-#    def render_tag_form_radio(self,e,t_att,g_att,v):
-#        f=self.eval_object(t_att["form-radio"],v)
-#        val=t_att["value"]
-#        g_att+=' type="radio" name="%s" value="%s"'%(f.name,val)
-#        if f.value==val:
-#            g_att+=' checked="checked"'
-#        return self.render_element(e,g_att,v)
-#    def render_tag_form_checkbox(self,e,t_att,g_att,v):
-#        f=self.eval_object(t_att["form-checkbox"],v)
-#        val=t_att["value"]
-#        g_att+=' type="checkbox" name="%s" value="%s"'%(f.name,val)
-#        if f.value==val:
-#            g_att+=' checked="checked"'
-#        return self.render_element(e,g_att,v)
-#    def render_tag_form_select(self,e,t_att,g_att,v):
-#        f=self.eval_object(t_att["form-select"],v)
-#        g_att+=' name="%s" class="%s"'%(f.name,f.css)
-#        return self.render_element(e,g_att,v)
-#    def render_tag_option(self,e,t_att,g_att,v):
-#        f=self.eval_object(e.parentNode.getAttribute("t-form-select"),v)
-#        val=t_att["option"]
-#        g_att+=' value="%s"'%(val)
-#        if f.value==val:
-#            g_att+=' selected="selected"'
-#        return self.render_element(e,g_att,v)

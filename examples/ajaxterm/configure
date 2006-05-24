@@ -16,8 +16,9 @@ lib=os.path.join(o.prefix,"share/ajaxterm")
 etc=o.confdir
 port=o.port
 cmd=o.cmd
+man=os.path.join(o.prefix,"man/man1")
 
-file("ajaxterm.bin","w").write('#!/bin/sh\nexec "%(lib)s/ajaxterm.py" "$@"\n'%locals())
+file("ajaxterm.bin","w").write(file("configure.ajaxterm.bin").read()%locals())
 file("Makefile","w").write(file("configure.makefile").read()%locals())
 
 if os.path.isfile("/etc/gentoo-release"):

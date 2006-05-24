@@ -4,7 +4,7 @@
 
 import glob, os, sys
 
-sys.path[0:0]=glob.glob('../../src')
+sys.path[0:0]=glob.glob('../../python')
 
 import qweb
 

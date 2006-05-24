@@ -6,7 +6,7 @@ import array,cgi,fcntl,glob,mimetypes,optparse,os,pty,random,re,signal,select,sy
 
 os.chdir(os.path.normpath(os.path.dirname(__file__)))
 # Optional: Add QWeb in sys path
-sys.path[0:0]=glob.glob('../../src')
+sys.path[0:0]=glob.glob('../../python')
 
 import qweb
 

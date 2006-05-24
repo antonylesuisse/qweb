@@ -31,9 +31,9 @@ Forum: [http://antony.lesuisse.org/qweb/forum/viewforum.php?id=1 Forum]
 Make sure you have at least python 2.3 installed and run the following commands:
 
 {{{
-$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.5.tar.gz
-$ tar zxvf QWeb-0.5.tar.gz
-$ cd QWeb-0.5/examples/blog
+$ wget http://antony.lesuisse.org/qweb/files/QWeb-0.6.tar.gz
+$ tar zxvf QWeb-0.6.tar.gz
+$ cd QWeb-0.6/examples/blog
 $ ./blog.py
 }}}
 
@@ -42,14 +42,14 @@ And point your browser to http://localhost:8080/
 You may also try standalone example applications:
 
  * AjaxTerm
- * Qweb blog [/qweb/files/QWeb-0.5-blog.tar.gz QWeb-0.5-blog.tar.gz]
+ * Qweb blog [/qweb/files/QWeb-0.6-blog.tar.gz QWeb-0.6-blog.tar.gz]
 
 == Download ==
 
- * Version 0.5:
-   * Source [/qweb/files/QWeb-0.5.tar.gz QWeb-0.5.tar.gz]
-   * Python 2.3 Egg [/qweb/files/QWeb-0.5-py2.3.egg QWeb-0.5-py2.3.egg]
-   * Python 2.4 Egg [/qweb/files/QWeb-0.5-py2.4.egg QWeb-0.5-py2.4.egg]
+ * Version 0.6:
+   * Source [/qweb/files/QWeb-0.6.tar.gz QWeb-0.6.tar.gz]
+   * Python 2.3 Egg [/qweb/files/QWeb-0.6-py2.3.egg QWeb-0.6-py2.3.egg]
+   * Python 2.4 Egg [/qweb/files/QWeb-0.6-py2.4.egg QWeb-0.6-py2.4.egg]
 
  * [/qweb/trac/browser Browse the source repository]
 
