@@ -515,8 +515,25 @@ def main():
 	parser.add_option("-p", "--port", dest="port", default="8022", help="Set the TCP port (default: 8022)")
 	parser.add_option("-c", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 	parser.add_option("-l", "--log", action="store_true", dest="log",default=0,help="log requests to stderr (default: quiet mode)")
+	parser.add_option("-d", "--daemon", action="store_true", dest="daemon", default=0, help="run as daemon in the background")
 	(o, a) = parser.parse_args()
 	print 'AjaxTerm serving at http://localhost:%s/'%o.port
+	if o.daemon:
+		pid=os.fork()
+		if pid == 0:
+			#os.setsid() ?
+			os.setpgrp()
+			sys.stdin = open('/dev/null', 'r')
+			sys.stdout = open('/dev/null', 'w')
+			sys.stderr = open('/dev/null', 'w')
+		else:
+			pid_file = '/var/run/ajaxterm.pid'
+			try:
+				open(pid_file,'w+').write(str(pid)+'\n')
+			except:
+				print 'Cannot store pid in %s' % pid_file
+			print 'AjaxTerm running with pid: %d' % pid
+			sys.exit(0)
 	at=AjaxTerm(o.cmd)
 #	f=lambda:os.system('firefox http://localhost:%s/&'%o.port)
 	qweb.qweb_wsgi_autorun(at,ip='localhost',port=int(o.port),threaded=0,log=o.log,callback_ready=None)
