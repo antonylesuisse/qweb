@@ -421,7 +421,7 @@ class Multiplex:
 		t=time.time()
 		for i in self.proc.keys():
 			t0=self.proc[i]['time']
-			if (t-t0)>3600:
+			if (t-t0)>120:
 				try:
 					os.close(i)
 					os.kill(self.proc[i]['pid'],signal.SIGTERM)
