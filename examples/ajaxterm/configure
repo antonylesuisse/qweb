@@ -11,12 +11,12 @@ parser.add_option("", "--command", dest="cmd", default=None,help="set the comman
 
 print "Configuring prefix=",o.prefix," port=",o.port
 
-bin=os.path.join(o.prefix,"bin")
-lib=os.path.join(o.prefix,"share/ajaxterm")
 etc=o.confdir
 port=o.port
 cmd=o.cmd
-man=os.path.join(o.prefix,"man/man1")
+bin=os.path.join(o.prefix,"bin")
+lib=os.path.join(o.prefix,"share/ajaxterm")
+man=os.path.join(o.prefix,"share/man/man1")
 
 file("ajaxterm.bin","w").write(file("configure.ajaxterm.bin").read()%locals())
 file("Makefile","w").write(file("configure.makefile").read()%locals())

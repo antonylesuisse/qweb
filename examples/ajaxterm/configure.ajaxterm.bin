@@ -1,3 +1,2 @@
 #!/bin/sh
-export PYTHONPATH=%(lib)s
-%(lib)s/ajaxterm.py $@
+PYTHONPATH=%(lib)s exec %(lib)s/ajaxterm.py $@
