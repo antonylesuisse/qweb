@@ -81,6 +81,7 @@ options:
   -pPORT, --port=PORT   Set the TCP port (default: 8022)
   -cCMD, --command=CMD  set the command (default: /bin/login or ssh localhost)
   -l, --log             log requests to stderr (default: quiet mode)
+  -d, --daemon          run as daemon in the background
 }}}
 
  * Ajaxterm was first written as a demo for qweb (my web framework), but actually doesn't use many features of qweb.
