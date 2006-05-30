@@ -1,4 +1,4 @@
-SRCDIR=QWeb-0.6
+SRCDIR=QWeb-0.7
 SRCTGZ=${SRCDIR}.tar.gz
 ATDIR=Ajaxterm-0.7
 ATTGZ=${ATDIR}.tar.gz
