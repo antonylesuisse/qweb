@@ -11,8 +11,8 @@ Use the [/qweb/forum/viewforum.php?id=2 Forum], if you have any question or rema
 
 == News ==
 
+ * 2006-05-31: v0.7 minor fixes, daemon option
  * 2006-05-23: v0.6 Applied debian and gentoo patches, renamed to Ajaxterm, default port 8022
- * 2006-04-07: Added Paste from clipboard.
 
 == Download and Install ==
 
@@ -82,6 +82,8 @@ options:
   -cCMD, --command=CMD  set the command (default: /bin/login or ssh localhost)
   -l, --log             log requests to stderr (default: quiet mode)
   -d, --daemon          run as daemon in the background
+  -iINDEX_FILE, --index=INDEX_FILE
+                        default index file (default: ajaxterm.html)
 }}}
 
  * Ajaxterm was first written as a demo for qweb (my web framework), but actually doesn't use many features of qweb.
@@ -90,7 +92,8 @@ options:
 
 == TODO ==
 
+ * initd script to use --daemon
  * insert mode ESC [ 4 h
- * multiplex change size x,y from gui
+ * change size x,y from gui
  * vt102 graphic codepage
 

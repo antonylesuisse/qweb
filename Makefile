@@ -1,7 +1,6 @@
-VERSION=0.6
-SRCDIR=QWeb-${VERSION}
+SRCDIR=QWeb-0.6
 SRCTGZ=${SRCDIR}.tar.gz
-ATDIR=Ajaxterm-${VERSION}
+ATDIR=Ajaxterm-0.7
 ATTGZ=${ATDIR}.tar.gz
 
 all: dist
@@ -10,14 +9,14 @@ all: dist
 tgz:
 	# Build
 	rm README.txt || true
-	python2.3 setup.py bdist_egg
-	python2.4 setup.py bdist_egg
+	python2.3 python/setup.py bdist_egg
+	python2.4 python/setup.py bdist_egg
 	# clean build
 	find . -iname '*.pyc' -exec rm -v '{}' ';'
 	rm -Rf build python/QWeb.egg-info || true
 	# Source
 	mkdir ${SRCDIR} || true
-	cp -r Makefile README* contrib examples ez_setup.py setup.py python ${SRCDIR}
+	cp -r Makefile README* contrib examples python ${SRCDIR}
 	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
 
 	# AjaxTerm
@@ -28,7 +27,7 @@ tgz:
 
 dist: tgz
 	# cleanup
-	rm -Rf ${SRCDIR} ${DEMODIR}  ${ATDIR}
+	rm -Rf ${SRCDIR} ${DEMODIR} ${ATDIR}
 
 pub: tgz
 	# publish

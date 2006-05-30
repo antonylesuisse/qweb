@@ -385,7 +385,7 @@ class Multiplex:
 		elif os.getuid()==0:
 			cmd=['/bin/login']
 		else:
-			cmd=['/usr/bin/ssh','-F/dev/null','-oPreferredAuthentications=password','-oNoHostAuthenticationForLocalhost=yes','localhost']
+			cmd=['ssh','-F/dev/null','-oPreferredAuthentications=keyboard-interactive,password','-oNoHostAuthenticationForLocalhost=yes','localhost']
 		pid,fd=pty.fork()
 		if pid==0:
 			try:
@@ -402,7 +402,7 @@ class Multiplex:
 			env["LINES"]=str(h)
 			env["TERM"]="linux"
 			env["PATH"]=os.environ['PATH']
-			os.execve(cmd[0],cmd,env)
+			os.execvpe(cmd[0],cmd,env)
 		else:
 			fcntl.fcntl(fd, fcntl.F_SETFL, os.O_NONBLOCK)
 			# python bug http://python.org/sf/1112949 on amd64
