@@ -852,6 +852,8 @@ class QWebSession(dict):
             f=file(tmpname,'wb')
             f.write(dump)
             f.close()
+            if sys.platform=='win32' and os.path.isfile(fname):
+                os.remove(fname)
             os.rename(tmpname,fname)
     def session_clean(self):
         t=time.time()
