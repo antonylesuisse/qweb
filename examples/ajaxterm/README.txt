@@ -92,7 +92,6 @@ options:
 
 == TODO ==
 
- * initd script to use --daemon
  * insert mode ESC [ 4 h
  * change size x,y from gui
  * vt102 graphic codepage

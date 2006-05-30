@@ -519,7 +519,6 @@ def main():
 	parser.add_option("-d", "--daemon", action="store_true", dest="daemon", default=0, help="run as daemon in the background")
 	parser.add_option("-i", "--index", dest="index_file", default="ajaxterm.html",help="default index file (default: ajaxterm.html)")
 	(o, a) = parser.parse_args()
-	print 'AjaxTerm serving at http://localhost:%s/'%o.port
 	if o.daemon:
 		pid=os.fork()
 		if pid == 0:
@@ -534,8 +533,10 @@ def main():
 				open(pid_file,'w+').write(str(pid)+'\n')
 			except:
 				print 'Cannot store pid in %s' % pid_file
-			print 'AjaxTerm running with pid: %d' % pid
+			print 'AjaxTerm at http://localhost:%s/ pid: %d' % (o.port,pid)
 			sys.exit(0)
+	else:
+		print 'AjaxTerm at http://localhost:%s/' % o.port
 	at=AjaxTerm(o.cmd,o.index_file)
 #	f=lambda:os.system('firefox http://localhost:%s/&'%o.port)
 	qweb.qweb_wsgi_autorun(at,ip='localhost',port=int(o.port),threaded=0,log=o.log,callback_ready=None)

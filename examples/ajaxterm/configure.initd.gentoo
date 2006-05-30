@@ -14,9 +14,9 @@ depend()
 start()
 {
     ebegin "Starting AjaxTerm on port $PORT"
-    start-stop-daemon --start --pidfile $PIDFILE --make-pidfile --background --exec $DAEMON -- --port=$PORT
+    start-stop-daemon --start --pidfile $PIDFILE --exec $DAEMON -- --daemon --port=$PORT
     eend $?
-} 
+}
 
 stop()
 {
