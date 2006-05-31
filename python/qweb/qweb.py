@@ -169,7 +169,7 @@ class QWebXml:
         t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
     
     """
-    def __init__(self,x=None):
+    def __init__(self,x=None,zipname=None):
         self.node=xml.dom.Node
         self._t={}
         self._render_tag={}
@@ -185,7 +185,12 @@ class QWebXml:
             self._render_att[name]=getattr(self.__class__,i)
 
         if x!=None:
-            self.add_template(x)
+            if zipname!=None:
+                import zipfile
+                zf=zipfile.ZipFile(zipname, 'r')
+                self.add_template(zf.read(x))
+            else:
+                self.add_template(x)
     def register_tag(self,tag,func):
         self._render_tag[tag]=func
     def add_template(self,x):
