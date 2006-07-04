@@ -18,14 +18,14 @@ Use the [/qweb/forum/viewforum.php?id=2 Forum], if you have any question or rema
 
 == Download and Install ==
 
- * Release: [/qweb/files/Ajaxterm-0.7.tar.gz Ajaxterm-0.7.tar.gz]
+ * Release: [/qweb/files/Ajaxterm-0.8.tar.gz Ajaxterm-0.8.tar.gz]
  * Browse src: [/qweb/trac/browser/trunk/examples/ajaxterm/ ajaxterm/]
 
 To install Ajaxterm issue the following commands:
 {{{
-wget http://antony.lesuisse.org/qweb/files/Ajaxterm-0.7.tar.gz
-tar zxvf Ajaxterm-0.7.tar.gz
-cd Ajaxterm-0.7
+wget http://antony.lesuisse.org/qweb/files/Ajaxterm-0.8.tar.gz
+tar zxvf Ajaxterm-0.8.tar.gz
+cd Ajaxterm-0.8
 ./ajaxterm.py
 }}}
 Then point your browser to this URL : http://localhost:8022/
