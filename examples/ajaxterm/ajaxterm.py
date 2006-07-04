@@ -380,12 +380,6 @@ class Multiplex:
 			setattr(self,name,SynchronizedMethod(self.lock,orig))
 		self.thread.start()
 	def create(self,w=80,h=25):
-		if self.cmd:
-			cmd=['/bin/bash','-c',self.cmd]
-		elif os.getuid()==0:
-			cmd=['/bin/login']
-		else:
-			cmd=['ssh','-F/dev/null','-oPreferredAuthentications=keyboard-interactive,password','-oNoHostAuthenticationForLocalhost=yes','localhost']
 		pid,fd=pty.fork()
 		if pid==0:
 			try:
@@ -397,6 +391,18 @@ class Multiplex:
 					os.close(i)
 				except OSError:
 					pass
+			if self.cmd:
+				cmd=['/bin/sh','-c',self.cmd]
+			elif os.getuid()==0:
+				cmd=['/bin/login']
+			else:
+				sys.stdout.write("Login: ")
+				login=sys.stdin.readline().strip()
+				if re.match('^[0-9A-Za-z-_.]+$',login):
+					cmd=['ssh','-oPreferredAuthentications=keyboard-interactive,password','-oNoHostAuthenticationForLocalhost=yes','-F/dev/null']
+					cmd+=['-l',login,'localhost']
+				else:
+					os._exit(0)
 			env={}
 			env["COLUMNS"]=str(w)
 			env["LINES"]=str(h)
@@ -448,7 +454,6 @@ class Multiplex:
 			return self.proc[fd]['term'].dumphtml(color)
 		except KeyError:
 			return False
-
 	def loop(self):
 		while self.run():
 			fds=self.fds()
@@ -486,7 +491,7 @@ class AjaxTerm:
 			if s in self.session:
 				term=self.session[s]
 			else:
-				if not (w>2 and w<100 and h>2 and h<100):
+				if not (w>2 and w<256 and h>2 and h<100):
 					w,h=80,25
 				term=self.session[s]=self.multi.create(w,h)
 			if k:
