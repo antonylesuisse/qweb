@@ -2,7 +2,7 @@
 
 """ Ajaxterm """
 
-import array,cgi,fcntl,glob,mimetypes,optparse,os,pty,random,re,signal,select,sys,threading,time,termios,struct
+import array,cgi,fcntl,glob,mimetypes,optparse,os,pty,random,re,signal,select,sys,threading,time,termios,struct,pwd
 
 os.chdir(os.path.normpath(os.path.dirname(__file__)))
 # Optional: Add QWeb in sys path
@@ -399,8 +399,11 @@ class Multiplex:
 				sys.stdout.write("Login: ")
 				login=sys.stdin.readline().strip()
 				if re.match('^[0-9A-Za-z-_.]+$',login):
-					cmd=['ssh','-oPreferredAuthentications=keyboard-interactive,password','-oNoHostAuthenticationForLocalhost=yes','-F/dev/null']
-					cmd+=['-l',login,'localhost']
+					cmd=['ssh']
+					cmd+=['-oPreferredAuthentications=keyboard-interactive,password']
+					cmd+=['-oNoHostAuthenticationForLocalhost=yes']
+					cmd+=['-oLogLevel=FATAL']
+					cmd+=['-F/dev/null','-l',login,'localhost']
 				else:
 					os._exit(0)
 			env={}
@@ -522,22 +525,30 @@ def main():
 	parser.add_option("-c", "--command", dest="cmd", default=None,help="set the command (default: /bin/login or ssh localhost)")
 	parser.add_option("-l", "--log", action="store_true", dest="log",default=0,help="log requests to stderr (default: quiet mode)")
 	parser.add_option("-d", "--daemon", action="store_true", dest="daemon", default=0, help="run as daemon in the background")
+	parser.add_option("-P", "--pidfile",dest="pidfile",default="/var/run/ajaxterm.pid",help="set the pidfile (default: /var/run/ajaxterm.pid)")
 	parser.add_option("-i", "--index", dest="index_file", default="ajaxterm.html",help="default index file (default: ajaxterm.html)")
+	parser.add_option("-u", "--uid", dest="uid", help="Set the daemon's user id")
 	(o, a) = parser.parse_args()
 	if o.daemon:
 		pid=os.fork()
 		if pid == 0:
 			#os.setsid() ?
 			os.setpgrp()
-			sys.stdin = open('/dev/null', 'r')
-			sys.stdout = open('/dev/null', 'w')
-			sys.stderr = open('/dev/null', 'w')
+			nullin = file('/dev/null', 'r')
+			nullout = file('/dev/null', 'w')
+			os.dup2(nullin.fileno(), sys.stdin.fileno())
+			os.dup2(nullout.fileno(), sys.stdout.fileno())
+			os.dup2(nullout.fileno(), sys.stderr.fileno())
+			if os.getuid()==0 and o.uid:
+				try:
+					os.setuid(int(o.uid))
+				except:
+					os.setuid(pwd.getpwnam(o.uid).pw_uid)
 		else:
-			pid_file = '/var/run/ajaxterm.pid'
 			try:
-				open(pid_file,'w+').write(str(pid)+'\n')
+				file(o.pidfile,'w+').write(str(pid)+'\n')
 			except:
-				print 'Cannot store pid in %s' % pid_file
+				pass
 			print 'AjaxTerm at http://localhost:%s/ pid: %d' % (o.port,pid)
 			sys.exit(0)
 	else:

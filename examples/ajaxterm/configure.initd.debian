@@ -12,7 +12,7 @@ PIDFILE=/var/run/ajaxterm.pid
 case "$1" in
 	start)
 		echo "Starting ajaxterm on port $PORT"
-		start-stop-daemon --start --pidfile $PIDFILE --exec $DAEMON -- --daemon --port=$PORT || return 2
+		start-stop-daemon --start --pidfile $PIDFILE --exec $DAEMON -- --daemon --port=$PORT --uid=nobody || return 2
 	;;
 	stop)
 		echo "Stopping ajaxterm"

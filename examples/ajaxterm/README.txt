@@ -12,20 +12,21 @@ Use the [/qweb/forum/viewforum.php?id=2 Forum], if you have any question or rema
 
 == News ==
 
+ * 2006-07-12: v0.9 change uid, daemon fix (Daniel Fischer)
  * 2006-07-04: v0.8 add login support to ssh (Sven Geggus), change max width to 256
  * 2006-05-31: v0.7 minor fixes, daemon option
  * 2006-05-23: v0.6 Applied debian and gentoo patches, renamed to Ajaxterm, default port 8022
 
 == Download and Install ==
 
- * Release: [/qweb/files/Ajaxterm-0.8.tar.gz Ajaxterm-0.8.tar.gz]
+ * Release: [/qweb/files/Ajaxterm-0.9.tar.gz Ajaxterm-0.9.tar.gz]
  * Browse src: [/qweb/trac/browser/trunk/examples/ajaxterm/ ajaxterm/]
 
 To install Ajaxterm issue the following commands:
 {{{
-wget http://antony.lesuisse.org/qweb/files/Ajaxterm-0.8.tar.gz
-tar zxvf Ajaxterm-0.8.tar.gz
-cd Ajaxterm-0.8
+wget http://antony.lesuisse.org/qweb/files/Ajaxterm-0.9.tar.gz
+tar zxvf Ajaxterm-0.9.tar.gz
+cd Ajaxterm-0.9
 ./ajaxterm.py
 }}}
 Then point your browser to this URL : http://localhost:8022/
@@ -85,8 +86,11 @@ options:
   -cCMD, --command=CMD  set the command (default: /bin/login or ssh localhost)
   -l, --log             log requests to stderr (default: quiet mode)
   -d, --daemon          run as daemon in the background
+  -PPIDFILE, --pidfile=PIDFILE
+                        set the pidfile (default: /var/run/ajaxterm.pid)
   -iINDEX_FILE, --index=INDEX_FILE
                         default index file (default: ajaxterm.html)
+  -uUID, --uid=UID      Set the daemon's user id
 }}}
 
  * Ajaxterm was first written as a demo for qweb (my web framework), but
@@ -108,7 +112,6 @@ options:
 
 == TODO ==
 
- * setuid to nobody now that ssh support login prompt
  * insert mode ESC [ 4 h
  * change size x,y from gui (sending signal)
  * vt102 graphic codepage
