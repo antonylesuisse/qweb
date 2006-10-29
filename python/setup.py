@@ -8,7 +8,7 @@ import qweb
 
 setuptools.setup(
 	name = 'QWeb',
-	version = '0.7',
+	version = '0.8',
 	url = 'http://antony.lesuisse.org/',
 	download_url = 'http://antony.lesuisse.org/',
 	license = 'BSD',

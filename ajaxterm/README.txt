@@ -12,6 +12,7 @@ Use the [/qweb/forum/viewforum.php?id=2 Forum], if you have any question or rema
 
 == News ==
 
+ * 2006-10-29: v0.10 allow space in login, cgi launch fix, redhat init
  * 2006-07-12: v0.9 change uid, daemon fix (Daniel Fischer)
  * 2006-07-04: v0.8 add login support to ssh (Sven Geggus), change max width to 256
  * 2006-05-31: v0.7 minor fixes, daemon option

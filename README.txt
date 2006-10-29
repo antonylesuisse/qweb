@@ -96,6 +96,7 @@ TODO
         priority form-checkbox over t-value (for t-option)
 
 
+
 QWebXml
 -------
 
@@ -108,6 +109,7 @@ QWeb Xml templating engine
         the template engine core implements the basic magic attributes:
     
         t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
+    
     
 
 QWebHtml
