@@ -74,6 +74,7 @@ end
 class QWeb
 	# t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
 	def initialize(xml=nil)
+		@prefix = "t"
 		@t={}
 		@tag={}
 		@att={}
@@ -91,8 +92,16 @@ class QWeb
 		else
 			doc=REXML::Document.new(File.new(s))
 		end
-		doc.root.elements.each("t") { |e|
-			@t[e.attributes["t-name"]]=e
+		prefix = doc.root.attributes["prefix"]
+		if prefix and @t.length == 0
+			if prefix =~ /[^a-zA-Z]/
+				raise ArgumentError, "The prefix should only contains letters"
+			elsif
+				@prefix = prefix
+			end
+		end
+		doc.root.elements.each(@prefix) { |e|
+			@t[e.attributes["#{@prefix}-name"]]=e
 		}
 	end
 	def get_template(name)
@@ -126,6 +135,7 @@ class QWeb
 		return render_context(tname,QWebContext.new(v))
 	end
 	def render_context(tname,v)
+		v["__template__"] = tname
 		if n=@t[tname]
 			return render_node(n,v)
 		else
@@ -137,88 +147,116 @@ class QWeb
 		if e.node_type==:text
 			r=e.value
 		elsif e.node_type==:element
-			pre=""
-			g_att=""
+			g_att = {}
 			t_render=nil
 			t_att={}
 			e.attributes.each { |an,av|
-				if an =~ /^t-/
-					n=an[2..-1]
+				if an =~ Regexp.new("^#{@prefix}-")
+					n=an[@prefix.length.next..-1]
 					found=false
 					# Attributes
 					for i,m in @att;
 						if n[0...i.size] == i
-							g_att << m.call(e,an,av,v)
+							#g_att << m.call(e,an,av,v)
+							g_att.update m.call(e, an, av, v)
 							found=true
 							break
 						end
 					end
 					if not found
+						if n =~ Regexp.new("^eval-")
+							n = n[5..-1]
+							av = eval_str(av, v)
+						end
 						if @tag[n]
 							t_render=n
 						end
 						t_att[n]=av
 					end
 				else
-					g_att << sprintf(' %s="%s"',an,escape_att(av))
+					#g_att << sprintf(' %s="%s"',an,escape_att(av))
+					g_att.update an => av
 				end
 			}
 			if t_render:
-				r=@tag[t_render].call(e,t_att,g_att,v)
+				r = @tag[t_render].call(e, t_att, g_att, v)
 			else
-				r=render_element(e,g_att,v,pre,t_att["trim"])
+				r = render_element(e, g_att, v, t_att["trim"])
 			end
 		end
 		return r
 	end
-	def render_element(e,g_att,v,pre="",trim=0)
+	def render_element(e, g_att, v, trim = 0)
 		l_inner=[]
 		e.each { |n|
 			l_inner << render_node(n,v)
 		}
 		inner=l_inner.join()
-		if trim=='left'
-			inner.lstrip!
-		elsif trim=='right'
-			inner.rstrip!
-		elsif trim=='both'
-			inner.strip!
-		end
-		if e.name=="t"
+		render_trim!(inner, trim)
+		if e.name==@prefix
 			return inner
 		elsif inner.length==0
-			return sprintf("<%s%s/>",e.name,g_att)
+			return sprintf("<%s%s/>", e.name, render_atts(g_att))
 		else
-			return sprintf("<%s%s>%s%s</%s>",e.name,g_att,pre,inner,e.name)
+			return sprintf("<%s%s>%s</%s>", e.name, render_atts(g_att), inner, e.name)
+		end
+	end
+	def render_atts(atts)
+		if atts.length == 0
+			return ""
+		end
+		r = atts.collect do |a, v|
+			sprintf('%s="%s"', a, escape_att(v))
+		end
+		return " " + r.join(" ")
+	end
+	def render_trim!(inner, trim)
+		if trim == 'left'
+			inner.lstrip!
+		elsif trim == 'right'
+			inner.rstrip!
+		elsif trim == 'both'
+			inner.strip!
 		end
 	end
 	# Attributes
 	def render_att_att(e,an,av,v)
-		if an =~ /^t-attf-/
-			att=an[7..-1]
+		if an =~ Regexp.new("^#{@prefix}-attf-")
+			att = an[@prefix.length + 6..-1]
 			val=eval_format(av,v)
-		elsif an =~ /^t-att-/
-			att=an[6..-1]
+		elsif an =~ Regexp.new("^#{@prefix}-att-")
+			att = an[@prefix.length + 5..-1]
 			val=eval_str(av,v)
 		else
 			o=eval_object(av,v)
+			#TODO: Will cause error if object is not an array, maybe we should check if respondto? [] but what to do if not ?
 			att=o[0]
+			#TODO: Maybe we should check if att is a valid string for an attribute ? But what to do if not ?
 			val=o[1]
 		end
-		return sprintf(' %s="%s"',att,escape_att(val))
+		#return sprintf(' %s="%s"',att,escape_att(val))
+		return {att => val}
 	end
 	# Tags
 	def render_tag_raw(e,t_att,g_att,v)
-		return eval_str(t_att["raw"],v)
+		r = eval_str(t_att["raw"], v)
+		render_trim!(r, t_att["trim"])
+		return r
 	end
 	def render_tag_rawf(e,t_att,g_att,v)
-		return eval_format(t_att["rawf"],v)
+		r = eval_format(t_att["rawf"], v)
+		render_trim!(r, t_att["trim"])
+		return r
 	end
 	def render_tag_esc(e,t_att,g_att,v)
-		return escape_text(eval_str(t_att["esc"],v))
+		r = eval_str(t_att["esc"], v)
+		render_trim!(r, t_att["trim"])
+		return escape_text(r)
 	end
 	def render_tag_escf(e,t_att,g_att,v)
-		return escape_text(eval_format(t_att["escf"],v))
+		r = eval_format(t_att["escf"], v)
+		render_trim!(r, t_att["trim"])
+		return escape_text(r)
 	end
 	def render_tag_foreach(e,t_att,g_att,v)
 		expr=t_att["foreach"]
@@ -228,9 +266,17 @@ class QWeb
 			if not var
 				var=expr.gsub(/[^a-zA-Z0-9]/,'_')
 			end
-			d=v.clone
+			if t_att["import"]
+				d = v
+			else
+				d = v.clone
+			end
 			size=-1
-			size=enum.length if enum.respond_to? "length"
+ 			if enum.respond_to? "length"
+				size = enum.length
+			elsif enum.respond_to? "entries"
+				size = enum.entries.length
+			end
 			d["%s_size"%var]=size
 			d["%s_all"%var]=enum
 			index=0
@@ -248,151 +294,50 @@ class QWeb
 				else
 					d[var]=i
 				end
-				ru << render_element(e,g_att,d)
+				rui = render_element(e,g_att,d)
+				ru << render_trim!(rui, t_att["trim"])
 				index+=1
 			end
 			return ru.join()
 		else
-			return "qweb: t-foreach %s not found."%expr
+			return "qweb: #{@prefix}-foreach %s not found."%expr
 		end
 	end
 	def render_tag_if(e,t_att,g_att,v)
 		if eval_bool(t_att["if"],v)
-			return render_element(e,g_att,v)
+			return render_element(e, g_att, v, "", t_att["trim"])
 		else
 			return ""
 		end
 	end
 	def render_tag_call(e,t_att,g_att,v)
 		if t_att["import"]
-			d=v
+			d = v
 		else
-			d=v.clone
+			d = v.clone
 		end
-		d[0]=render_element(e,g_att,d)
+		d[0] = render_element(e, g_att, d, t_att["trim"])
 		return render_context(t_att["call"],d)
 	end
 	def render_tag_set(e,t_att,g_att,v)
 		if t_att["eval"]
 			v[t_att["set"]]=eval_object(t_att["eval"],v)
 		else
-			v[t_att["set"]]=render_element(e,g_att,v)
+			v[t_att["set"]] = render_element(e, g_att, v, "", t_att["trim"])
 		end
 		return ""
 	end
-end
-
-class QWebRHTML < QWeb
-	def render_rhtml(root)
-		@root=root
-		@t.each do |k,v|
-			@arg=0;
-			name=File.join(root,k)
-			FileUtils.mkdir_p(File.dirname(name))
-			fname="#{name}.rhtml"
-			if File.exists?(fname)
-				unless File.new(fname,"r").read =~ /qweb_vars/
-					puts "skip #{fname}"
-					next
-				end
-			end
-			f=File.new(fname,"w")
-			head=<<EOS.chomp!
-<%
-qweb_vars||={};
-qweb_vars['qweb_vars']=qweb_vars;
-%>
-EOS
-			f.write(head+render_node(v,k))
-			f.close
-#			p "wrote #{fname}"
+	def render_tag_ruby(e, t_att, g_att, v)
+		code =  render_element(e, g_att, v)
+		r =  v.instance_eval(code).to_s
+		render_trim!(r, t_att["trim"])
+		if t_att["ruby"] == "quiet"
+			r = nil
 		end
-	end
-	def render_att_att(e,an,av,v)
-		if an =~ /^t-attf-/
-			return " #{an[7..-1]}=\"<%=h \"#{av}\" %>\""
-		elsif an =~ /^t-att-/
-			return " #{an[6..-1]}=\"<%=h (#{av}).to_s %>\""
-		else
-			return " <%(#{av})[0]%>=\"<%=h (#{av})[1] %>\""
-		end
-	end
-	# Tags
-	def render_tag_raw(e,t_att,g_att,v)
-		if t_att["raw"]=="0"
-			return "<%= qweb_0 %>" 
-		else
-			return "<%= #{t_att["raw"]} %>" 
-		end
-	end
-	def render_tag_rawf(e,t_att,g_att,v)
-		return "<%= \"#{t_att["rawf"]}\" %>" 
-	end
-	def render_tag_esc(e,t_att,g_att,v)
-		if t_att["esc"]=="0"
-			return "<%=h qweb_0 %>" 
-		else
-			# TODO not escape &quot;
-			return "<%=h #{t_att["esc"]} %>" 
-		end
-	end
-	def render_tag_escf(e,t_att,g_att,v)
-		# TODO not escape &quot;
-		return "<%=h \"#{t_att["escf"]}\" %>" 
-	end
-	def render_tag_if(e,t_att,g_att,v)
-		return "<% if(#{t_att["if"]}) then %>#{render_element(e,g_att,v)}<% end %>"
-	end
-	def render_tag_foreach(e,t_att,g_att,v)
-		expr=t_att["foreach"]
-		n=t_att['as']
-		if not n
-			n=expr.gsub(/[^a-zA-Z0-9]/,'_')
-		end
-		inner=render_element(e,g_att,v)
-		pre="#{n}_all=#{expr};#{n}_size=-1;#{n}_size=#{n}_all.length if #{n}_all.respond_to? 'length';#{n}_index=0;"
-		inner0="qweb_vars['#{n}']=#{n}_value=#{n}; #{n}_first=#{n}_index==0; #{n}_even=#{n}_index%2; #{n}_odd=(#{n}_index+1)%2;"
-		inner1="#{n}_last=#{n}_index+1==#{n}_size; #{n}_parity=(#{n}_index%2==1 ? 'odd' : 'even');\n%>#{inner}<%\n#{n}_index+=1;"
-		code="<% \n#{pre}\n #{n}_all.each do |#{n}|\n #{inner0} \n #{inner1}\n end %>"
-		return code
-	end
-	def render_tag_call(e,t_att,g_att,v)
-		name=t_att["call"]
-		s=render_element(e,g_att,v)
-		if (s =~ /\<\%/) or (s =~ /\"/) or (s =~ /\\/) or (s =~ /\#/)
-			@arg+=1
-			arg="#{v}__#{@arg}"
-			f=File.new(File.join(@root,"#{arg}.rhtml"),"w")
-			f.write(s)
-			f.close
-			s="qweb_vars.merge('qweb_0' => render_file('#{arg}.rhtml',true,qweb_vars))"
-		else
-			s="qweb_vars.merge('qweb_0' => \"#{s}\")"
-		end
-		return "<%= render_file('#{name}.rhtml', true, #{s}) %>"
-	end
-	def render_tag_set(e,t_att,g_att,v)
-		name=t_att["set"]
-		if t_att["eval"]
-			return "<% #{name}=qweb_vars[\"#{name}\"]=#{t_att["eval"]} %>"
-		else
-			s=render_element(e,g_att,v)
-			if (s =~ /\<\%/) or (s =~ /\"/) or (s =~ /\\/) or (s =~ /\#/)
-				@arg+=1
-				arg="#{v}__#{@arg}"
-				f=File.new(File.join(@root,"#{arg}.rhtml"),"w")
-				f.write(s)
-				f.close
-				s="render_file('#{arg}.rhtml',true,qweb_vars)"
-				return "<% #{name}=qweb_vars[\"#{name}\"]=#{s} %>"
-			else
-				return "<% #{name}=qweb_vars[\"#{name}\"]=\"#{s}\" %>"
-			end
-		end
+		return r
 	end
 end
 
 if __FILE__ == $0
 	q=QWebRHTML.new("qweb_template.xml").render_rhtml("../views")
 end
-

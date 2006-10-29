@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # vim:set ts=4 et:
 import sys, os, urllib, re, tempfile, urllib2
+import mechanize
 
 url=sys.argv[1]
 base=os.path.basename(url)
@@ -13,8 +14,13 @@ if data!=orig:
 
     # POST the file
     urledit='%s?action=edit'%url
-    editpage=urllib2.urlopen(urledit).read()
 
+    br = mechanize.Browser()
+    br.set_handle_robots(False)
+    br.add_password("http://antony.lesuisse.org/", "ticket", "nospam")
+    br.open("http://antony.lesuisse.org/qweb/trac/login")
+    br.open(urledit)
+    editpage = br.response().read()
     mo=re.search('name="version" value="([^"]+)"',editpage)
     if mo:
         version=mo.group(1)
@@ -25,7 +31,8 @@ if data!=orig:
             "save":"Submit change",
             "author":"anonymous",
             "comment":"" } )
-        urllib2.urlopen(url,post).read()
+        br.open(url,post)
+        br.response().read()
         print "%s saved."%url
 
 
