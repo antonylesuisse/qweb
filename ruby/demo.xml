@@ -104,4 +104,7 @@
 		<t t-input-submit="ok" value="Submit this form"/>
 	</t>
 </t>
+<t t-name="main/index">
+	cacapout
+</t>
 </template>
