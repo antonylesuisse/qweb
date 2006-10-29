@@ -555,7 +555,11 @@ def main():
 		print 'AjaxTerm at http://localhost:%s/' % o.port
 	at=AjaxTerm(o.cmd,o.index_file)
 #	f=lambda:os.system('firefox http://localhost:%s/&'%o.port)
-	qweb.qweb_wsgi_autorun(at,ip='localhost',port=int(o.port),threaded=0,log=o.log,callback_ready=None)
+#	qweb.qweb_wsgi_autorun(at,ip='localhost',port=int(o.port),threaded=0,log=o.log,callback_ready=None)
+	try:
+		qweb.QWebWSGIServer(at,ip='localhost',port=int(o.port),threaded=0,log=o.log).serve_forever()
+	except KeyboardInterrupt,e:
+		sys.excepthook(*sys.exc_info())
 	at.multi.die()
 
 if __name__ == '__main__':

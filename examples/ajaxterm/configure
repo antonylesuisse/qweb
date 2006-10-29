@@ -23,6 +23,8 @@ file("Makefile","w").write(file("configure.makefile").read()%locals())
 
 if os.path.isfile("/etc/gentoo-release"):
 	file("ajaxterm.initd","w").write(file("configure.initd.gentoo").read()%locals())
+elif os.path.isfile("/etc/fedora-release") or os.path.isfile("/etc/redhat-release"):
+	file("ajaxterm.initd","w").write(file("configure.initd.redhat").read()%locals())
 else:
 	file("ajaxterm.initd","w").write(file("configure.initd.debian").read()%locals())
 
