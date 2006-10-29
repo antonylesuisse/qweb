@@ -73,6 +73,7 @@ end
 
 class QWeb
 	# t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
+	attr_accessor :prefix, :t
 	def initialize(xml=nil)
 		@prefix = "t"
 		@t={}
@@ -338,6 +339,122 @@ class QWeb
 	end
 end
 
+def aaa
+/* 
+class QWebField:
+    def __init__(self,name=None,default="",check=None):
+        self.name=name
+        self.default=default
+        self.check=check
+        # optional attributes
+        self.type=None
+        self.trim=1
+        self.required=1
+        self.cssvalid="form_valid"
+        self.cssinvalid="form_invalid"
+        # set by addfield
+        self.form=None
+        # set by processing
+        self.input=None
+        self.css=None
+        self.value=None
+        self.valid=None
+        self.invalid=None
+        self.validate(1)
+    def validate(self,val=1,update=1):
+        if val:
+            self.valid=1
+            self.invalid=0
+            self.css=self.cssvalid
+        else:
+            self.valid=0
+            self.invalid=1
+            self.css=self.cssinvalid
+        if update and self.form:
+            self.form.update()
+    def invalidate(self,update=1):
+        self.validate(0,update)
+*/
+end
+
+class QwebField
+	attr_accessor :name, :default, :check, :type, :trim, :cssvalid, :cssinvalid, :form, :input, :css, :value, :valid, :invalid
+
+end
+
+class QWebForm < QWeb
+/*
+company[:lastname].value
+company[:lastname].valid
+company[:add].clicked?
+
+company.form.is_valid?()
+company.form.collect()
+company.form.each()
+
+
+*/
+	attr_accessor :fields, :submitted, :invalid, :error
+	def initialize(qweb, tname, fname, v)
+		@fields = {}
+		@submitted = False
+		@invalid = False
+		@error = []
+		@prefix = qweb.prefix
+		@t = qweb.t
+		@tag={}
+		@att={}
+		methods.each { |m|
+			@tag[m[11..-1]]=method(m) if m =~ /^render_tag_/
+			@att[m[11..-1]]=method(m) if m =~ /^render_att_/
+		}
+		render()
+	end
+	def render_tag_esc(e, t_att, g_att, v); end
+	def render_tag_raw(e, t_att, g_att, v); end
+	def render_tag_escf(e, t_att, g_att, v); end
+	def render_tag_rawf(e, t_att, g_att, v); end
+	def render_tag_form(e, t_att, g_att, v)
+		print "FORM"
+#		fn = t_att["form"]
+#		form = v[fn] ||= QwebForm.new(self, v["__template__"], fn)
+#		g_att["name"] ||= fn
+#		g_att["id"] ||= fn
+#		r = "<form%s>" % render_atts(g_att)
+#		r << "<input type=\"hidden\" name=\"__form_%s_submitted__\" value=\"1\"/>" % fn
+#		r << render_element(e, g_att, v)
+#		r << "</form>"
+#		return r
+	end
+end
+
+class QWebHTML < QWeb
+	# t-header t-format
+	def form(tname, fname, v)
+		return QwebForm.new(this, tname, fname, v)
+	end
+	def render_tag_header(e, t_att, g_att, v)
+		if @response
+			@response.headers[t_att["header"]] = render_element(e, g_att, v)
+		end
+		return nil
+	end
+	def render_tag_form(e, t_att, g_att, v)
+		fn = t_att["form"]
+		form = v[fn] ||= QwebForm.new(self, v["__template__"], fn)
+		g_att["name"] ||= fn
+		g_att["id"] ||= fn
+		r = "<form%s>" % render_atts(g_att)
+		r << "<input type=\"hidden\" name=\"__form_%s_submitted__\" value=\"1\"/>" % fn
+		r << render_element(e, g_att, v)
+		r << "</form>"
+		return r
+	end
+end
+
 if __FILE__ == $0
-	q=QWebRHTML.new("qweb_template.xml").render_rhtml("../views")
+	v = {"pad" => "      Hey          ", "number" => 4, "name" => "Fabien <agr@amigrave.com>", "ddd" => 4..8}
+	q=QWebHTML.new("demo.xml")
+	f = q.form("form","form")
+	.render("form")
 end
