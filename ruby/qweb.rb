@@ -449,12 +449,13 @@ class QWebHTML < QWeb
 end
 
 module QWebRails
-#	alias :render_orig :render
 #	include QWebRails
 #	def everytime(); qweb_load end
+#	alias :render_orig :render
+#	alias :render :qweb_render
 #	before_filter :everytime
 	def qweb_load(fname=nil)
-		fname ||= RAILS_ROOT+"/app/controller/qweb.xml"
+		fname ||= RAILS_ROOT+"/app/controllers/qweb.xml"
 		if File.mtime(fname).to_i!=$qweb_time
 			$qweb=QWebHTML.new(fname)
 			$qweb_time=File.mtime(fname).to_i
