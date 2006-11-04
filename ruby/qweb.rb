@@ -339,8 +339,7 @@ class QWeb
 	end
 end
 
-#def aaa
-#/* 
+class QwebField
 #class QWebField:
 #    def __init__(self,name=None,default="",check=None):
 #        self.name=name
@@ -376,10 +375,7 @@ end
 #        self.validate(0,update)
 #*/
 #end
-
-class QwebField
 	attr_accessor :name, :default, :check, :type, :trim, :cssvalid, :cssinvalid, :form, :input, :css, :value, :valid, :invalid
-
 end
 
 class QWebForm < QWeb
@@ -450,6 +446,38 @@ class QWebHTML < QWeb
 		r << "</form>"
 		return r
 	end
+end
+
+module QwebRails
+#    def everytime();
+#    end
+#    before_filter :everytime
+#	def qweb_load(fname=nil)
+#		fname ||= RAILS_ROOT+"/app/controller/qweb.xml"
+#		if File.mtime(fname).to_i!=$qweb_time
+#			$qweb=QWebHTML.new(fname)
+#			$qweb_time=File.mtime(fname).to_i
+#		end
+#	end
+#    def qweb_render(template=nil)
+#        template ||= default_template_name
+#        if $qweb.template_exists?(template)
+#            add_variables_to_assigns
+#            render_text($qweb.render(template,@assigns))
+#        else
+#            return false
+#        end
+#    end
+#    def render(arg=nil)
+#        t=nil
+#        t=arg[:template] if arg.kind_of?(Hash)
+#        r=qweb_render(t)
+#        return render_rail(arg) unless r
+#    end
+#
+#	alias :render_rail :render
+#	q=QWebHTML.new("demo.xml")
+#	f=q.form("form",@request, v,"user")
 end
 
 if __FILE__ == $0
