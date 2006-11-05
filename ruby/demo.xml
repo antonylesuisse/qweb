@@ -70,7 +70,9 @@
 	</table>
 
 </t>
-<t t-name="form">
+<t t-name="main/index">
+	<h3><t t-esc="title"/></h3>
+
 	<t t-form="user" action="/user/add" method="post">
 		Login : <t t-input-text="login" t-check="/.{1,50}/"/><br/>
 		Password : <t t-input-password="lastname" t-check="/.{1,50}/"/><br/>
@@ -105,6 +107,8 @@
 	</t>
 </t>
 <t t-name="main/index">
-	cacapout
+	<h3><t t-esc="title"/></h3>
+
+	Testing dude !!
 </t>
 </template>

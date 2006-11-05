@@ -339,7 +339,6 @@ class QWeb
 	end
 end
 
-class QWebField
 #class QWebField:
 #    def __init__(self,name=None,default="",check=None):
 #        self.name=name
@@ -374,27 +373,16 @@ class QWebField
 #    def invalidate(self,update=1):
 #        self.validate(0,update)
 #*/
-#end
+end
 	attr_accessor :name, :default, :check, :type, :trim, :cssvalid, :cssinvalid, :form, :input, :css, :value, :valid, :invalid
 end
 
 class QWebForm < QWeb
-#/*
-#company[:lastname].value
-#company[:lastname].valid
-#company[:add].clicked?
-#
-#company.form.is_valid?()
-#company.form.collect()
-#company.form.each()
-#
-#
-#*/
 	attr_accessor :fields, :submitted, :invalid, :error
-	def initialize(qweb, tname, fname, v)
+	def initialize(qweb, tname, iv, fname)
 		@fields = {}
-		@submitted = False
-		@invalid = False
+		@submitted = false
+		@invalid = false
 		@error = []
 		@prefix = qweb.prefix
 		@t = qweb.t
@@ -411,7 +399,7 @@ class QWebForm < QWeb
 	def render_tag_escf(e, t_att, g_att, v); end
 	def render_tag_rawf(e, t_att, g_att, v); end
 	def render_tag_form(e, t_att, g_att, v)
-		print "FORM"
+		r = "form"
 #		fn = t_att["form"]
 #		form = v[fn] ||= QwebForm.new(self, v["__template__"], fn)
 #		g_att["name"] ||= fn
@@ -420,14 +408,26 @@ class QWebForm < QWeb
 #		r << "<input type=\"hidden\" name=\"__form_%s_submitted__\" value=\"1\"/>" % fn
 #		r << render_element(e, g_att, v)
 #		r << "</form>"
-#		return r
+
+#/*
+#company[:lastname].value
+#company[:lastname].valid
+#company[:add].clicked?
+#
+#company.form.is_valid?()
+#company.form.collect()
+#company.form.each()
+#
+#
+#*/
+		return r
 	end
 end
 
 class QWebHTML < QWeb
 	# t-header t-format
-	def form(tname, v, fname = nil)
-		return QwebForm.new(this, tname, v, fname)
+	def form(tname, v, request, fname = nil)
+		return QwebForm.new(self, tname, v, fname)
 	end
 	def render_tag_header(e, t_att, g_att, v)
 		if @response
