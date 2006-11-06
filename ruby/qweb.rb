@@ -306,7 +306,7 @@ class QWeb
 	end
 	def render_tag_if(e,t_att,g_att,v)
 		if eval_bool(t_att["if"],v)
-			return render_element(e, g_att, v, "", t_att["trim"])
+			return render_element(e, g_att, v, t_att["trim"])
 		else
 			return ""
 		end
@@ -324,7 +324,7 @@ class QWeb
 		if t_att["eval"]
 			v[t_att["set"]]=eval_object(t_att["eval"],v)
 		else
-			v[t_att["set"]] = render_element(e, g_att, v, "", t_att["trim"])
+			v[t_att["set"]] = render_element(e, g_att, v, t_att["trim"])
 		end
 		return ""
 	end
@@ -339,6 +339,7 @@ class QWeb
 	end
 end
 
+class QWebField
 #class QWebField:
 #    def __init__(self,name=None,default="",check=None):
 #        self.name=name
@@ -373,7 +374,6 @@ end
 #    def invalidate(self,update=1):
 #        self.validate(0,update)
 #*/
-end
 	attr_accessor :name, :default, :check, :type, :trim, :cssvalid, :cssinvalid, :form, :input, :css, :value, :valid, :invalid
 end
 
