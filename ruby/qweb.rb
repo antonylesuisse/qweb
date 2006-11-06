@@ -207,7 +207,7 @@ class QWeb
 	end
 	def render_atts(atts)
 		r=""
-		atts.each do |a,v|
+		atts.each do |an,av|
 			r << sprintf(' %s="%s"',an,escape_att(av))
 		end
 		return r
