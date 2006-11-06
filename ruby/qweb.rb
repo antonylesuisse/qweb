@@ -95,11 +95,7 @@ class QWeb
 		end
 		prefix = doc.root.attributes["prefix"]
 		if prefix and @t.length == 0
-			if prefix =~ /[^a-zA-Z]/
-				raise ArgumentError, "The prefix should only contains letters"
-			elsif
-				@prefix = prefix
-			end
+			@prefix = prefix
 		end
 		doc.root.elements.each(@prefix) { |e|
 			@t[e.attributes["#{@prefix}-name"]]=e
@@ -136,6 +132,7 @@ class QWeb
 		return render_context(tname,QWebContext.new(v))
 	end
 	def render_context(tname,v)
+		# agr bloat OK
 		v["__template__"] = tname
 		if n=@t[tname]
 			return render_node(n,v)
@@ -152,19 +149,23 @@ class QWeb
 			t_render=nil
 			t_att={}
 			e.attributes.each { |an,av|
+				# agr bloat OK
 				if an =~ Regexp.new("^#{@prefix}-")
+					# agr bloat OK
 					n=an[@prefix.length.next..-1]
 					found=false
 					# Attributes
 					for i,m in @att;
 						if n[0...i.size] == i
 							#g_att << m.call(e,an,av,v)
+							# agr bloat, OK
 							g_att.update m.call(e, an, av, v)
 							found=true
 							break
 						end
 					end
 					if not found
+						# agr bloat, BOF
 						if n =~ Regexp.new("^eval-")
 							n = n[5..-1]
 							av = eval_str(av, v)
@@ -176,7 +177,9 @@ class QWeb
 					end
 				else
 					#g_att << sprintf(' %s="%s"',an,escape_att(av))
-					g_att.update an => av
+					# agr bloat
+					#g_att.update an => av
+					g_att[an]=av
 				end
 			}
 			if t_render:
@@ -203,13 +206,11 @@ class QWeb
 		end
 	end
 	def render_atts(atts)
-		if atts.length == 0
-			return ""
+		r=""
+		atts.each do |a,v|
+			r << sprintf(' %s="%s"',an,escape_att(av))
 		end
-		r = atts.collect do |a, v|
-			sprintf('%s="%s"', a, escape_att(v))
-		end
-		return " " + r.join(" ")
+		return r
 	end
 	def render_trim!(inner, trim)
 		if trim == 'left'
@@ -374,6 +375,7 @@ class QWebField
 #    def invalidate(self,update=1):
 #        self.validate(0,update)
 #*/
+#end
 	attr_accessor :name, :default, :check, :type, :trim, :cssvalid, :cssinvalid, :form, :input, :css, :value, :valid, :invalid
 end
 
