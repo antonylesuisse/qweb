@@ -95,7 +95,7 @@ class QWeb
 		else
 			doc=REXML::Document.new(File.new(s))
 		end
-		@prefix = doc.root.attributes["prefix"] || "t"
+		@prefix ||= doc.root.attributes["prefix"] || "t"
 		@prelen1 = @prefix.length+1
 		doc.root.elements.each(@prefix) { |e|
 			@t[e.attributes["#{@prefix}-name"]]=e
