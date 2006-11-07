@@ -19,7 +19,7 @@ tgz:
 	rm -Rf python/build python/dist python/QWeb.egg-info || true
 	# Source
 	mkdir ${SRCDIR} || true
-	cp -r Makefile contrib python ${SRCDIR}
+	cp -r Makefile python ${SRCDIR}
 	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
 	rm -Rf ${SRCDIR}
 	# AjaxTerm
@@ -37,7 +37,7 @@ pub: tgz
 ifeq ($(USER),wis)
 	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
 	rm -Rf ${SRCDIR} ${DEMODIR} ${ATDIR}
-	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/QWebPython' 'python/README-wiki.txt'
-	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm' 'ajaxterm/README.txt'
+	./tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/QWebPython' 'python/README-wiki.txt'
+	./tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm' 'ajaxterm/README.txt'
 endif
 
