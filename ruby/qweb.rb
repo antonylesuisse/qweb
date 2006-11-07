@@ -30,8 +30,8 @@ class QWebContext
 	def clone
 		return QWebContext.new(@qweb_context)
 	end
-	def merge(src)
-		@qweb_context.merge(src)
+	def merge!(src)
+		@qweb_context.merge!(src)
 	end
 
 	def qweb_eval_object(expr)
@@ -278,10 +278,9 @@ class QWeb
 				d["%s_last"%var]=index+1==size
 				d["%s_parity"%var]=(index%2==1 ? 'odd' : 'even')
 				if i.kind_of?(Hash)
-					d.merge(i)
-				else
-					d[var]=i
+					d.merge!(i)
 				end
+				d[var]=i
 				ru << render_element(e,t_att,g_att,d)
 				index+=1
 			end

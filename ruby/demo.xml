@@ -62,8 +62,22 @@
 			&lt;/t&gt;
 		</td>
 		<td>
-			<t t-foreach="1..10" t-as="i">
+			<t t-foreach="1..5" t-as="i">
 				i= <t t-esc="i"/>
+			</t>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			&lt;t t-foreach="[{a=>1},{a=>2}]" t-as="i"&gt;
+				i= &lt;t t-esc="i"&gt;
+				a= &lt;t t-esc="a"&gt;
+			&lt;/t&gt;
+		</td>
+		<td>
+			<t t-foreach="(1..5).collect{|i| {'a'=>i}}" t-as="i">
+				i= <t t-esc="i"/>
+				a= <t t-esc="a"/>
 			</t>
 		</td>
 	</tr>
