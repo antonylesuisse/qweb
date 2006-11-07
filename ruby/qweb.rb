@@ -313,11 +313,8 @@ class QWeb
 	end
 	def render_tag_ruby(e, t_att, g_att, v)
 		code =  render_element(e, t_att, g_att, v)
-		r =  v.instance_eval(code).to_s
-		render_trim!(r, t_att["trim"])
-		if t_att["ruby"] == "quiet"
-			r = nil
-		end
+		r=render_trim(v.instance_eval(code).to_s, t_att)
+		r="" if t_att["ruby"]=="quiet"
 		return r
 	end
 end
