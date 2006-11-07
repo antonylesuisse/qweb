@@ -7,18 +7,21 @@ all: dist
 	true
 
 tgz:
+	mkdir dist || true
 	# Build
 	rm README.txt || true
-	python2.3 python/setup.py bdist_egg
-	python2.4 python/setup.py bdist_egg
+	cd python; python2.3 setup.py bdist_egg
+	cd python; python2.4 setup.py bdist_egg
+	# copy files
+	cp python/dist/*.egg dist
 	# clean build
 	find . -iname '*.pyc' -exec rm -v '{}' ';'
-	rm -Rf build python/QWeb.egg-info || true
+	rm -Rf python/build python/dist python/QWeb.egg-info || true
 	# Source
 	mkdir ${SRCDIR} || true
-	cp -r Makefile README* contrib python ${SRCDIR}
+	cp -r Makefile contrib python ${SRCDIR}
 	tar czf dist/${SRCTGZ} --owner=0 --group=0 --exclude=\*.pyc --exclude=.svn ${SRCDIR}
-
+	rm -Rf ${SRCDIR}
 	# AjaxTerm
 	mkdir ${ATDIR} || true
 	cp python/qweb/qweb.py ${ATDIR}
@@ -34,7 +37,7 @@ pub: tgz
 ifeq ($(USER),wis)
 	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
 	rm -Rf ${SRCDIR} ${DEMODIR} ${ATDIR}
-	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/WikiStart' 'dist/QWeb-README-wiki.txt'
+	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/QWebPython' 'python/README-wiki.txt'
 	contrib/trac/tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm' 'ajaxterm/README.txt'
 endif
 
