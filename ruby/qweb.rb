@@ -75,7 +75,6 @@ class QWeb
 	# t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
 	attr_accessor :prefix, :t
 	def initialize(xml=nil)
-		@prefix = "t"
 		@t={}
 		@tag={}
 		@att={}
@@ -93,10 +92,8 @@ class QWeb
 		else
 			doc=REXML::Document.new(File.new(s))
 		end
-		prefix = doc.root.attributes["prefix"]
-		if prefix and @t.length == 0
-			@prefix = prefix
-		end
+		@prefix = doc.root.attributes["prefix"] || "t"
+		@prelen1 = @prefix.length+1
 		doc.root.elements.each(@prefix) { |e|
 			@t[e.attributes["#{@prefix}-name"]]=e
 		}
@@ -152,7 +149,7 @@ class QWeb
 				# agr bloat OK
 				if an =~ Regexp.new("^#{@prefix}-")
 					# agr bloat OK
-					n=an[@prefix.length.next..-1]
+					n=an[@prelen1..-1]
 					found=false
 					# Attributes
 					for i,m in @att;
@@ -185,18 +182,17 @@ class QWeb
 			if t_render:
 				r = @tag[t_render].call(e, t_att, g_att, v)
 			else
-				r = render_element(e, g_att, v, t_att["trim"])
+				r = render_element(e, t_att, g_att, v)
 			end
 		end
 		return r
 	end
-	def render_element(e, g_att, v, trim = 0)
+	def render_element(e, t_att, g_att, v)
 		l_inner=[]
 		e.each { |n|
 			l_inner << render_node(n,v)
 		}
-		inner=l_inner.join()
-		render_trim!(inner, trim)
+		inner=render_trim(l_inner.join(), t_att)
 		if e.name==@prefix
 			return inner
 		elsif inner.length==0
@@ -212,22 +208,25 @@ class QWeb
 		end
 		return r
 	end
-	def render_trim!(inner, trim)
-		if trim == 'left'
-			inner.lstrip!
+	def render_trim(s, t_att)
+		trim = t_att["trim"]
+		if !trim
+			return s
+		elsif trim == 'left'
+			return s.lstrip
 		elsif trim == 'right'
-			inner.rstrip!
+			return s.rstrip
 		elsif trim == 'both'
-			inner.strip!
+			return s.strip
 		end
 	end
 	# Attributes
 	def render_att_att(e,an,av,v)
 		if an =~ Regexp.new("^#{@prefix}-attf-")
-			att = an[@prefix.length + 6..-1]
+			att = an[@prelen1+5..-1]
 			val=eval_format(av,v)
 		elsif an =~ Regexp.new("^#{@prefix}-att-")
-			att = an[@prefix.length + 5..-1]
+			att = an[@prelen1+4..-1]
 			val=eval_str(av,v)
 		else
 			o=eval_object(av,v)
@@ -241,24 +240,16 @@ class QWeb
 	end
 	# Tags
 	def render_tag_raw(e,t_att,g_att,v)
-		r = eval_str(t_att["raw"], v)
-		render_trim!(r, t_att["trim"])
-		return r
+		return render_trim(eval_str(t_att["raw"], v), t_att)
 	end
 	def render_tag_rawf(e,t_att,g_att,v)
-		r = eval_format(t_att["rawf"], v)
-		render_trim!(r, t_att["trim"])
-		return r
+		return render_trim(eval_format(t_att["rawf"], v), t_att)
 	end
 	def render_tag_esc(e,t_att,g_att,v)
-		r = eval_str(t_att["esc"], v)
-		render_trim!(r, t_att["trim"])
-		return escape_text(r)
+		return escape_text(render_trim(eval_str(t_att["esc"], v), t_att))
 	end
 	def render_tag_escf(e,t_att,g_att,v)
-		r = eval_format(t_att["escf"], v)
-		render_trim!(r, t_att["trim"])
-		return escape_text(r)
+		return escape_text(render_trim(eval_format(t_att["escf"], v), t_att))
 	end
 	def render_tag_foreach(e,t_att,g_att,v)
 		expr=t_att["foreach"]
@@ -288,7 +279,7 @@ class QWeb
 				else
 					d[var]=i
 				end
-				ru << render_element(e,g_att,d)
+				ru << render_element(e,t_att,g_att,d)
 				index+=1
 			end
 			return ru.join()
@@ -298,7 +289,7 @@ class QWeb
 	end
 	def render_tag_if(e,t_att,g_att,v)
 		if eval_bool(t_att["if"],v)
-			return render_element(e, g_att, v, t_att["trim"])
+			return render_element(e, t_att, g_att, v)
 		else
 			return ""
 		end
@@ -309,19 +300,19 @@ class QWeb
 		else
 			d = v.clone
 		end
-		d[0] = render_element(e, g_att, d, t_att["trim"])
+		d[0] = render_element(e, t_att, g_att, d)
 		return render_context(t_att["call"],d)
 	end
 	def render_tag_set(e,t_att,g_att,v)
 		if t_att["eval"]
 			v[t_att["set"]]=eval_object(t_att["eval"],v)
 		else
-			v[t_att["set"]] = render_element(e, g_att, v, t_att["trim"])
+			v[t_att["set"]] = render_element(e, t_att, g_att, v)
 		end
 		return ""
 	end
 	def render_tag_ruby(e, t_att, g_att, v)
-		code =  render_element(e, g_att, v)
+		code =  render_element(e, t_att, g_att, v)
 		r =  v.instance_eval(code).to_s
 		render_trim!(r, t_att["trim"])
 		if t_att["ruby"] == "quiet"
@@ -472,8 +463,8 @@ module QWebRails
 end
 
 if __FILE__ == $0
-	v = {"pad" => "      Hey          ", "number" => 4, "name" => "Fabien <agr@amigrave.com>", "ddd" => 4..8}
+	v = {"varname"=> "caca","pad" => " Hey ", "number" => 4, "name" => "Fabien <agr@amigrave.com>", "ddd" => 4..8}
 	q = QWebHTML.new("demo.xml")
-	print q.render("demo")
+	print q.render("demo",v)
 	#f = q.form("form",@request, v, "user")
 end
