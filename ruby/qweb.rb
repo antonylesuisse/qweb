@@ -268,17 +268,9 @@ class QWeb
 			if not var
 				var=expr.gsub(/[^a-zA-Z0-9]/,'_')
 			end
-			if t_att["import"]
-				d = v
-			else
-				d = v.clone
-			end
+			d=v.clone
 			size=-1
- 			if enum.respond_to? "length"
-				size = enum.length
-			elsif enum.respond_to? "entries"
-				size = enum.entries.length
-			end
+			size=enum.length if enum.respond_to? "length"
 			d["%s_size"%var]=size
 			d["%s_all"%var]=enum
 			index=0
@@ -291,13 +283,12 @@ class QWeb
 				d["%s_odd"%var]=(index+1)%2
 				d["%s_last"%var]=index+1==size
 				d["%s_parity"%var]=(index%2==1 ? 'odd' : 'even')
-				if i.kind_of?(Hash)
+				if i.kind_of?(Hash) and d.respond_to?('merge')
 					d.merge(i)
 				else
 					d[var]=i
 				end
-				rui = render_element(e,g_att,d)
-				ru << render_trim!(rui, t_att["trim"])
+				ru << render_element(e,g_att,d)
 				index+=1
 			end
 			return ru.join()
@@ -483,5 +474,6 @@ end
 if __FILE__ == $0
 	v = {"pad" => "      Hey          ", "number" => 4, "name" => "Fabien <agr@amigrave.com>", "ddd" => 4..8}
 	q = QWebHTML.new("demo.xml")
-	f = q.form("form",@request, v, "user")
+	print q.render("demo")
+	#f = q.form("form",@request, v, "user")
 end
