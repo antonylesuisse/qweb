@@ -76,9 +76,9 @@ end
 
 class QWeb
 	# t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
-	attr_accessor :prefix, :t
+	attr_accessor :prefix, :templates
 	def initialize(xml=nil)
-		@t={}
+		@templates={}
 		@tag={}
 		@att={}
 		methods.each { |m|
@@ -96,16 +96,17 @@ class QWeb
 			doc=REXML::Document.new(File.new(s))
 		end
 		@prefix ||= doc.root.attributes["prefix"] || "t"
+		@prereg = Regexp.new("^#{@prefix}-")
 		@prelen1 = @prefix.length+1
 		doc.root.elements.each(@prefix) { |e|
-			@t[e.attributes["#{@prefix}-name"]]=e
+			@templates[e.attributes["#{@prefix}-name"]]=e
 		}
 	end
 	def get_template(name)
-		return @t[name]
+		return @templates[name]
 	end
 	def template_exists?(name)
-		return @t.has_key?(name)
+		return @templates.has_key?(name)
 	end
 	# Evaluation
 	def eval_object(e,v)
@@ -132,9 +133,8 @@ class QWeb
 		return render_context(tname,QWebContext.new(v))
 	end
 	def render_context(tname,v)
-		# agr bloat OK
 		v["__template__"] = tname
-		if n=@t[tname]
+		if n=@templates[tname]
 			return render_node(n,v)
 		else
 			return "qweb: template '#{tname}' not found"
@@ -148,24 +148,20 @@ class QWeb
 			g_att = {}
 			t_render=nil
 			t_att={}
-			e.attributes.each { |an,av|
-				# agr bloat OK
-				if an =~ Regexp.new("^#{@prefix}-")
-					# agr bloat OK
+			e.attributes.each do |an,av|
+				if an =~ @prereg
 					n=an[@prelen1..-1]
 					found=false
 					# Attributes
 					for i,m in @att;
 						if n[0...i.size] == i
 							#g_att << m.call(e,an,av,v)
-							# agr bloat, OK
 							g_att.update m.call(e, an, av, v)
 							found=true
 							break
 						end
 					end
 					if not found
-						# agr bloat, BOF
 						if n =~ Regexp.new("^eval-")
 							n = n[5..-1]
 							av = eval_str(av, v)
@@ -176,12 +172,9 @@ class QWeb
 						t_att[n]=av
 					end
 				else
-					#g_att << sprintf(' %s="%s"',an,escape_att(av))
-					# agr bloat
-					#g_att.update an => av
 					g_att[an]=av
 				end
-			}
+			end
 			if t_render:
 				r = @tag[t_render].call(e, t_att, g_att, v)
 			else
@@ -258,10 +251,7 @@ class QWeb
 		expr=t_att["foreach"]
 		enum=eval_object(expr,v)
 		if enum
-			var=t_att['as']
-			if not var
-				var=expr.gsub(/[^a-zA-Z0-9]/,'_')
-			end
+			var=t_att['as'] || expr.gsub(/[^a-zA-Z0-9]/,'_')
 			d=v.clone
 			size=-1
 			size=enum.length if enum.respond_to? "length"
@@ -273,13 +263,9 @@ class QWeb
 				d["%s_value"%var]=i
 				d["%s_index"%var]=index
 				d["%s_first"%var]=index==0
-				d["%s_even"%var]=index%2
-				d["%s_odd"%var]=(index+1)%2
 				d["%s_last"%var]=index+1==size
 				d["%s_parity"%var]=(index%2==1 ? 'odd' : 'even')
-				if i.kind_of?(Hash)
-					d.merge!(i)
-				end
+				d.merge!(i) if i.kind_of?(Hash)
 				d[var]=i
 				ru << render_element(e,t_att,g_att,d)
 				index+=1
@@ -368,7 +354,7 @@ class QWebForm < QWeb
 		@invalid = false
 		@error = []
 		@prefix = qweb.prefix
-		@t = qweb.t
+		@templates = qweb.templates
 		@tag={}
 		@att={}
 		methods.each { |m|
