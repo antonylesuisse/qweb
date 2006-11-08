@@ -133,7 +133,7 @@ class QWeb
 		return render_context(tname,QWebContext.new(v))
 	end
 	def render_context(tname,v)
-		v["__template__"] = tname
+		v["__TEMPLATE__"] = tname
 		if n=@templates[tname]
 			return render_node(n,v)
 		else
@@ -166,8 +166,9 @@ class QWeb
 							n = n[5..-1]
 							av = eval_str(av, v)
 						end
-						if @tag[n]
-							t_render=n
+						nu = n.gsub("-", "_")
+						if @tag[nu]
+							t_render = nu
 						end
 						t_att[n]=av
 					end
@@ -308,45 +309,77 @@ class QWeb
 end
 
 class QWebField
-#class QWebField:
-#    def __init__(self,name=None,default="",check=None):
-#        self.name=name
-#        self.default=default
-#        self.check=check
-#        # optional attributes
-#        self.type=None
-#        self.trim=1
-#        self.required=1
-#        self.cssvalid="form_valid"
-#        self.cssinvalid="form_invalid"
-#        # set by addfield
-#        self.form=None
-#        # set by processing
-#        self.input=None
-#        self.css=None
-#        self.value=None
-#        self.valid=None
-#        self.invalid=None
-#        self.validate(1)
-#    def validate(self,val=1,update=1):
-#        if val:
-#            self.valid=1
-#            self.invalid=0
-#            self.css=self.cssvalid
-#        else:
-#            self.valid=0
-#            self.invalid=1
-#            self.css=self.cssinvalid
-#        if update and self.form:
-#            self.form.update()
-#    def invalidate(self,update=1):
-#        self.validate(0,update)
-#*/
-#end
 	attr_accessor :name, :default, :check, :type, :trim, :cssvalid, :cssinvalid, :form, :input, :css, :value, :valid, :invalid
+	def initialize(name, value = "")
+		@name = name
+		@value = value
+		@valid = false
+		@clicked = false
+	end
+	def is_valid?
+		return @valid
+	end
+	def hide
+	#class QWebField:
+	#    def __init__(self,name=None,default="",check=None):
+	#        self.name=name
+	#        self.default=default
+	#        self.check=check
+	#        # optional attributes
+	#        self.type=None
+	#        self.trim=1
+	#        self.required=1
+	#        self.cssvalid="form_valid"
+	#        self.cssinvalid="form_invalid"
+	#        # set by addfield
+	#        self.form=None
+	#        # set by processing
+	#        self.input=None
+	#        self.css=None
+	#        self.value=None
+	#        self.valid=None
+	#        self.invalid=None
+	#        self.validate(1)
+	#    def validate(self,val=1,update=1):
+	#        if val:
+	#            self.valid=1
+	#            self.invalid=0
+	#            self.css=self.cssvalid
+	#        else:
+	#            self.valid=0
+	#            self.invalid=1
+	#            self.css=self.cssinvalid
+	#        if update and self.form:
+	#            self.form.update()
+	#    def invalidate(self,update=1):
+	#        self.validate(0,update)
+	#*/
+	#end
+	end
 end
 
-class QWebForm < QWeb
+class QWebForm
+	attr_accessor :fields, :submitted, :invalid, :error
+	def initialize()
+		@fields = {}
+		@submitted = false
+		@invalid = true
+		@error = []
+	end
+	def [](k)
+		k = k.to_s
+		unless @fields.key? k
+			@fields[k] = QWebField.new(k)
+		end
+		return @fields[k]
+	end
+		#/*
+		#company.form.collect()
+		#company.form.each()
+		#*/
+end
+
+class QWebForm_old < QWeb
 	attr_accessor :fields, :submitted, :invalid, :error
 	def initialize(qweb, tname, iv, fname)
 		@fields = {}
@@ -394,10 +427,50 @@ class QWebForm < QWeb
 end
 
 class QWebHTML < QWeb
-	# t-header t-format
-	def form(tname, v, request, fname = nil)
-		return QwebForm.new(self, tname, v, fname)
+	attr_accessor :prefix, :templates
+	# peut-etre mettre fields en attr_read ??
+	def initialize(xml = nil)
+		@templates = {}
+		@tag = {}
+		@att = {}
+
+		@forms = {}
+		@cform = nil
+
+		methods.each { |m|
+			@tag[m[11..-1]] = method(m) if m =~ /^render_tag_/
+			@att[m[11..-1]] = method(m) if m =~ /^render_att_/
+		}
+		add_template(xml) if xml
 	end
+	def form(v, request, fname = nil)
+		# Je ne fais pas  '  unless fname && ser = request[fname]  '   parce que si fname est defini et qu'on
+		# le trouve pas dans request alors il faut pas chercher plus loin
+		if fname
+			ser = request["__FORM__#{fname}__"]
+		else
+			request.each do |k, v|
+				if k =~ /^__FORM__/
+					ser = v
+					break
+				end
+			end
+		end
+		if ser
+			puts "SOULD UNSERIALIZE"
+			f = "the form unserialized"
+		else
+			f = QWebForm.new()
+		end
+		# Warning: using more than one form during a render imply form name specification when calling QWebHTML.form()
+		@cform = f
+		if fname
+			@forms[fname] = f
+		end
+		return f
+	end
+
+	# Rendering
 	def render_tag_header(e, t_att, g_att, v)
 		if @response
 			@response.headers[t_att["header"]] = render_element(e, g_att, v)
@@ -406,13 +479,23 @@ class QWebHTML < QWeb
 	end
 	def render_tag_form(e, t_att, g_att, v)
 		fn = t_att["form"]
-		form = v[fn] ||= QwebForm.new(self, v["__template__"], fn)
+		unless f = @forms[fn] || @cform
+			return "qweb: form '#{fn}' was not initialized. Should call QWebHTML.form() before rendering"
+		end
+		@cform = f
 		g_att["name"] ||= fn
 		g_att["id"] ||= fn
 		r = "<form%s>" % render_atts(g_att)
-		r << "<input type=\"hidden\" name=\"__form_%s_submitted__\" value=\"1\"/>" % fn
-		r << render_element(e, g_att, v)
-		r << "</form>"
+		r << render_element(e, t_att, g_att, v)
+		r << sprintf('<input type="hidden" name="__FORM__%s__" value="%s"/></form>', escape_att(fn), escape_att("FORM SERIALISATION"))
+		return r
+	end
+	def render_tag_input_text(e, t_att, g_att, v)
+		r = ""
+		tn = t_att["input-text"]
+		g_att["name"] = tn
+		g_att["value"] = @cform[tn].value
+		r << sprintf('<input type="text"%s/>', render_atts(g_att))
 		return r
 	end
 end
@@ -450,6 +533,7 @@ end
 if __FILE__ == $0
 	v = {"varname"=> "caca","pad" => " Hey ", "number" => 4, "name" => "Fabien <agr@amigrave.com>", "ddd" => 4..8}
 	q = QWebHTML.new("demo.xml")
-	print q.render("demo",v)
-	#f = q.form("form",@request, v, "user")
+	@request = {}
+	f = q.form(v, @request)
+	print q.render("demo_form",v)
 end

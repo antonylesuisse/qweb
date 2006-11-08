@@ -9,6 +9,41 @@
 	&lt;t t-esc="arg1"&gt; outputs <t t-esc="arg1"/> <br/>
 	&lt;t t-esc="arg2"&gt; outputs <t t-esc="arg2"/> <br/>
 </t>
+<t t-name="demo_form">
+	<t t-form="user" action="/user/add" method="post">
+		Login : <t t-input-text="login" t-check="/.{1,50}/"/><br/>
+		<!--Password : <t t-input-password="lastname" t-check="/.{1,50}/"/><br/>
+
+		Company : <t t-input-select="company_id" t-check="options">
+						<option value="" nocheck="1">Please choose a company</option>
+						<option value="" nocheck="1">***********************</option>
+						<option value="1">Les bouchers font du ski</option>
+						<option value="2">Durum a volonte</option>
+						<t t-foreach="companies">
+							<t t-eval-input-option="IDCOMPANY"><t t-esc="sCompanyName"/></t>
+						</t>
+					</t><br/>
+
+		Type : <t t-input-radio="type" t-check="/user|admin|root/">
+					<option value="user">User</option>
+					<option value="admin">User</option>
+					<option value="root">User</option>
+				</t><br/>
+
+		Privileges : <t t-input-checkbox="privileges" t-check="/r|w|x/">
+						<option value="r">Read</option>
+						<option value="w">Write</option>
+						<option value="x">Execute</option>
+				</t><br/>
+
+		Comment : <t t-input-textarea="comment" t-check="/.+/"/><br/>
+
+		<t t-input-checkbox="agree" value="1"/> I agree with this shit<br/>-->
+
+		<t t-input-submit="ok" value="Submit this form"/>
+	</t>
+	
+</t>
 <t t-name="demo">
 	<h1>This is a demo</h1>
 
@@ -120,7 +155,7 @@
 		<t t-input-submit="ok" value="Submit this form"/>
 	</t>
 </t>
-<t t-name="main/index">
+<t t-name="main/index_test">
 	<h3><t t-esc="title"/></h3>
 
 	Testing dude !!

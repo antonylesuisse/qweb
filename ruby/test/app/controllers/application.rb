@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
 end
 class MainController < ApplicationController
 	def index
+		f = $qweb.form("main/index", {}, @request)
 		p default_template_name
 	end
 end
