@@ -505,7 +505,7 @@ class QWebHTML < QWeb
 	end
 end
 
-module QWebRails
+class QWebRails
 	def self.include(c)
 		c.class_eval do
 			@@qweb_template=RAILS_ROOT+"/app/controllers/qweb.xml"
