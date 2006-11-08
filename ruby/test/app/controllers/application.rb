@@ -3,11 +3,7 @@
 require "qweb"
 
 class ApplicationController < ActionController::Base
-	include QWebRails
-	alias :render_orig :render
-	alias :render :qweb_render
-	def everytime(); qweb_load end
-	before_filter :everytime
+	QWebRails.include self
 end
 class MainController < ApplicationController
 	def index

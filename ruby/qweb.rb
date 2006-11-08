@@ -82,8 +82,8 @@ class QWeb
 		@tag={}
 		@att={}
 		methods.each { |m|
-			@tag[m[11..-1]]=method(m) if m =~ /^render_tag_/
-			@att[m[11..-1]]=method(m) if m =~ /^render_att_/
+			@tag[m[11..-1].replace("_","-")]=method(m) if m =~ /^render_tag_/
+			@att[m[11..-1].replace("_","-")]=method(m) if m =~ /^render_att_/
 		}
 		add_template(xml) if xml
 	end
@@ -166,9 +166,8 @@ class QWeb
 							n = n[5..-1]
 							av = eval_str(av, v)
 						end
-						nu = n.gsub("-", "_")
-						if @tag[nu]
-							t_render = nu
+						if @tag[n]
+							t_render = n
 						end
 						t_att[n]=av
 					end
@@ -501,31 +500,34 @@ class QWebHTML < QWeb
 end
 
 module QWebRails
-#	include QWebRails
-#	def everytime(); qweb_load end
-#	alias :render_orig :render
-#	alias :render :qweb_render
-#	before_filter :everytime
-	def qweb_load(fname=nil)
-		fname ||= RAILS_ROOT+"/app/controllers/qweb.xml"
-		if File.mtime(fname).to_i!=$qweb_time
-			$qweb=QWebHTML.new(fname)
-			$qweb_time=File.mtime(fname).to_i
-		end
-	end
-	def qweb_render(arg=nil)
-		t=nil
-		t=arg[:template] if arg.kind_of?(Hash)
-		t||=default_template_name
-		if $qweb.template_exists?(t)
-			add_variables_to_assigns
-			render_text($qweb.render(t,@assigns))
-		else
-			if respond_to?(:render_orig)
-				return render_orig(arg)
-			else
-				return render(arg)
+	def self.include(c)
+		c.class_eval do
+			@@qweb_template=RAILS_ROOT+"/app/controllers/qweb.xml"
+			def qweb_load(fname=nil)
+				fname ||= @@qweb_template
+				if File.mtime(fname).to_i!=$qweb_time
+					$qweb=QWebHTML.new(fname)
+					$qweb_time=File.mtime(fname).to_i
+				end
 			end
+			def qweb_render(arg=nil)
+				t=nil
+				t=arg[:template] if arg.kind_of?(Hash)
+				t||=default_template_name
+				if $qweb.template_exists?(t)
+					add_variables_to_assigns
+					render_text($qweb.render(t,@assigns))
+				else
+					if respond_to?(:render_orig)
+						return render_orig(arg)
+					else
+						return render(arg)
+					end
+				end
+			end
+			alias :render_orig :render
+			alias :render :qweb_render
+			before_filter :qweb_load
 		end
 	end
 end
