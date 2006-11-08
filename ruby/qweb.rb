@@ -82,8 +82,8 @@ class QWeb
 		@tag={}
 		@att={}
 		methods.each { |m|
-			@tag[m[11..-1].gsub("_","-")]=method(m) if m =~ /^render_tag_/
-			@att[m[11..-1].gsub("_","-")]=method(m) if m =~ /^render_att_/
+			@tag[m[11..-1].sub("_", "-")]=method(m) if m =~ /^render_tag_/
+			@att[m[11..-1].sub("_", "-")]=method(m) if m =~ /^render_att_/
 		}
 		add_template(xml) if xml
 	end
@@ -372,6 +372,12 @@ class QWebForm
 		end
 		return @fields[k]
 	end
+	def is_submitted?
+		return @submitted
+	end
+	def is_invalid?
+		return @invalid
+	end
 		#/*
 		#company.form.collect()
 		#company.form.each()
@@ -437,8 +443,8 @@ class QWebHTML < QWeb
 		@cform = nil
 
 		methods.each { |m|
-			@tag[m[11..-1]] = method(m) if m =~ /^render_tag_/
-			@att[m[11..-1]] = method(m) if m =~ /^render_att_/
+			@tag[m[11..-1].sub("_", "-")] = method(m) if m =~ /^render_tag_/
+			@att[m[11..-1].sub("_", "-")] = method(m) if m =~ /^render_att_/
 		}
 		add_template(xml) if xml
 	end
