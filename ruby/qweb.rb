@@ -82,8 +82,8 @@ class QWeb
 		@tag={}
 		@att={}
 		methods.each { |m|
-			@tag[m[11..-1].replace("_","-")]=method(m) if m =~ /^render_tag_/
-			@att[m[11..-1].replace("_","-")]=method(m) if m =~ /^render_att_/
+			@tag[m[11..-1].gsub("_","-")]=method(m) if m =~ /^render_tag_/
+			@att[m[11..-1].gsub("_","-")]=method(m) if m =~ /^render_att_/
 		}
 		add_template(xml) if xml
 	end
