@@ -506,8 +506,8 @@ class QWebHTML < QWeb
 end
 
 class QWebRails
-	def self.include(c)
-		c.class_eval do
+	def self.init()
+		ApplicationController.class_eval do
 			@@qweb_template=RAILS_ROOT+"/app/controllers/qweb.xml"
 			def qweb_load(fname=nil)
 				fname ||= @@qweb_template
@@ -535,6 +535,8 @@ class QWebRails
 			alias :render :qweb_render
 			before_filter :qweb_load
 		end
+		# Hack
+		QWebContext.class_eval('include ApplicationHelper')
 	end
 end
 

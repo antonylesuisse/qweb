@@ -3,7 +3,7 @@
 require "qweb"
 
 class ApplicationController < ActionController::Base
-	QWebRails.include self
+	QWebRails.init
 end
 class MainController < ApplicationController
 	def index
