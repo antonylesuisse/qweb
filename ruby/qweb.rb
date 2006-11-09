@@ -379,7 +379,7 @@ class QWebForm
 		return @fields[k]
 	end
 	def serialize
-		ser = Marshal.dump(self).b64encode
+		ser = Base64::encode64 Marshal.dump(self)
 		puts "Base64 encoded lenght = #{ser.length}"
 		return ser
 	end
