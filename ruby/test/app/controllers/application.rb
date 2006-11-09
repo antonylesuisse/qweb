@@ -7,7 +7,23 @@ class ApplicationController < ActionController::Base
 end
 class MainController < ApplicationController
 	def index
-		f = $qweb.form("main/index", {}, @request)
+		@msg = []
+		f = $qweb.form(@params)
+		unless f.is_submitted?
+			f[:login].value = "agr"
+		end
+		if f.is_submitted?
+			@msg << "Form was submitted"
+			if f[:ok].is_clicked?
+				@msg << "Button ok has been clicked"
+			end
+			if f[:cancel].is_clicked?
+				@msg << "Button cancel has been clicked"
+			end
+			if f.is_valid?
+				@msg << "Form is valid !"
+			end
+		end
 		p default_template_name
 	end
 end

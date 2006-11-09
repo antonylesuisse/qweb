@@ -3,6 +3,7 @@
 
 require "rexml/document"
 require "fileutils"
+require "base64"
 
 class QWebContext
 	def initialize(context)
@@ -308,61 +309,66 @@ class QWeb
 end
 
 class QWebField
-	attr_accessor :name, :default, :check, :type, :trim, :cssvalid, :cssinvalid, :form, :input, :css, :value, :valid, :invalid
-	def initialize(name, value = "")
+	attr_accessor :type, :name, :value, :trim, :check, :css, :cssinvalid, :missing, :in_xml, :clicked
+	def initialize(name)
+		@type = nil
 		@name = name
-		@value = value
+		@trim = false
+		@check = nil
+		@cssinvalid = "qweb_invalid"
+		@in_xml = false
+		reset
+	end
+	def reset
+		@value = ""
 		@valid = false
+		@missing = true
+		@css = ""
 		@clicked = false
+		@clicked_x = 0
+		@clicked_y = 0
 	end
 	def is_valid?
+		check = @check
+		# We could optimize by using pre-compiled regex at inittime for "email" "date" but I wonder
+		# if we want to extend this part of code for custom fields. Will see later.
+		case @check
+			when nil
+				return true
+			when "email"
+				check = "/^[^@#!& ]+@[A-Za-z0-9-][.A-Za-z0-9-]{0,64}\.[A-Za-z]{2,5}$/"
+			when "date"
+				check = "/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/"
+		end
+		puts check
+		if check[0].chr == "/" && check[-1].chr == "/"
+			return (@value =~ Regexp.new(check[1..-2])) ? true : false
+		else
+			#TODO: What to do here ? Call check_xxxxx method ?
+			return false
+		end
 		return @valid
 	end
-	def hide
-	#class QWebField:
-	#    def __init__(self,name=None,default="",check=None):
-	#        self.name=name
-	#        self.default=default
-	#        self.check=check
-	#        # optional attributes
-	#        self.type=None
-	#        self.trim=1
-	#        self.required=1
-	#        self.cssvalid="form_valid"
-	#        self.cssinvalid="form_invalid"
-	#        # set by addfield
-	#        self.form=None
-	#        # set by processing
-	#        self.input=None
-	#        self.css=None
-	#        self.value=None
-	#        self.valid=None
-	#        self.invalid=None
-	#        self.validate(1)
-	#    def validate(self,val=1,update=1):
-	#        if val:
-	#            self.valid=1
-	#            self.invalid=0
-	#            self.css=self.cssvalid
-	#        else:
-	#            self.valid=0
-	#            self.invalid=1
-	#            self.css=self.cssinvalid
-	#        if update and self.form:
-	#            self.form.update()
-	#    def invalidate(self,update=1):
-	#        self.validate(0,update)
-	#*/
-	#end
+	def is_empty?
+		return @value.length == 0
+	end
+	def is_missing?
+		return @missing
+	end
+	def is_clicked?
+		return @clicked
+	end
+	def is_in_xml?
+		return @in_xml
 	end
 end
-
 class QWebForm
-	attr_accessor :fields, :submitted, :invalid, :error
-	def initialize()
+	attr_accessor :name, :fields, :submitted, :valid, :error, :cssvalid, :cssinvalid
+	def initialize(name = nil)
+		@name = nil
 		@fields = {}
 		@submitted = false
-		@invalid = true
+		@valid = false
 		@error = []
 	end
 	def [](k)
@@ -372,68 +378,46 @@ class QWebForm
 		end
 		return @fields[k]
 	end
+	def serialize
+		ser = Marshal.dump(self).b64encode
+		puts "Base64 encoded lenght = #{ser.length}"
+		return ser
+	end
 	def is_submitted?
 		return @submitted
 	end
-	def is_invalid?
-		return @invalid
-	end
-		#/*
-		#company.form.collect()
-		#company.form.each()
-		#*/
-end
-
-class QWebForm_old < QWeb
-	attr_accessor :fields, :submitted, :invalid, :error
-	def initialize(qweb, tname, iv, fname)
-		@fields = {}
-		@submitted = false
-		@invalid = false
-		@error = []
-		@prefix = qweb.prefix
-		@templates = qweb.templates
-		@tag={}
-		@att={}
-		methods.each { |m|
-			@tag[m[11..-1]]=method(m) if m =~ /^render_tag_/
-			@att[m[11..-1]]=method(m) if m =~ /^render_att_/
+	def is_valid?
+		@fields.each { |fn, fi|
+			if fi.is_in_xml? and !fi.is_valid?
+				return false
+			end
 		}
-		render()
+		return true
 	end
-	def render_tag_esc(e, t_att, g_att, v); end
-	def render_tag_raw(e, t_att, g_att, v); end
-	def render_tag_escf(e, t_att, g_att, v); end
-	def render_tag_rawf(e, t_att, g_att, v); end
-	def render_tag_form(e, t_att, g_att, v)
-		r = "form"
-#		fn = t_att["form"]
-#		form = v[fn] ||= QwebForm.new(self, v["__template__"], fn)
-#		g_att["name"] ||= fn
-#		g_att["id"] ||= fn
-#		r = "<form%s>" % render_atts(g_att)
-#		r << "<input type=\"hidden\" name=\"__form_%s_submitted__\" value=\"1\"/>" % fn
-#		r << render_element(e, g_att, v)
-#		r << "</form>"
 
-#/*
-#company[:lastname].value
-#company[:lastname].valid
-#company[:add].clicked?
-#
-#company.form.is_valid?()
-#company.form.collect()
-#company.form.each()
-#
-#
-#*/
-		return r
+	def on_submit(request)
+		@submitted = true
+		@fields.each { |fn, fi|
+			fi.reset
+			if request.key? fn
+				fi.missing = false
+				if fi.type == :submit
+					fi.clicked = true
+				else
+					fi.value = request[fn]
+				end
+			else
+				fi.value = ""
+			end
+		}
+	end
+	def collect
+	end
+	def each
 	end
 end
-
-class QWebHTML < QWeb
+class QWebHtml < QWeb
 	attr_accessor :prefix, :templates
-	# peut-etre mettre fields en attr_read ??
 	def initialize(xml = nil)
 		@templates = {}
 		@tag = {}
@@ -448,9 +432,10 @@ class QWebHTML < QWeb
 		}
 		add_template(xml) if xml
 	end
-	def form(v, request, fname = nil)
+	def form(request, fname = nil)
 		# Je ne fais pas  '  unless fname && ser = request[fname]  '   parce que si fname est defini et qu'on
-		# le trouve pas dans request alors il faut pas chercher plus loin
+		# le trouve pas dans request alors il FAUT PAS chercher plus loin, mais je sais que tu arrivera a racourcir ce
+		# code en gardant la logique et la lisibilite.
 		if fname
 			ser = request["__FORM__#{fname}__"]
 		else
@@ -462,12 +447,14 @@ class QWebHTML < QWeb
 			end
 		end
 		if ser
-			puts "SOULD UNSERIALIZE"
-			f = "the form unserialized"
+			ser = Base64::decode64 ser
+			f = Marshal.load(ser)
+			f.on_submit request
+			f.submitted = true
 		else
-			f = QWebForm.new()
+			f = QWebForm.new(fname)
 		end
-		# Warning: using more than one form during a render imply form name specification when calling QWebHTML.form()
+		# Warning: using more than one form during a render imply form name specification when calling QWebHtml.form()
 		@cform = f
 		if fname
 			@forms[fname] = f
@@ -485,23 +472,42 @@ class QWebHTML < QWeb
 	def render_tag_form(e, t_att, g_att, v)
 		fn = t_att["form"]
 		unless f = @forms[fn] || @cform
-			return "qweb: form '#{fn}' was not initialized. Should call QWebHTML.form() before rendering"
+			return "qweb: form '#{fn}' was not initialized. Should call QWebHtml.form() before rendering"
 		end
 		@cform = f
 		g_att["name"] ||= fn
 		g_att["id"] ||= fn
 		r = "<form%s>" % render_atts(g_att)
 		r << render_element(e, t_att, g_att, v)
-		r << sprintf('<input type="hidden" name="__FORM__%s__" value="%s"/></form>', escape_att(fn), escape_att("FORM SERIALISATION"))
+		r << sprintf('<input type="hidden" name="__FORM__%s__" value="%s"/></form>', escape_att(fn), escape_att(f.serialize))
 		return r
 	end
 	def render_tag_input_text(e, t_att, g_att, v)
-		r = ""
 		tn = t_att["input-text"]
+		fi = @cform[tn]
+		fi.name = tn
+		fi.type = :text
+		fi.check = t_att["check"]
+		fi.trim = t_att["trim"]
+		fi.in_xml = true
 		g_att["name"] = tn
-		g_att["value"] = @cform[tn].value
-		r << sprintf('<input type="text"%s/>', render_atts(g_att))
-		return r
+		g_att["value"] = fi.value
+		if g_att["class"] && fi.length > 0
+			g_att["class"] << " " + fi.css
+		elsif fi.css.length > 0
+			g_att["class"] = fi.css
+		end
+		return sprintf('<input type="text"%s/>', render_atts(g_att))
+	end
+	def render_tag_input_submit(e, t_att, g_att, v)
+		tn = t_att["input-submit"]
+		fi = @cform[tn]
+		fi.name = tn
+		fi.type = :submit
+		fi.in_xml = true
+		g_att["name"] = tn
+		fi.value = g_att["value"]
+		return sprintf('<input type="submit"%s/>', render_atts(g_att))
 	end
 end
 
@@ -512,7 +518,7 @@ class QWebRails
 			def qweb_load(fname=nil)
 				fname ||= @@qweb_template
 				if File.mtime(fname).to_i!=$qweb_time
-					$qweb=QWebHTML.new(fname)
+					$qweb=QWebHtml.new(fname)
 					$qweb_time=File.mtime(fname).to_i
 				end
 			end
@@ -542,8 +548,11 @@ end
 
 if __FILE__ == $0
 	v = {"varname"=> "caca","pad" => " Hey ", "number" => 4, "name" => "Fabien <agr@amigrave.com>", "ddd" => 4..8}
-	q = QWebHTML.new("demo.xml")
+	q = QWebHtml.new("demo.xml")
 	@request = {}
 	f = q.form(v, @request)
-	print q.render("demo_form",v)
+	unless f.is_submitted?
+		f[:login].value = "agr"
+	end
+	print q.render("main/index",v)
 end
