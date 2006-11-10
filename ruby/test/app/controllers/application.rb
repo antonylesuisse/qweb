@@ -8,20 +8,22 @@ end
 class MainController < ApplicationController
 	def index
 		@msg = []
-		f = $qweb.form(@params)
+		@f = f = $qweb.form(@params)
 		unless f.is_submitted?
 			f[:login].value = "agr"
 		end
 		if f.is_submitted?
-			@msg << "Form was submitted"
 			if f[:ok].is_clicked?
-				@msg << "Button ok has been clicked"
+				# ok clicked
 			end
 			if f[:cancel].is_clicked?
-				@msg << "Button cancel has been clicked"
+				# cancel clicked
 			end
-			if f.is_valid?
-				@msg << "Form is valid !"
+			if f.is_submitted_but_invalid?
+				# submitted but invalid
+			end
+			if f.is_submitted_and_valid?
+				@u = f.data
 			end
 		end
 		p default_template_name

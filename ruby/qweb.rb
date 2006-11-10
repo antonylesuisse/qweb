@@ -309,13 +309,13 @@ class QWeb
 end
 
 class QWebField
-	attr_accessor :type, :name, :value, :trim, :check, :css, :cssinvalid, :missing, :in_xml, :clicked
+	attr_accessor :type, :name, :value, :trim, :check, :css_prefix, :missing, :in_xml, :clicked
 	def initialize(name)
 		@type = nil
 		@name = name
 		@trim = false
 		@check = nil
-		@cssinvalid = "qweb_invalid"
+		@css_prefix = "invalid"
 		@in_xml = false
 		reset
 	end
@@ -323,7 +323,6 @@ class QWebField
 		@value = ""
 		@valid = false
 		@missing = true
-		@css = ""
 		@clicked = false
 		@clicked_x = 0
 		@clicked_y = 0
@@ -340,7 +339,6 @@ class QWebField
 			when "date"
 				check = "/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/"
 		end
-		puts check
 		if check[0].chr == "/" && check[-1].chr == "/"
 			return (@value =~ Regexp.new(check[1..-2])) ? true : false
 		else
@@ -361,15 +359,25 @@ class QWebField
 	def is_in_xml?
 		return @in_xml
 	end
+	def add_css(s)
+		if !is_valid?
+			s ||= ""
+			s += sprintf(" %s %s_%s", @css_prefix, @css_prefix, @type.to_s)
+			s.strip!
+		end
+		return s
+	end
 end
 class QWebForm
-	attr_accessor :name, :fields, :submitted, :valid, :error, :cssvalid, :cssinvalid
+	attr_accessor :name, :fields, :error, :cssvalid, :cssinvalid, :submitted, :clicked_button, :trim_fields
 	def initialize(name = nil)
 		@name = nil
 		@fields = {}
 		@submitted = false
 		@valid = false
 		@error = []
+		@clicked_button = ""
+		@trim_fields = false
 	end
 	def [](k)
 		k = k.to_s
@@ -379,41 +387,66 @@ class QWebForm
 		return @fields[k]
 	end
 	def serialize
+		@fields.each { |fn, fi|
+			unless fi.is_in_xml?
+				@fields.delete fn
+			end
+		}
+		puts "unserialized length = #{Marshal.dump(self).length}"
 		ser = Base64::encode64 Marshal.dump(self)
-		puts "Base64 encoded lenght = #{ser.length}"
+		puts "Base64 encoded length = #{ser.length}"
 		return ser
 	end
 	def is_submitted?
 		return @submitted
 	end
 	def is_valid?
-		@fields.each { |fn, fi|
-			if fi.is_in_xml? and !fi.is_valid?
-				return false
-			end
-		}
-		return true
+		return @valid
+	end
+	def is_submitted_and_valid?
+		return is_submitted? && is_valid?
+	end
+	def is_submitted_but_invalid?
+		return is_submitted? && !is_valid?
 	end
 
 	def on_submit(request)
 		@submitted = true
+		@valid = true
 		@fields.each { |fn, fi|
 			fi.reset
 			if request.key? fn
 				fi.missing = false
 				if fi.type == :submit
 					fi.clicked = true
+					@clicked_button = fn
 				else
-					fi.value = request[fn]
+					if fi.trim || @trim_fields
+						fi.value = request[fn].strip
+					else
+						fi.value = request[fn]
+					end
 				end
 			else
 				fi.value = ""
+			end
+			if !fi.is_valid?
+				@valid = false
 			end
 		}
 	end
 	def collect
 	end
 	def each
+	end
+	def data
+		r = {}
+		@fields.each { |fn, fi|
+			if fi.type != :submit
+				r[fn] = fi.value
+			end
+		}
+		return r
 	end
 end
 class QWebHtml < QWeb
@@ -475,6 +508,7 @@ class QWebHtml < QWeb
 			return "qweb: form '#{fn}' was not initialized. Should call QWebHtml.form() before rendering"
 		end
 		@cform = f
+		f.trim_fields = true if t_att["trim-fields"]
 		g_att["name"] ||= fn
 		g_att["id"] ||= fn
 		r = "<form%s>" % render_atts(g_att)
@@ -482,30 +516,40 @@ class QWebHtml < QWeb
 		r << sprintf('<input type="hidden" name="__FORM__%s__" value="%s"/></form>', escape_att(fn), escape_att(f.serialize))
 		return r
 	end
+
+	def new_field(name, type, t_att, g_att)
+		fi = @cform[name]
+		fi.type = type
+		fi.check = t_att["check"]
+		fi.trim = true if t_att["trim"]
+		fi.in_xml = true
+		g_att["name"] = name
+		if @cform.is_submitted? && att = fi.add_css(g_att["class"])
+			g_att["class"] = att
+		end
+		return fi
+	end
+
 	def render_tag_input_text(e, t_att, g_att, v)
 		tn = t_att["input-text"]
-		fi = @cform[tn]
-		fi.name = tn
-		fi.type = :text
-		fi.check = t_att["check"]
-		fi.trim = t_att["trim"]
-		fi.in_xml = true
-		g_att["name"] = tn
+		fi = new_field(tn, :text, t_att, g_att)
 		g_att["value"] = fi.value
-		if g_att["class"] && fi.length > 0
-			g_att["class"] << " " + fi.css
-		elsif fi.css.length > 0
-			g_att["class"] = fi.css
-		end
 		return sprintf('<input type="text"%s/>', render_atts(g_att))
+	end
+	def render_tag_input_password(e, t_att, g_att, v)
+		tn = t_att["input-password"]
+		fi = new_field(tn, :password, t_att, g_att)
+		g_att["value"] = fi.value
+		return sprintf('<input type="password"%s/>', render_atts(g_att))
+	end
+	def render_tag_input_textarea(e, t_att, g_att, v)
+		tn = t_att["input-textarea"]
+		fi = new_field(tn, :textarea, t_att, g_att)
+		return sprintf('<textarea%s>%s</textarea>', render_atts(g_att), escape_text(fi.value))
 	end
 	def render_tag_input_submit(e, t_att, g_att, v)
 		tn = t_att["input-submit"]
-		fi = @cform[tn]
-		fi.name = tn
-		fi.type = :submit
-		fi.in_xml = true
-		g_att["name"] = tn
+		fi = new_field(tn, :submit, t_att, g_att)
 		fi.value = g_att["value"]
 		return sprintf('<input type="submit"%s/>', render_atts(g_att))
 	end

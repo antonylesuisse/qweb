@@ -85,11 +85,38 @@
 
 </t>
 <t t-name="main/index">
-	<t t-form="user" action="/main/index" method="post">
-		Login : <t t-input-text="login" t-check="/.{1,50}/"/><br/>
-		<!--Password : <t t-input-password="lastname" t-check="/.{1,50}/"/><br/>
+	<style>
+		.invalid {
+			background: #f99;
+		}
+		.invalid_text {
+			border: 1px solid black;
+		}
+		.invalid_textarea {
+			border: 2px solid black;
+		}
+		.d {
+			border: 1px solid black;
+			margin: 4px;
+			background: #ff9;
+		}
+	</style>
+	<div t-if="f.is_submitted?" class="d">
+		THE FORM WAS SUBMITTED
+	</div>
+	<div t-if="f.is_submitted_but_invalid?" class="d">
+		THE FORM WAS SUBMITTED BUT INVALID !!!
+	</div>
+	<div t-if="f.is_submitted_and_valid?" class="d">
+		THE FORM WAS SUBMITTED AND IS VALID<br/>
+		Data : <t t-esc="u"/>
+	</div>
+	<br/>
+	<t t-form="user" t-trim-fields="1" action="/main/index" method="post">
+		Login : <t t-input-text="login" t-check="/^.{1,8}$/" size="50"/><br/>
+		Password : <t t-input-password="lastname" t-check="/.{1,50}/"/><br/>
 
-		Company : <t t-input-select="company_id" t-check="options">
+		<!--Company : <t t-input-select="company_id" t-check="options">
 						<option value="" nocheck="1">Please choose a company</option>
 						<option value="" nocheck="1">***********************</option>
 						<option value="1">Les bouchers font du ski</option>
@@ -110,22 +137,27 @@
 						<option value="w">Write</option>
 						<option value="x">Execute</option>
 				</t><br/>
-
+		-->
 		Comment : <t t-input-textarea="comment" t-check="/.+/"/><br/>
 
-		<t t-input-checkbox="agree" value="1"/> I agree with this shit<br/>-->
+		<!--<t t-input-checkbox="agree" value="1"/> I agree with this shit<br/>-->
 
 		<t t-input-submit="ok" value="Submit this form"/>
 		<t t-input-submit="cancel" value="Cancel this shit"/>
 	</t>
+	<div>
+		Clicked button is "<t t-esc="f.clicked_button"/>"
+	</div>
+	<hr/>
+	<ul>
+		<t t-foreach="msg" t-as="m">
+			<li><t t-esc="m"/></li>
+		</t>
+	</ul>
 	<hr/>
 	<pre>
-		<t t-esc="@msg.join('\n')"/>
-	</pre>
-	<hr/>
-	<pre>
-		<t t-foreach="@params" t-as="k">
-			<t t-esc="k"/>
+		<t t-foreach="params.to_a" t-as="p">
+			<t t-esc="p"/>
 		</t>
 	</pre>
 	<hr/>
