@@ -309,13 +309,12 @@ class QWeb
 end
 
 class QWebField
-	attr_accessor :type, :name, :value, :options, :trim, :check, :css_prefix, :missing, :in_xml, :is_data, :clicked
+	attr_accessor :type, :name, :value, :values, :multiple, :options, :trim, :check, :missing, :in_xml, :is_data, :clicked
 	def initialize(name)
 		@type = nil
 		@name = name
 		@trim = false
 		@check = nil
-		@css_prefix = "invalid"
 		@is_data = false
 		@options = []
 		reset
@@ -323,6 +322,8 @@ class QWebField
 	def reset
 		@in_xml = false
 		@value = ""
+		@values = []
+		@multiple = false
 		@valid = false
 		@missing = true
 		@clicked = false
@@ -348,12 +349,12 @@ class QWebField
 		return @is_data
 	end
 
-	def add_css(s)
-		if !is_valid?
-			s ||= ""
-			s += sprintf(" %s %s_%s", @css_prefix, @css_prefix, @type.to_s)
-			s.strip!
-		end
+	def add_css(s, f)
+		p = f.css_prefix
+		s ||= ""
+		status = (!is_valid? && f.is_submitted?) ? "invalid" : "valid"
+		s += " #{p}_#{status} #{p}_#{status}_#{@type.to_s}"
+		s.strip!
 		return s
 	end
 	def check_validity
@@ -369,7 +370,15 @@ class QWebField
 			when "date"
 				check = "/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/"
 			when "options"
-				return @valid = @options.member?(@value)
+				if multiple
+					v = true
+					@values.each { |i|
+						v = false if !@options.member?(i)
+					}
+					return @valid = v
+				else
+					return @valid = @options.member?(@value)
+				end
 		end
 		if check[0].chr == "/" && check[-1].chr == "/"
 			return @valid = (@value =~ Regexp.new(check[1..-2])) ? true : false
@@ -380,15 +389,19 @@ class QWebField
 	end
 end
 class QWebForm
-	attr_accessor :name, :fields, :errors, :cssvalid, :cssinvalid, :submitted, :clicked_button, :trim_fields
+	attr_accessor :name, :fields, :errors, :css_prefix, :submitted, :clicked_button, :trim_fields
 	def initialize(name = nil)
 		@name = nil
 		@fields = {}
 		@submitted = false
 		@valid = false
-		@errors = []
 		@clicked_button = ""
 		@trim_fields = false
+		@css_prefix = "qweb"
+		reset
+	end
+	def reset
+		@errors = []
 	end
 	def [](k)
 		k = k.to_s
@@ -424,6 +437,7 @@ class QWebForm
 	end
 
 	def on_submit(request)
+		reset
 		@submitted = true
 		@valid = true
 		@fields.each { |fn, fi|
@@ -434,10 +448,14 @@ class QWebForm
 					fi.clicked = true
 					@clicked_button = fn
 				else
-					if fi.trim || @trim_fields
-						fi.value = request[fn].strip
+					v = request[fn]
+					if v.class == Array
+						fi.multiple = true
+						v.each { |i| i.strip! } if fi.trim || @trim_fields
+						fi.value = v.join(",")
+						fi.values = v
 					else
-						fi.value = request[fn]
+						fi.value = (fi.trim || @trim_fields) ? v.strip : v
 					end
 				end
 			else
@@ -537,9 +555,11 @@ class QWebHtml < QWeb
 		g_att["name"] = name
 		unless type == :submit
 			fi.is_data = true
-			if @cform.is_submitted? && att = fi.add_css(g_att["class"])
-				g_att["class"] = att
-			end
+			#if @cform.is_submitted? && att = fi.add_css(g_att["class"], @cform.css_prefix)
+			#	g_att["class"] = att
+			#end
+			# TODO: ASK antony about css. Maybe we should just do  "qweb_unsubmitted, qweb_valid, qweb_invalid"
+			g_att["class"] = fi.add_css(g_att["class"], @cform)
 		end
 		return fi
 	end
@@ -566,6 +586,11 @@ class QWebHtml < QWeb
 		tn = t_att["input-select"]
 		fi = new_field(tn, :select, t_att, g_att)
 		fi.options = []
+		if t_att["multiple"]
+			fi.multiple = true
+			g_att["multiple"] = "multiple"
+			g_att["name"] = tn + "[]"
+		end
 		@current_select = tn
 		return sprintf('<select%s>%s</select>', render_atts(g_att), render_element(e, t_att, g_att, v))
 	end
@@ -574,8 +599,33 @@ class QWebHtml < QWeb
 		tv = t_att["input-option"]
 		fi.options << tv
 		g_att["value"] = tv
-		g_att["selected"] = "selected" if tv == fi.value
+		if fi.multiple
+			g_att["selected"] = "selected" if fi.values.member?(tv)
+		else
+			g_att["selected"] = "selected" if tv == fi.value
+		end
 		return sprintf('<option%s>%s</option>', render_atts(g_att), render_element(e, t_att, g_att, v))
+	end
+
+	def render_tag_input_radio(e, t_att, g_att, v)
+		tn = t_att["input-radio"]
+		fi = new_field(tn, :radio, t_att, g_att)
+		tv = t_att["value"]
+		fi.options << tv
+		g_att["value"] = tv
+		g_att["checked"] = "checked" if tv == fi.value
+		return sprintf('<input type="radio"%s/>', render_atts(g_att))
+	end
+	def render_tag_input_checkbox(e, t_att, g_att, v)
+		tn = t_att["input-checkbox"]
+		fi = new_field(tn, :checkbox, t_att, g_att)
+		fi.multiple = true
+		tv = t_att["value"]
+		fi.options << tv
+		g_att["value"] = tv
+		g_att["name"] = tn + "[]"
+		g_att["checked"] = "checked" if fi.values.member?(tv)
+		return sprintf('<input type="checkbox"%s/>', render_atts(g_att))
 	end
 
 	def render_tag_input_submit(e, t_att, g_att, v)
@@ -589,6 +639,9 @@ end
 
 class QWebRails
 	def self.init()
+		# TODO: ASK antony if I can add a 'template' param to init(), param can be string (template name) or
+		# array of template names. if nil, default to @@qweb_template. Also add support for xml time management
+		# when there are multiple xml files. And last, a global variable $qweb_xml_changed
 		ApplicationController.class_eval do
 			@@qweb_template=RAILS_ROOT+"/app/controllers/qweb.xml"
 			def qweb_load(fname=nil)

@@ -86,13 +86,13 @@
 </t>
 <t t-name="main/index">
 	<style>
-		.invalid {
+		.qweb_invalid {
 			background: #f99;
 		}
-		.invalid_text {
+		.qweb_invalid_text {
 			border: 1px solid black;
 		}
-		.invalid_textarea {
+		.qweb_invalid_textarea {
 			border: 2px solid black;
 		}
 		.d {
@@ -114,7 +114,15 @@
 	</div>
 	<div t-if="f.is_submitted_and_valid?" class="d">
 		THE FORM WAS SUBMITTED AND IS VALID<br/>
-		Data : <t t-esc="u"/>
+		Data :
+		<ul>
+			<t t-foreach="u.keys" t-as="k">
+				<li><t t-esc="k"/> : <t t-esc="u[k]"/></li>
+			</t>
+		</ul>
+	</div>
+	<div t-if="f.is_submitted?" class="d">
+		Clicked button is <b>"<t t-esc="f.clicked_button"/>"</b>
 	</div>
 	<br/>
 	<t t-form="user" t-trim-fields="1" action="/main/index" method="post">
@@ -137,41 +145,28 @@
 					</t>
 					<br/>
 
-		<!--
+		Preferences : <t t-input-select="preferences" t-check="options" t-multiple="true">
+							<t t-foreach="(1..5).entries" t-as="i">
+								<t t-eval-input-option="i">Preference #<t t-esc="i"/></t>
+							</t>
+					</t>
+					<br/>
+
 		Type : <ul>
-			<li><t t-input-radio="account_type" t-value="user" t-check="/user|admin|root/"/> User</li>
-			<li><t t-input-radio="account_type" t-value="admin"> Administrator</li>
-			<li><t t-input-radio="account_type" t-value="root"> Super-Administrator</li>
+			<li><t t-input-radio="account_type" t-value="user" t-check="options"/> User</li>
+			<li><t t-input-radio="account_type" t-value="admin"/> Administrator</li>
+			<li><t t-input-radio="account_type" t-value="root"/> Super-Administrator</li>
 		</ul>
-		-->
-		<!--Type : <t t-input-radio="type" t-check="/user|admin|root/">
-					<option value="user">User</option>
-					<option value="admin">User</option>
-					<option value="root">User</option>
-				</t><br/>
 
-		Privileges : <t t-input-checkbox="privileges" t-check="/r|w|x/">
-						<option value="r">Read</option>
-						<option value="w">Write</option>
-						<option value="x">Execute</option>
-				</t><br/>
-		-->
-		Comment : <t t-input-textarea="comment" t-check="/.+/"/><br/>
-
-		<!--<t t-input-checkbox="agree" value="1"/> I agree with this shit<br/>-->
+		Privileges : <ul>
+			<li><t t-input-checkbox="privileges" t-value="r" t-check="options"/>Read</li>
+			<li><t t-input-checkbox="privileges" t-value="w"/>Write</li>
+			<li><t t-input-checkbox="privileges" t-value="x"/>Execute</li>
+		</ul>
 
 		<t t-input-submit="ok" value="Submit this form"/>
 		<t t-input-submit="cancel" value="Cancel this shit"/>
 	</t>
-	<div>
-		Clicked button is "<t t-esc="f.clicked_button"/>"
-	</div>
-	<hr/>
-	<ul>
-		<t t-foreach="msg" t-as="m">
-			<li><t t-esc="m"/></li>
-		</t>
-	</ul>
 	<hr/>
 	<pre>
 		<t t-foreach="params.to_a" t-as="p">

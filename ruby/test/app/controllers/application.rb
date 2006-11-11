@@ -7,7 +7,6 @@ class ApplicationController < ActionController::Base
 end
 class MainController < ApplicationController
 	def index
-		@msg = []
 		@companies = [{"IDCOMPANY" => "1", "sCompanyName" => "IBM"}, {"IDCOMPANY" => "2", "sCompanyName" => "Microsoft"}]
 		@f = f = $qweb.form(@params)
 		unless f.is_submitted?
