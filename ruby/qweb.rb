@@ -309,17 +309,19 @@ class QWeb
 end
 
 class QWebField
-	attr_accessor :type, :name, :value, :trim, :check, :css_prefix, :missing, :in_xml, :clicked
+	attr_accessor :type, :name, :value, :options, :trim, :check, :css_prefix, :missing, :in_xml, :is_data, :clicked
 	def initialize(name)
 		@type = nil
 		@name = name
 		@trim = false
 		@check = nil
 		@css_prefix = "invalid"
-		@in_xml = false
+		@is_data = false
+		@options = []
 		reset
 	end
 	def reset
+		@in_xml = false
 		@value = ""
 		@valid = false
 		@missing = true
@@ -328,23 +330,6 @@ class QWebField
 		@clicked_y = 0
 	end
 	def is_valid?
-		check = @check
-		# We could optimize by using pre-compiled regex at inittime for "email" "date" but I wonder
-		# if we want to extend this part of code for custom fields. Will see later.
-		case @check
-			when nil
-				return true
-			when "email"
-				check = "/^[^@#!& ]+@[A-Za-z0-9-][.A-Za-z0-9-]{0,64}\.[A-Za-z]{2,5}$/"
-			when "date"
-				check = "/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/"
-		end
-		if check[0].chr == "/" && check[-1].chr == "/"
-			return (@value =~ Regexp.new(check[1..-2])) ? true : false
-		else
-			#TODO: What to do here ? Call check_xxxxx method ?
-			return false
-		end
 		return @valid
 	end
 	def is_empty?
@@ -359,6 +344,10 @@ class QWebField
 	def is_in_xml?
 		return @in_xml
 	end
+	def is_data?
+		return @is_data
+	end
+
 	def add_css(s)
 		if !is_valid?
 			s ||= ""
@@ -367,15 +356,37 @@ class QWebField
 		end
 		return s
 	end
+	def check_validity
+		if is_missing?
+			return @valid = false
+		end
+		check = @check
+		case @check
+			when nil
+				return @valid = true
+			when "email"
+				check = "/^[^@#!& ]+@[A-Za-z0-9-][.A-Za-z0-9-]{0,64}\.[A-Za-z]{2,5}$/"
+			when "date"
+				check = "/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/"
+			when "options"
+				return @valid = @options.member?(@value)
+		end
+		if check[0].chr == "/" && check[-1].chr == "/"
+			return @valid = (@value =~ Regexp.new(check[1..-2])) ? true : false
+		else
+			#TODO: What to do here ? Call check_xxxxx method ?
+			return @valid = false
+		end
+	end
 end
 class QWebForm
-	attr_accessor :name, :fields, :error, :cssvalid, :cssinvalid, :submitted, :clicked_button, :trim_fields
+	attr_accessor :name, :fields, :errors, :cssvalid, :cssinvalid, :submitted, :clicked_button, :trim_fields
 	def initialize(name = nil)
 		@name = nil
 		@fields = {}
 		@submitted = false
 		@valid = false
-		@error = []
+		@errors = []
 		@clicked_button = ""
 		@trim_fields = false
 	end
@@ -387,6 +398,8 @@ class QWebForm
 		return @fields[k]
 	end
 	def serialize
+		# TODO: Ask antony if we should serialize dates of xml templates and check it back on_submit in order to manage cases
+		# when xml has changed between render and user's post. Maybe QwebRails could set a global value when xml has changed
 		@fields.each { |fn, fi|
 			unless fi.is_in_xml?
 				@fields.delete fn
@@ -430,7 +443,8 @@ class QWebForm
 			else
 				fi.value = ""
 			end
-			if !fi.is_valid?
+			if fi.is_data? && !fi.check_validity
+				@errors << fn
 				@valid = false
 			end
 		}
@@ -442,7 +456,7 @@ class QWebForm
 	def data
 		r = {}
 		@fields.each { |fn, fi|
-			if fi.type != :submit
+			if fi.is_data?
 				r[fn] = fi.value
 			end
 		}
@@ -466,9 +480,6 @@ class QWebHtml < QWeb
 		add_template(xml) if xml
 	end
 	def form(request, fname = nil)
-		# Je ne fais pas  '  unless fname && ser = request[fname]  '   parce que si fname est defini et qu'on
-		# le trouve pas dans request alors il FAUT PAS chercher plus loin, mais je sais que tu arrivera a racourcir ce
-		# code en gardant la logique et la lisibilite.
 		if fname
 			ser = request["__FORM__#{fname}__"]
 		else
@@ -524,8 +535,11 @@ class QWebHtml < QWeb
 		fi.trim = true if t_att["trim"]
 		fi.in_xml = true
 		g_att["name"] = name
-		if @cform.is_submitted? && att = fi.add_css(g_att["class"])
-			g_att["class"] = att
+		unless type == :submit
+			fi.is_data = true
+			if @cform.is_submitted? && att = fi.add_css(g_att["class"])
+				g_att["class"] = att
+			end
 		end
 		return fi
 	end
@@ -547,9 +561,27 @@ class QWebHtml < QWeb
 		fi = new_field(tn, :textarea, t_att, g_att)
 		return sprintf('<textarea%s>%s</textarea>', render_atts(g_att), escape_text(fi.value))
 	end
+
+	def render_tag_input_select(e, t_att, g_att, v)
+		tn = t_att["input-select"]
+		fi = new_field(tn, :select, t_att, g_att)
+		fi.options = []
+		@current_select = tn
+		return sprintf('<select%s>%s</select>', render_atts(g_att), render_element(e, t_att, g_att, v))
+	end
+	def render_tag_input_option(e, t_att, g_att, v)
+		fi = @cform[@current_select]
+		tv = t_att["input-option"]
+		fi.options << tv
+		g_att["value"] = tv
+		g_att["selected"] = "selected" if tv == fi.value
+		return sprintf('<option%s>%s</option>', render_atts(g_att), render_element(e, t_att, g_att, v))
+	end
+
 	def render_tag_input_submit(e, t_att, g_att, v)
 		tn = t_att["input-submit"]
 		fi = new_field(tn, :submit, t_att, g_att)
+		fi.is_data = false
 		fi.value = g_att["value"]
 		return sprintf('<input type="submit"%s/>', render_atts(g_att))
 	end
