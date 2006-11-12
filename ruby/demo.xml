@@ -164,17 +164,19 @@
 			<li><t t-input-checkbox="privileges" t-value="x"/>Execute</li>
 		</ul>
 
-		Start date : <t t-input-date="start" t-check="date"/>
+		Start date : <t t-input-date="start_date"/>
+		<br/>
+		<br/>
 
 		<t t-input-submit="ok" value="Submit this form"/>
 		<t t-input-submit="cancel" value="Cancel this shit"/>
 	</t>
 	<hr/>
-	<pre>
-		<t t-foreach="params.to_a" t-as="p">
-			<t t-esc="p"/>
+	<ul>
+		<t t-foreach="params.keys" t-as="k">
+			<li><t t-esc="k"/> : <t t-esc="params[k]"/></li>
 		</t>
-	</pre>
+	</ul>
 	<hr/>
 	<b>ASK ANTONY : What about string doesn't compile (NIL)?</b><br/>
 	<t t-esc="unknown_variable"/>

@@ -5,6 +5,7 @@ require "rexml/document"
 require "fileutils"
 require "base64"
 require "zlib"
+require "date"
 
 class QWebContext
 	def initialize(context)
@@ -310,7 +311,7 @@ class QWeb
 end
 
 class QWebField
-	attr_accessor :type, :name, :value, :values, :multiple, :options, :trim, :check, :missing, :in_xml, :is_data, :clicked
+	attr_accessor :type, :name, :value, :values, :multiple, :options, :trim, :check, :missing, :in_xml, :is_data, :clicked, :custom_data
 	def initialize(name)
 		@type = nil
 		@name = name
@@ -318,6 +319,7 @@ class QWebField
 		@check = nil
 		@is_data = false
 		@options = []
+		@custom_data = nil
 		reset
 	end
 	def reset
@@ -358,7 +360,7 @@ class QWebField
 		s.strip!
 		return s
 	end
-	def check_validity
+	def check_validity(request)
 		if is_missing?
 			return @valid = false
 		end
@@ -380,6 +382,9 @@ class QWebField
 				else
 					return @valid = @options.member?(@value)
 				end
+			when "custom"
+				m = "check_tag_input_#{@type}"
+				return @valid = $qweb.respond_to?(m) && $qweb.method(m).call(request, self)
 		end
 		if check[0].chr == "/" && check[-1].chr == "/"
 			return @valid = (@value =~ Regexp.new(check[1..-2])) ? true : false
@@ -455,6 +460,7 @@ class QWebForm
 					@clicked_button = fn
 				else
 					v = request[fn]
+					# TODO: Needs better check here ! If someone post a form with [] for other variables !!! Need to check QwebField.multiple
 					if v.class == Array
 						fi.multiple = true
 						v.each { |i| i.strip! } if fi.trim || @trim_fields
@@ -467,7 +473,7 @@ class QWebForm
 			else
 				fi.value = ""
 			end
-			if fi.is_data? && !fi.check_validity
+			if fi.is_data? && !fi.check_validity(request)
 				@errors << fn
 				@valid = false
 			end
@@ -570,6 +576,15 @@ class QWebHtml < QWeb
 		end
 		return fi
 	end
+	def new_custom_field(name, type, t_att, g_att)
+		fi = @cform[name]
+		fi.type = type
+		fi.check = "custom"
+		fi.in_xml = true
+		fi.is_data = true
+		fi.custom_data = t_att
+		return fi
+	end
 
 	def render_tag_input_text(e, t_att, g_att, v)
 		tn = t_att["input-text"]
@@ -637,22 +652,42 @@ class QWebHtml < QWeb
 
 	def render_tag_input_date(e, t_att, g_att, v)
 		tn = t_att["input-date"]
-		fi = new_field(tn, :date, t_att, g_att)
-		g_att["value"] = fi.value
-		g_att.delete "class"
-		day = sprintf('<select name="%s_day"%s/><option value=""></option>', tn, render_atts(g_att))
+		fi = new_custom_field(tn, :date, t_att, g_att)
+
+		day = sprintf('<select name="%s_day"/><option value=""></option>', tn)
 		(1..31).each { |i| day << sprintf('<option value="%s">%s</option>', i, i) }
 		day << "</select>\n"
 
-		mnames ||= t_att["months"] || "Jan,Feb,Mar,Apr,May,Jun,Jui,Aug,Sep,Oct,Nov,Dec"
-		mnames = mnames.split(",")
-		month = sprintf('<select name="%s_month"%s/><option value=""></option>', tn, render_atts(g_att))
-		(1..mnames.length).each { |i| month << sprintf('<option value="%s">%s</option>', i, mnames[i - 1]) }
+		mnames = (t_att["months"].nil?) ? Date::MONTHNAMES : t_att["months"].split(",").unshift(nil)
+		month = sprintf('<select name="%s_month"/><option value=""></option>', tn)
+		(1..mnames.length - 1).each { |i| month << sprintf('<option value="%s">%s</option>', i, mnames[i]) }
 		month << "</select>\n"
 
-		year = sprintf('<input type="text" name="%s_year" value="" size="4" maxlength="4"%s/>', tn, render_atts(g_att))
-		hidden = sprintf('<input type="hidden"%s/>', render_atts(g_att))
+		year = sprintf('<input type="text" name="%s_year" value="" size="4" maxlength="4"/>', tn)
+		hidden = sprintf('<input type="hidden" name="%s" value=""/>', tn)
 		return hidden + day + month + year
+	end
+	def check_tag_input_date(request, fi, mode = nil)
+		day = request["#{fi.name}_day"].to_i
+		month = request["#{fi.name}_month"].to_i
+		year = request["#{fi.name}_year"].to_i
+		case mode
+			when nil
+				return check_tag_input_date(request, fi, :day) && check_tag_input_date(request, fi, :month) && check_tag_input_date(request, fi, :year)
+			when :day
+
+				return false
+			when :month
+				return false
+			when :year
+				return false
+			else
+				return false
+		end
+	end
+	def get_tag_input_date()
+		p "get tag input date"
+		return "DATE"
 	end
 
 	def render_tag_input_submit(e, t_att, g_att, v)
