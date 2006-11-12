@@ -317,7 +317,7 @@ class QWebField
 		@form = nil
 		@type = nil
 		@name = name
-		@trim = false
+		@trim = true
 		@check = nil
 		@is_data = false
 		@multiple = false
@@ -402,7 +402,7 @@ class QWebField
 	end
 end
 class QWebForm
-	attr_accessor :name, :fields, :errors, :submitted, :clicked_button, :trim_fields, :request
+	attr_accessor :name, :fields, :errors, :submitted, :clicked_button, :request
 	def initialize(name = nil)
 		@request = nil
 		@name = nil
@@ -432,15 +432,28 @@ class QWebForm
 			end
 		}
 		@request = nil
-		ser = Marshal.dump self
+		# dump cree un dictionaire avec que les fields et attribut de fiels necessaires
+		o={
+			:name => @name,
+			:fields => @fields,
+		}
+		ser = Marshal.dump o
+		p ser
 		puts "*" * 40
 		puts "Serialization length = #{ser.length}"
-		ser = Zlib::Deflate.new(7).deflate(ser, Zlib::FINISH)
+		ser = Zlib::Deflate.new(9).deflate(ser, Zlib::FINISH)
 		puts "Compressed length = #{ser.length}"
 		ser = Base64::encode64 ser
 		puts "Base64 encoded length = #{ser.length}"
 		puts "*" * 40
 		return ser
+	end
+	def unserialize(s)
+		s = Base64::decode64(s)
+		s = Zlib::Inflate.inflate(s)
+		o = Marshal.load s
+		@name = o[:name]
+		@fields = o[:fields]
 	end
 	def is_submitted?
 		return @submitted
@@ -504,6 +517,7 @@ class QWebHtml < QWeb
 		@tag = {}
 		@att = {}
 
+		# TODO: use super.initialize and make this after
 		@forms = {}
 		@cform = nil
 
@@ -514,8 +528,12 @@ class QWebHtml < QWeb
 		add_template(xml) if xml
 	end
 	def form(request, fname = nil)
+		f = QWebForm.new fname
+		f.request = request
+		@cform = f
 		if fname
 			ser = request["__FORM__#{fname}__"]
+			@forms[fname] = f
 		else
 			request.each do |k, v|
 				if k =~ /^__FORM__/
@@ -525,41 +543,30 @@ class QWebHtml < QWeb
 			end
 		end
 		if ser
-			ser = Base64::decode64 ser
-			ser = Zlib::Inflate.inflate ser
-			f = Marshal.load ser
-			f.request = request
+			f.unserialize ser
 			f.on_submit
-			f.submitted = true
-		else
-			f = QWebForm.new fname
-			f.request = request
-		end
-		# Warning: using more than one form during a render imply form name specification when calling QWebHtml.form()
-		@cform = f
-		if fname
-			@forms[fname] = f
 		end
 		return f
 	end
 
-	# Rendering
+	# Html tags
 	def render_tag_header(e, t_att, g_att, v)
 		if @response
 			@response.headers[t_att["header"]] = render_element(e, g_att, v)
 		end
 		return nil
 	end
+
+	# Forms handling
 	def render_tag_form(e, t_att, g_att, v)
 		fn = t_att["form"]
 		unless f = @forms[fn] || @cform
 			return "qweb: form '#{fn}' was not initialized. Should call QWebHtml.form() before rendering"
 		end
 		@cform = f
-		f.trim_fields = true if t_att["trim-fields"]
 		g_att["name"] ||= fn
 		g_att["id"] ||= fn
-		r = "<form%s>" % render_atts(g_att)
+		r = '<form%s>' % render_atts(g_att)
 		r << render_element(e, t_att, g_att, v)
 		r << sprintf('<input type="hidden" name="__FORM__%s__" value="%s"/></form>', escape_att(fn), escape_att(f.serialize))
 		return r
@@ -701,6 +708,7 @@ class QWebHtml < QWeb
 		fi.value = g_att["value"]
 		return sprintf('<input type="submit"%s/>', render_atts(g_att))
 	end
+
 end
 
 class QWebRails
