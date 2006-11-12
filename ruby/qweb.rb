@@ -679,14 +679,15 @@ class QWebHtml < QWeb
 			when nil
 				return check_tag_input_date(fi, :day) && check_tag_input_date(fi, :month) && check_tag_input_date(fi, :year)
 			when :day
-				return false
+				return true if (1..31) === day
 			when :month
-				return false
+				return true if (1..12) === day
 			when :year
 				return false
 			else
 				return false
 		end
+		return false
 	end
 	def get_tag_input_date()
 		p "get tag input date"
