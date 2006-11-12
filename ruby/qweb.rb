@@ -320,6 +320,7 @@ class QWebField
 		@trim = false
 		@check = nil
 		@is_data = false
+		@multiple = false
 		@options = []
 		@custom_data = nil
 		@css_invalid = "qweb_invalid"
@@ -331,7 +332,6 @@ class QWebField
 		@in_xml = false
 		@value = ""
 		@values = []
-		@multiple = false
 		@valid = false
 		@missing = true
 		@clicked = false
