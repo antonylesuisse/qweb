@@ -4,6 +4,7 @@
 require "rexml/document"
 require "fileutils"
 require "base64"
+require "zlib"
 
 class QWebContext
 	def initialize(context)
@@ -418,9 +419,14 @@ class QWebForm
 				@fields.delete fn
 			end
 		}
-		puts "unserialized length = #{Marshal.dump(self).length}"
-		ser = Base64::encode64 Marshal.dump(self)
+		ser = Marshal.dump self
+		puts "*" * 40
+		puts "Serialization length = #{ser.length}"
+		ser = Zlib::Deflate.new(7).deflate(ser, Zlib::FINISH)
+		puts "Compressed length = #{ser.length}"
+		ser = Base64::encode64 ser
 		puts "Base64 encoded length = #{ser.length}"
+		puts "*" * 40
 		return ser
 	end
 	def is_submitted?
@@ -510,6 +516,7 @@ class QWebHtml < QWeb
 		end
 		if ser
 			ser = Base64::decode64 ser
+			ser = Zlib::Inflate.inflate ser
 			f = Marshal.load(ser)
 			f.on_submit request
 			f.submitted = true
@@ -626,6 +633,26 @@ class QWebHtml < QWeb
 		g_att["name"] = tn + "[]"
 		g_att["checked"] = "checked" if fi.values.member?(tv)
 		return sprintf('<input type="checkbox"%s/>', render_atts(g_att))
+	end
+
+	def render_tag_input_date(e, t_att, g_att, v)
+		tn = t_att["input-date"]
+		fi = new_field(tn, :date, t_att, g_att)
+		g_att["value"] = fi.value
+		g_att.delete "class"
+		day = sprintf('<select name="%s_day"%s/><option value=""></option>', tn, render_atts(g_att))
+		(1..31).each { |i| day << sprintf('<option value="%s">%s</option>', i, i) }
+		day << "</select>\n"
+
+		mnames ||= t_att["months"] || "Jan,Feb,Mar,Apr,May,Jun,Jui,Aug,Sep,Oct,Nov,Dec"
+		mnames = mnames.split(",")
+		month = sprintf('<select name="%s_month"%s/><option value=""></option>', tn, render_atts(g_att))
+		(1..mnames.length).each { |i| month << sprintf('<option value="%s">%s</option>', i, mnames[i - 1]) }
+		month << "</select>\n"
+
+		year = sprintf('<input type="text" name="%s_year" value="" size="4" maxlength="4"%s/>', tn, render_atts(g_att))
+		hidden = sprintf('<input type="hidden"%s/>', render_atts(g_att))
+		return hidden + day + month + year
 	end
 
 	def render_tag_input_submit(e, t_att, g_att, v)

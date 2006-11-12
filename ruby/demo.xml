@@ -164,6 +164,8 @@
 			<li><t t-input-checkbox="privileges" t-value="x"/>Execute</li>
 		</ul>
 
+		Start date : <t t-input-date="start" t-check="date"/>
+
 		<t t-input-submit="ok" value="Submit this form"/>
 		<t t-input-submit="cancel" value="Cancel this shit"/>
 	</t>
