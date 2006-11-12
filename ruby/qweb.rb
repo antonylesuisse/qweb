@@ -311,8 +311,10 @@ class QWeb
 end
 
 class QWebField
-	attr_accessor :type, :name, :value, :values, :multiple, :options, :trim, :check, :missing, :in_xml, :is_data, :clicked, :custom_data
+	attr_accessor :type, :name, :value, :values, :multiple, :options, :trim, :check, :missing, :in_xml, :is_data, :clicked,
+					:custom_data, :css_valid, :css_invalid, :css_unsubmitted, :form
 	def initialize(name)
+		@form = nil
 		@type = nil
 		@name = name
 		@trim = false
@@ -320,6 +322,9 @@ class QWebField
 		@is_data = false
 		@options = []
 		@custom_data = nil
+		@css_invalid = "qweb_invalid"
+		@css_valid = "qweb_valid"
+		@css_unsubmitted = "qweb_unsubmitted"
 		reset
 	end
 	def reset
@@ -352,15 +357,17 @@ class QWebField
 		return @is_data
 	end
 
-	def add_css(s, f)
-		p = f.css_prefix
+	def add_css(s)
 		s ||= ""
-		status = (!is_valid? && f.is_submitted?) ? "invalid" : "valid"
-		s += " #{p}_#{status} #{p}_#{status}_#{@type.to_s}"
-		s.strip!
-		return s
+		if !@form.is_submitted?
+			s += " #{@css_unsubmitted} #{css_unsubmitted}_#{@type.to_s}"
+		else
+			css = (is_valid?) ? @css_valid : @css_invalid
+			s += " #{css} #{css}_#{@type.to_s}"
+		end
+		return s.strip
 	end
-	def check_validity(request)
+	def check_validity
 		if is_missing?
 			return @valid = false
 		end
@@ -384,7 +391,7 @@ class QWebField
 				end
 			when "custom"
 				m = "check_tag_input_#{@type}"
-				return @valid = $qweb.respond_to?(m) && $qweb.method(m).call(request, self)
+				return @valid = $qweb.respond_to?(m) && $qweb.method(m).call(self)
 		end
 		if check[0].chr == "/" && check[-1].chr == "/"
 			return @valid = (@value =~ Regexp.new(check[1..-2])) ? true : false
@@ -395,15 +402,15 @@ class QWebField
 	end
 end
 class QWebForm
-	attr_accessor :name, :fields, :errors, :css_prefix, :submitted, :clicked_button, :trim_fields
+	attr_accessor :name, :fields, :errors, :submitted, :clicked_button, :trim_fields, :request
 	def initialize(name = nil)
+		@request = nil
 		@name = nil
 		@fields = {}
 		@submitted = false
 		@valid = false
 		@clicked_button = ""
 		@trim_fields = false
-		@css_prefix = "qweb"
 		reset
 	end
 	def reset
@@ -424,6 +431,7 @@ class QWebForm
 				@fields.delete fn
 			end
 		}
+		@request = nil
 		ser = Marshal.dump self
 		puts "*" * 40
 		puts "Serialization length = #{ser.length}"
@@ -447,41 +455,37 @@ class QWebForm
 		return is_submitted? && !is_valid?
 	end
 
-	def on_submit(request)
+	def on_submit
 		reset
 		@submitted = true
 		@valid = true
 		@fields.each { |fn, fi|
 			fi.reset
-			if request.key? fn
+			if @request.key? fn
 				fi.missing = false
 				if fi.type == :submit
 					fi.clicked = true
 					@clicked_button = fn
 				else
-					v = request[fn]
-					# TODO: Needs better check here ! If someone post a form with [] for other variables !!! Need to check QwebField.multiple
-					if v.class == Array
+					if fi.multiple
+						v = @request[fn].to_a
 						fi.multiple = true
 						v.each { |i| i.strip! } if fi.trim || @trim_fields
 						fi.value = v.join(",")
 						fi.values = v
 					else
+						v = @request[fn].to_s
 						fi.value = (fi.trim || @trim_fields) ? v.strip : v
 					end
 				end
 			else
 				fi.value = ""
 			end
-			if fi.is_data? && !fi.check_validity(request)
+			if fi.is_data? && !fi.check_validity
 				@errors << fn
 				@valid = false
 			end
 		}
-	end
-	def collect
-	end
-	def each
 	end
 	def data
 		r = {}
@@ -523,11 +527,13 @@ class QWebHtml < QWeb
 		if ser
 			ser = Base64::decode64 ser
 			ser = Zlib::Inflate.inflate ser
-			f = Marshal.load(ser)
-			f.on_submit request
+			f = Marshal.load ser
+			f.request = request
+			f.on_submit
 			f.submitted = true
 		else
-			f = QWebForm.new(fname)
+			f = QWebForm.new fname
+			f.request = request
 		end
 		# Warning: using more than one form during a render imply form name specification when calling QWebHtml.form()
 		@cform = f
@@ -561,6 +567,7 @@ class QWebHtml < QWeb
 
 	def new_field(name, type, t_att, g_att)
 		fi = @cform[name]
+		fi.form = @cform
 		fi.type = type
 		fi.check = t_att["check"]
 		fi.trim = true if t_att["trim"]
@@ -568,16 +575,13 @@ class QWebHtml < QWeb
 		g_att["name"] = name
 		unless type == :submit
 			fi.is_data = true
-			#if @cform.is_submitted? && att = fi.add_css(g_att["class"], @cform.css_prefix)
-			#	g_att["class"] = att
-			#end
-			# TODO: ASK antony about css. Maybe we should just do  "qweb_unsubmitted, qweb_valid, qweb_invalid"
-			g_att["class"] = fi.add_css(g_att["class"], @cform)
+			g_att["class"] = fi.add_css(g_att["class"])
 		end
 		return fi
 	end
 	def new_custom_field(name, type, t_att, g_att)
 		fi = @cform[name]
+		fi.form = @cform
 		fi.type = type
 		fi.check = "custom"
 		fi.in_xml = true
@@ -667,15 +671,14 @@ class QWebHtml < QWeb
 		hidden = sprintf('<input type="hidden" name="%s" value=""/>', tn)
 		return hidden + day + month + year
 	end
-	def check_tag_input_date(request, fi, mode = nil)
-		day = request["#{fi.name}_day"].to_i
-		month = request["#{fi.name}_month"].to_i
-		year = request["#{fi.name}_year"].to_i
+	def check_tag_input_date(fi, mode = nil)
+		day = fi.form.request["#{fi.name}_day"].to_i
+		month = fi.form.request["#{fi.name}_month"].to_i
+		year = fi.form.request["#{fi.name}_year"].to_i
 		case mode
 			when nil
-				return check_tag_input_date(request, fi, :day) && check_tag_input_date(request, fi, :month) && check_tag_input_date(request, fi, :year)
+				return check_tag_input_date(fi, :day) && check_tag_input_date(fi, :month) && check_tag_input_date(fi, :year)
 			when :day
-
 				return false
 			when :month
 				return false
