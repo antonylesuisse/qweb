@@ -4,8 +4,25 @@
 	<title>qweb test</title>
 	<script type="text/javascript" src="jquery.pack.js"></script>
 	<script type="text/javascript" src="qweb.js"></script>
+	<script type="text/javascript">
+	var debug=function(s){
+		$("#output")[0].innerHTML+=s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"<br/>\n"
+	}
+	$(function(){
+		debug("debug test");
+		debug(QWeb.render($("#template")[0],{}));
+	})
+	</script>
 </head>
 <body>
-<div id="test">Hello <b>world</b> </div>
+
+<div id="template">
+	Hello <b>world</b><br/>
+	<b t-test="attvalue"></b>
+	<t></t>
+</div>
+
+<div id="output" style="padding: 4px; border: 1px solid #000;"></div>
+
 </body>
 </html>

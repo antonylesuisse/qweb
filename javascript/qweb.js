@@ -1,33 +1,53 @@
 // vim:set noet fdm=syntax fdl=0 fdc=3 fdn=2:
+//---------------------------------------------------------
 // QWeb javascript
-//
+//---------------------------------------------------------
+
 var QWeb={
-	"tag":{},
-	"att":{},
-	"eval_object":function(e,v){},
-	"eval_format":function(e,v){},
-	"eval_str":function(e,v){},
-	"eval_bool":function(e,v){},
-	"escape_text":function(s){
+	tag:{},
+	att:{},
+	eval_object:function(e,v){},
+	eval_format:function(e,v){},
+	eval_str:function(e,v){},
+	eval_bool:function(e,v){},
+	escape_text:function(s){
 		return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
 	},
-	"escape_att":function(s){
+	escape_att:function(s){
 		return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")
 	},
-	"unescape":function(s){
-		return s.replace(/&apos;/g,"'").replace(/&quot;/g,"\"").replace(/&gt;/g,">").replace(/&lt;/g,"<").replace(/&amp;/g,"&")
+	render:function(dnode,v){
+		return this.render_node(dnode,v)
 	},
-	"render":function(dnode,v){
-		return render_node(dnoe,v)
-	},
-	"render_node":function(e,v){
+	render_node:function(e,v){
 		var r=""
 		if(e.nodeType==e.TEXT_NODE) {
 			r=e.data;
 		} else if(e.nodeType==e.ELEMENT_NODE) {
-			r="caca";
+			var g_att={};
+			var t_att={};
+			var t_render=null;
+			var a=e.attributes;
+			for(var i=0; i<a.length; i++) {
+				an=a[i].name
+				av=a[i].value
+				g_att[an]=av
+			}
+			r=this.render_element(e, t_att, g_att, v)
 		}
 		return r;
+	},
+	render_element:function(e,t_att,g_att,v){
+		var att="",inner="",ec=e.childNodes;
+		for (var i=0; i<ec.length; i++) {
+			inner+=this.render_node(ec[i],v)
+		}
+		for(var an in g_att) {
+			av=g_att[an]
+			att+=" "+an+'="'+this.escape_att(av)+'"'
+		}
+		r="<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
+		return r
 	},
 }
 
@@ -39,8 +59,27 @@ var QWeb={
 
 /*
 class QWeb
-	# t-att t-raw t-esc t-if t-foreach t-set t-call t-trim
-	# Evaluation
+	def render_element(e, t_att, g_att, v)
+		l_inner=[]
+		e.each { |n|
+			l_inner << render_node(n,v)
+		}
+		inner=render_trim(l_inner.join(), t_att)
+		if e.name==@prefix
+			return inner
+		elsif inner.length==0
+			return sprintf("<%s%s/>", e.name, render_atts(g_att))
+		else
+			return sprintf("<%s%s>%s</%s>", e.name, render_atts(g_att), inner, e.name)
+		end
+	end
+	def render_atts(atts)
+		r=""
+		atts.each do |an,av|
+			r << sprintf(' %s="%s"',an,escape_att(av))
+		end
+		return r
+	end
 	def render_node(e,v)
 		r=""
 		if e.node_type==:text
@@ -81,27 +120,6 @@ class QWeb
 			else
 				r = render_element(e, t_att, g_att, v)
 			end
-		end
-		return r
-	end
-	def render_element(e, t_att, g_att, v)
-		l_inner=[]
-		e.each { |n|
-			l_inner << render_node(n,v)
-		}
-		inner=render_trim(l_inner.join(), t_att)
-		if e.name==@prefix
-			return inner
-		elsif inner.length==0
-			return sprintf("<%s%s/>", e.name, render_atts(g_att))
-		else
-			return sprintf("<%s%s>%s</%s>", e.name, render_atts(g_att), inner, e.name)
-		end
-	end
-	def render_atts(atts)
-		r=""
-		atts.each do |an,av|
-			r << sprintf(' %s="%s"',an,escape_att(av))
 		end
 		return r
 	end
