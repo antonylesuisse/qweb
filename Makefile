@@ -37,7 +37,8 @@ pub: tgz
 ifeq ($(USER),wis)
 	rsync -av dist/ wis@udev.org:sites/antony.lesuisse.org/public/qweb/files/
 	rm -Rf ${SRCDIR} ${DEMODIR} ${ATDIR}
-	./tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/QWebPython' 'python/README-wiki.txt'
+	./tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/WikiStart' 'README.txt'
+	./tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/QwebPython' 'python/README-wiki.txt'
 	./tracsave.py 'http://antony.lesuisse.org/qweb/trac/wiki/AjaxTerm' 'ajaxterm/README.txt'
 endif
 
