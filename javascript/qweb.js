@@ -21,19 +21,29 @@ var QWeb={
 	},
 	render_node:function(e,v){
 		var r=""
-		if(e.nodeType==e.TEXT_NODE) {
+		if(e.nodeType==3) {
 			r=e.data;
-		} else if(e.nodeType==e.ELEMENT_NODE) {
+		} else if(e.nodeType==1) {
 			var g_att={};
 			var t_att={};
 			var t_render=null;
 			var a=e.attributes;
+			debug(a.length);
+			//ec=e.childNodes;
+			//debug(ec.length);
+			//for (var i=0; i<ec.length; i++) {
+				//debug("node:"+ec[i].nodeType+" "+ec[i].nodeName)
+			//}
 			for(var i=0; i<a.length; i++) {
-				an=a[i].name
-				av=a[i].value
-				g_att[an]=av
+				if(a[i].specified) {
+					an=a[i].name
+					av=a[i].value
+					g_att[an]=av
+				}
 			}
 			r=this.render_element(e, t_att, g_att, v)
+		} else {
+			debug("caca"+e.nodeType);
 		}
 		return r;
 	},
@@ -48,7 +58,7 @@ var QWeb={
 		}
 		r="<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
 		return r
-	},
+	}
 }
 
 //---------------------------------------------------------

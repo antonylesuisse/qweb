@@ -6,23 +6,43 @@
 	<script type="text/javascript" src="qweb.js"></script>
 	<script type="text/javascript">
 	var debug=function(s){
-		$("#output")[0].innerHTML+=s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"<br/>\n"
+		out="";
+		if(typeof(s)=="object") {
+			for(var i in s) {
+				out+=i+" : "+s+"\n"
+			}
+			out=s+" {\n"+out+"}"
+		} else {
+			out=s+"";
+		}
+		$("#output")[0].innerHTML+=out.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"<br/>\n"
 	}
 	$(function(){
-		debug("debug test");
+		debug($("#template")[0].innerHTML);
+		$("#caca").addClass("re");
+		debug($("#template")[0].innerHTML);
 		debug(QWeb.render($("#template")[0],{}));
 	})
 	</script>
 </head>
 <body>
 
-<div id="template">
-	Hello <b>world</b><br/>
-	<b t-test="attvalue"></b>
-	<t></t>
-</div>
 
-<div id="output" style="padding: 4px; border: 1px solid #000;"></div>
+TEMPLATE:
+<div id="template">
+	Hello <b id="caca">world</b><br/>
+	<b t-test="attvalue"></b>
+	Standar: <b></b>
+	Pas stand: <t></t>
+	Fini: <q></q>
+</div>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+
+<pre id="output" style="padding: 4px; border: 1px solid #000;"></pre>
 
 </body>
 </html>
