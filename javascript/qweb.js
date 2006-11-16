@@ -2,22 +2,38 @@
 //---------------------------------------------------------
 // QWeb javascript
 //---------------------------------------------------------
-
 var QWeb={
+	templates:{},
 	tag:{},
 	att:{},
-	eval_object:function(e,v){},
-	eval_format:function(e,v){},
-	eval_str:function(e,v){},
-	eval_bool:function(e,v){},
+	eval_object:function(e,v){
+		return v.eval(e)
+	},
+	eval_str:function(e,v){
+		return e=="0" ? v["0"] : v.eval(e).toString()
+	},
+	eval_format:function(e,v){
+	/*
+	def qweb_eval_format(expr)
+		begin
+			r=eval("<<QWEB_EXPR\n#{expr}\nQWEB_EXPR\n").chop!
+		rescue SyntaxError, NameError => boom
+			r="String doesn't compile: " +expr+ boom
+		rescue StandardError => bang
+			r="Error running script: " +expr+ bang
+		end
+		return r
+	end
+*/
+	},
+	eval_bool:function(e,v){
+		return v.eval(e)?true:false;
+	},
 	escape_text:function(s){
 		return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
 	},
 	escape_att:function(s){
 		return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")
-	},
-	render:function(dnode,v){
-		return this.render_node(dnode,v)
 	},
 	render_node:function(e,v){
 		var r=""
@@ -28,7 +44,6 @@ var QWeb={
 			var t_att={};
 			var t_render=null;
 			var a=e.attributes;
-			debug(a.length);
 			//ec=e.childNodes;
 			//debug(ec.length);
 			//for (var i=0; i<ec.length; i++) {
@@ -46,50 +61,7 @@ var QWeb={
 			debug("caca"+e.nodeType);
 		}
 		return r;
-	},
-	render_element:function(e,t_att,g_att,v){
-		var att="",inner="",ec=e.childNodes;
-		for (var i=0; i<ec.length; i++) {
-			inner+=this.render_node(ec[i],v)
-		}
-		for(var an in g_att) {
-			av=g_att[an]
-			att+=" "+an+'="'+this.escape_att(av)+'"'
-		}
-		r="<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
-		return r
-	}
-}
-
-//---------------------------------------------------------
-// Ruby
-//---------------------------------------------------------
-
-{
-
-/*
-class QWeb
-	def render_element(e, t_att, g_att, v)
-		l_inner=[]
-		e.each { |n|
-			l_inner << render_node(n,v)
-		}
-		inner=render_trim(l_inner.join(), t_att)
-		if e.name==@prefix
-			return inner
-		elsif inner.length==0
-			return sprintf("<%s%s/>", e.name, render_atts(g_att))
-		else
-			return sprintf("<%s%s>%s</%s>", e.name, render_atts(g_att), inner, e.name)
-		end
-	end
-	def render_atts(atts)
-		r=""
-		atts.each do |an,av|
-			r << sprintf(' %s="%s"',an,escape_att(av))
-		end
-		return r
-	end
+		/*
 	def render_node(e,v)
 		r=""
 		if e.node_type==:text
@@ -133,19 +105,10 @@ class QWeb
 		end
 		return r
 	end
-	def render_trim(s, t_att)
-		trim = t_att["trim"]
-		if !trim
-			return s
-		elsif trim == 'left'
-			return s.lstrip
-		elsif trim == 'right'
-			return s.rstrip
-		elsif trim == 'both'
-			return s.strip
-		end
-	end
-	# Attributes
+		*/
+	},
+	render_att:function(e,t_att,g_att,v){
+	/*
 	def render_att_att(e,an,av,v)
 		if an =~ Regexp.new("^#{@prefix}-attf-")
 			att = an[@prelen1+5..-1]
@@ -163,6 +126,52 @@ class QWeb
 		#return sprintf(' %s="%s"',att,escape_att(val))
 		return {att => val}
 	end
+	*/
+	},
+	render_element:function(e,t_att,g_att,v){
+		var att="",inner="",ec=e.childNodes;
+		for (var i=0; i<ec.length; i++) {
+			inner+=this.render_node(ec[i],v)
+		}
+		for(var an in g_att) {
+			av=g_att[an]
+			att+=" "+an+'="'+this.escape_att(av)+'"'
+		}
+		r="<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
+		return r
+		/*
+	def render_element(e, t_att, g_att, v)
+		l_inner=[]
+		e.each { |n|
+			l_inner << render_node(n,v)
+		}
+		inner=render_trim(l_inner.join(), t_att)
+		if e.name==@prefix
+			return inner
+		elsif inner.length==0
+			return sprintf("<%s%s/>", e.name, render_atts(g_att))
+		else
+			return sprintf("<%s%s>%s</%s>", e.name, render_atts(g_att), inner, e.name)
+		end
+	end
+		*/
+	},
+	render_tag_caca:function(name,v){
+/*
+class QWeb
+	def render_trim(s, t_att)
+		trim = t_att["trim"]
+		if !trim
+			return s
+		elsif trim == 'left'
+			return s.lstrip
+		elsif trim == 'right'
+			return s.rstrip
+		elsif trim == 'both'
+			return s.strip
+		end
+	end
+	# Attributes
 	# Tags
 	def render_tag_raw(e,t_att,g_att,v)
 		return render_trim(eval_str(t_att["raw"], v), t_att)
@@ -236,91 +245,34 @@ class QWeb
 	end
 end
 */
-}
-
-{
-/*
-class QWebContext
-	def initialize(context)
-		@qweb_context={};
-		context.each { |k, v|
-			self[k]=v;
+	},
+	init:function(name,v){
+	},
+	add_template:function(e){
+		var ec=[];
+		if(e.documentElement) {
+			ec=e.documentElement.childNodes
+		} else if(e.childNodes) {
+			ec=e.childNodes
 		}
-	end
-	def method_missing(name,*args)
-		if m=@qweb_context[name.to_s]
-			return m
-		elsif t=@qweb_context["template"]
-			return t.send(name, *args)
-		end
-	end
-
-	def []=(k,v)
-		@qweb_context[k]=v
-		instance_variable_set("@#{k}", v) if k.kind_of?(String)
-		return v
-	end
-	def [](k)
-		return @qweb_context[k]
-	end
-	def clone
-		return QWebContext.new(@qweb_context)
-	end
-	def merge!(src)
-		@qweb_context.merge!(src)
-	end
-
-	def qweb_eval_object(expr)
-		if r=@qweb_context[expr]
-			return r
-		else
-			begin
-				r=instance_eval(expr)
-			rescue SyntaxError, NameError => boom
-				r="String doesn't compile: " +expr+ boom
-			rescue StandardError => bang
-				r="Error running script: " +expr+ bang
-			end
-			return r
-		end
-	end
-	def qweb_eval_str(expr)
-		if expr=="0":
-			return @qweb_context[0]
-		else
-			return qweb_eval_object(expr).to_s
-		end
-	end
-	def qweb_eval_bool(expr)
-		if qweb_eval_object(expr)
-			return true
-		else
-			return false
-		end
-	end
-	def qweb_eval_format(expr)
-		begin
-			r=eval("<<QWEB_EXPR\n#{expr}\nQWEB_EXPR\n").chop!
-		rescue SyntaxError, NameError => boom
-			r="String doesn't compile: " +expr+ boom
-		rescue StandardError => bang
-			r="Error running script: " +expr+ bang
-		end
-		return r
-	end
-end
-*/
-
+		for (var i=0; i<ec.length; i++) {
+			var n=ec[i];
+			if(n.nodeType==1)
+				this.templates[n.getAttribute("t-name")]=n;
+		}
+	},
+	render:function(name,v){
+		if(e=this.templates[name]) {
+			return this.render_node(e,v)
+		} else {
+			return "template "+name+" not found";
+		}
+	}
 }
-
-//---------------------------------------------------------
-// Testing
-//---------------------------------------------------------
 
 {
 /*
 Testing
-
 /*
 version   version([number])      Get or set JavaScript version number
 options   options([option ...])  Get or toggle JavaScript options
@@ -369,3 +321,4 @@ print(typeof T2)
 
 */
 }
+
