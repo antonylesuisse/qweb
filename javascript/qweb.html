@@ -18,6 +18,7 @@
 		$("#output")[0].innerHTML+=out.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"<br/>\n"
 	}
 	$(function(){
+		QWeb.init()
 		QWeb.add_template($("#template")[0]);
 		debug(QWeb.render("test",{}));
 	})
@@ -26,13 +27,13 @@
 <body>
 
 <div id="template">
-	<t t-name="test">
+	<q q-name="test">
 		Hello <b id="caca">world</b><br/>
 		<b t-test="attvalue"></b>
 		Standar: <b></b>
-		Pas stand: <t></t>
+		Pas stand: <q></q>
 		Fini: <q></q>
-	</t>
+	</q>
 </div>
 <pre id="output" style="padding: 4px; border: 1px solid #000;"></pre>
 

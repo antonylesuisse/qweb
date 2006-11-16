@@ -171,20 +171,9 @@ class QWeb
 			return s.strip
 		end
 	end
-	# Attributes
-	# Tags
-	def render_tag_raw(e,t_att,g_att,v)
-		return render_trim(eval_str(t_att["raw"], v), t_att)
-	end
-	def render_tag_rawf(e,t_att,g_att,v)
-		return render_trim(eval_format(t_att["rawf"], v), t_att)
-	end
-	def render_tag_esc(e,t_att,g_att,v)
-		return escape_text(render_trim(eval_str(t_att["esc"], v), t_att))
-	end
-	def render_tag_escf(e,t_att,g_att,v)
-		return escape_text(render_trim(eval_format(t_att["escf"], v), t_att))
-	end
+	def render_tag_rawf(e,t_att,g_att,v) return render_trim(eval_format(t_att["rawf"], v), t_att) end
+	def render_tag_esc(e,t_att,g_att,v) return escape_text(render_trim(eval_str(t_att["esc"], v), t_att)) end
+	def render_tag_escf(e,t_att,g_att,v) return escape_text(render_trim(eval_format(t_att["escf"], v), t_att)) end
 	def render_tag_foreach(e,t_att,g_att,v)
 		expr=t_att["foreach"]
 		enum=eval_object(expr,v)
@@ -246,7 +235,8 @@ class QWeb
 end
 */
 	},
-	init:function(name,v){
+	render_tag_raw:function(e,t_att,g_att,v){
+		return this.eval_str(t_att["raw"], v);
 	},
 	add_template:function(e){
 		var ec=[];
@@ -258,7 +248,7 @@ end
 		for (var i=0; i<ec.length; i++) {
 			var n=ec[i];
 			if(n.nodeType==1)
-				this.templates[n.getAttribute("t-name")]=n;
+				this.templates[n.getAttribute("q-name")]=n;
 		}
 	},
 	render:function(name,v){
@@ -266,6 +256,14 @@ end
 			return this.render_node(e,v)
 		} else {
 			return "template "+name+" not found";
+		}
+	},
+	init:function(name,v){
+		re=
+		for(var i in this) {
+			m="render_tag_name".match(/render_tag_(.*)/)
+			if(m) {
+			}
 		}
 	}
 }
