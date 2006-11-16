@@ -7,10 +7,11 @@ var QWeb={
 	tag:{},
 	att:{},
 	eval_object:function(e,v){
-		return v.eval(e)
+		// TODO if v[e] return v[e]
+		with(v) return eval(e);
 	},
 	eval_str:function(e,v){
-		return e=="0" ? v["0"] : v.eval(e).toString()
+		return e=="0" ? v["0"] : this.eval_object(e,v).toString()
 	},
 	eval_format:function(e,v){
 	/*
@@ -27,7 +28,7 @@ var QWeb={
 */
 	},
 	eval_bool:function(e,v){
-		return v.eval(e)?true:false;
+		return this.eval_object(e,v)?true:false;
 	},
 	escape_text:function(s){
 		return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
@@ -259,11 +260,14 @@ end
 		}
 	},
 	init:function(name,v){
-		re=
 		for(var i in this) {
-			m="render_tag_name".match(/render_tag_(.*)/)
+			m=i.match(/render_tag_(.*)/)
+			l=[]
 			if(m) {
+				this.tag[m[1]]=1
 			}
+			/^t-(att|attf|esc)-?$/
+
 		}
 	}
 }
