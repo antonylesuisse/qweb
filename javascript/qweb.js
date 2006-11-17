@@ -3,6 +3,12 @@
 // QWeb javascript
 //---------------------------------------------------------
 var QWeb={
+	/* TODO
+		trim
+			inner=render_trim(l_inner.join(), t_att)
+			def render_trim(s, t_att) trim = t_att["trim"] if !trim return s
+			elsif trim == 'left' return s.lstrip elsif trim == 'right' return s.rstrip elsif trim == 'both' return s.strip end
+	*/
 	templates:{},
 	prefix:"t",
 	reg:"",
@@ -13,9 +19,12 @@ var QWeb={
 		with(v) return eval(e);
 	},
 	eval_str:function(e,v){
-		return e=="0" ? v["0"] : this.eval_object(e,v).toString()
+		var r=this.eval_object(e,v)
+		r=(typeof(r)=="undefined"||r==null) ? "" : r.toString()
+		return e=="0" ? v["0"] : r
 	},
 	eval_format:function(e,v){
+		return this.eval_str(e,v);
 	/*
 	%s %(sfsqdf)s #{z#erzer}
 	def qweb_eval_format(expr)
@@ -89,19 +98,9 @@ var QWeb={
 				av=g_att[an]
 				att+=" "+an+'="'+this.escape_att(av)+'"'
 			}
-			r="<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
+			r=inner.length ? "<"+e.tagName+att+"/>" : "<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
 			return r
 		}
-		/*
-		inner=render_trim(l_inner.join(), t_att)
-		elsif inner.length==0
-			return sprintf("<%s%s/>", e.name, render_atts(g_att))
-		else
-			return sprintf("<%s%s>%s</%s>", e.name, render_atts(g_att), inner, e.name)
-		end
-		*/
-	},
-	render_att_attf:function(e,t_att,g_att,v){
 	},
 	render_att_att:function(e,t_att,g_att,v,ext,av){
 		if(ext) {
@@ -111,49 +110,50 @@ var QWeb={
 			g_att[o[0]]=o[1]
 		}
 	},
-	render_tag_rawf:function(e,t_att,g_att,v){
+	render_att_attf:function(e,t_att,g_att,v){
+		g_att[ext.substring(1)]=this.eval_format(av,v)
 	},
 	render_tag_raw:function(e,t_att,g_att,v){
 		return this.eval_str(t_att["raw"], v);
 	},
-	render_tag_escf:function(e,t_att,g_att,v){
+	render_tag_rawf:function(e,t_att,g_att,v){
+		return this.eval_format(t_att["raw"], v);
 	},
 	render_tag_esc:function(e,t_att,g_att,v){
 		return this.escape_text(this.eval_str(t_att["esc"], v));
 	},
+	render_tag_escf:function(e,t_att,g_att,v){
+		return this.escape_text(this.eval_format(t_att["esc"], v));
+	},
 	render_tag_if:function(e,t_att,g_att,v){
 		return this.eval_bool(t_att["if"],v) ? this.render_element(e, t_att, g_att, v) : ""
 	},
-	render_tag_caca:function(name,v){
-/*
-class QWeb
 	render_tag_set:function(e,t_att,g_att,v){
-		var ev;
-		if(ev=t_att["eval"])
-			v[t_att["set"]]=eval_object(ev,v)
-		else
-			v[t_att["set"]] = render_element(e, t_att, g_att, v)
-		end
+		var ev=t_att["eval"]
+		if(ev && ev.constructor!=Function) {
+			v[t_att["set"]]=this.eval_object(ev,v)
+		} else {
+			v[t_att["set"]]=this.render_element(e, t_att, g_att, v)
+		}
 		return ""
 	},
-	def render_tag_call(e,t_att,g_att,v)
-		if t_att["import"]
-			d = v
-		else
-			d = v.clone
-		end
-		d[0] = render_element(e, t_att, g_att, d)
-		return render_context(t_att["call"],d)
-	end
-	def render_tag_set(e,t_att,g_att,v)
-	end
-	def render_trim(s, t_att)
-		trim = t_att["trim"]
-		if !trim return s elsif trim == 'left' return s.lstrip elsif trim == 'right' return s.rstrip elsif trim == 'both' return s.strip
-		end
-	end
-	def render_tag_rawf(e,t_att,g_att,v) return render_trim(eval_format(t_att["rawf"], v), t_att) end
-	def render_tag_escf(e,t_att,g_att,v) return escape_text(render_trim(eval_format(t_att["escf"], v), t_att)) end
+	render_tag_call:function(e,t_att,g_att,v){
+		var d=v;
+		if(!t_att["import"]) {
+			d = {}
+			for(var i in d) {
+				d[i]=v[i]
+			}
+		}
+		d["0"]=this.render_element(e, t_att, g_att, d)
+		return this.render(t_att["call"],d)
+	},
+	render_tag_js:function(e,t_att,g_att,v){
+		var r=this.eval_str(this.render_element(e, t_att, g_att, v),v)
+		return t_att["ruby"]!="quiet" ? r : ""
+	},
+	render_tag_foreach:function(e,t_att,g_att,v){
+		/*
 	def render_tag_foreach(e,t_att,g_att,v)
 		expr=t_att["foreach"]
 		enum=eval_object(expr,v)
@@ -182,12 +182,6 @@ class QWeb
 			return "qweb: #{@prefix}-foreach %s not found."%expr
 		end
 	end
-	def render_tag_ruby(e, t_att, g_att, v)
-		code =  render_element(e, t_att, g_att, v)
-		r=render_trim(v.instance_eval(code).to_s, t_att)
-		r="" if t_att["ruby"]=="quiet"
-		return r
-	end
 end
 */
 	},
@@ -202,7 +196,7 @@ end
 				l.push(m[1])
 			}
 		}
-		// TODO sort l
+		l.sort(function(a,b){return a.length>b.length?-1:1})
 		var s="^"+this.prefix+"-(eval|"+l.join("|")+")(.*)$"
 		this.reg=new RegExp(s);
 	},
@@ -213,45 +207,34 @@ end
 			if(window.DOMParser){
 				mozilla
 			if(!window.DOMParser){
-				}else if(Sarissa.getDomDocument && Sarissa.getDomDocument() && "loadXML" in Sarissa.getDomDocument()){
-				IE
-					DOMParser.prototype.parseFromString = function(sXml, contentType){
-						var doc = Sarissa.getDomDocument();
-						doc.loadXML(sXml);
-						return doc;
-					};
+				var doc = Sarissa.getDomDocument();
+				doc.loadXML(sXml);
+				return doc;
 				};
-				if(_SARISSA_IS_SAFARI){
-					DOMParser.prototype.parseFromString = function(sXml, contentType){
-						if(contentType.toLowerCase() != "application/xml"){
-							throw "Cannot handle content type: \"" + contentType + "\"";
-						};
-						var xmlhttp = new XMLHttpRequest();
-						xmlhttp.open("GET", "data:text/xml;charset=utf-8," + encodeURIComponent(str), false);
-						xmlhttp.send(null);
-						return xmlhttp.responseXML;
-					};
 			};
 		*/
 		} else {
-			var req,ie;
-			if(window.XMLHttpRequest) {
-				req = new XMLHttpRequest();
-			} else if(ie=window.ActiveXObject) {
-				try { req = new ie("Msxml2.XMLHTTP"); } catch(e) { try { req = new ie("Microsoft.XMLHTTP"); } catch(e) { } }
-			}
-			if(req) {
-				req.open("GET", s, false);
-				req.send(null);
+			var w=window,r=w.XMLHttpRequest,i=w.ActiveXObject;
+			r=r?new r():(i?eval('for(var j in["Msxml2.XMLHTTP","Microsoft.XMLHTTP"])try{r=new i(j);break}catch{}'):0);
+
+/*
+noneval
+
+var req=window.XMLHttpRequest,ie=window.ActiveXObject;if(req){req=new req();}else if(ie){for(var i in ["Msxml2.XMLHTTP","Microsoft.XMLHTTP"]) try{req=new ie(i);break;} catch(e) {}}
+
+*/
+			if(r) {
+				r.open("GET", s, false);
+				r.send(null);
 				//if ie r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
-				xml=req.responseXML;
+				xml=r.responseXML;
 				return xml;
 			}
 		}
 	},
 	add_template:function(e){
 		this.hash()
-		if(typeof(e)=="string") {
+		if(e.constructor==String) {
 			e=this.load_xml(e)
 		}
 		var ec=[];
