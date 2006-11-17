@@ -18,23 +18,13 @@
 		$("#output")[0].innerHTML+=out.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"<br/>\n"
 	}
 	$(function(){
-		QWeb.init()
-		QWeb.add_template($("#template")[0]);
-		debug(QWeb.render("test",{}));
+		QWeb.add_template("qweb.xml");
+		debug(QWeb.render("test",{"caca":"Youhou !! <\"men & man\"> !!", "string_vide": "", "string_one": "1", "number_one": 1}));
 	})
 	</script>
 </head>
 <body>
 
-<div id="template">
-	<q q-name="test">
-		Hello <b id="caca">world</b><br/>
-		<b t-test="attvalue"></b>
-		Standar: <b></b>
-		Pas stand: <q></q>
-		Fini: <q></q>
-	</q>
-</div>
 <pre id="output" style="padding: 4px; border: 1px solid #000;"></pre>
 
 </body>

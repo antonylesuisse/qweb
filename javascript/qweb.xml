@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<caca id="template" xml:space="preserve">
+	<t t-name="test" xml:space="preserve">
+		Hello <b t-att-id="caca">world</b><br/>
+		T-ESC : <t t-esc="caca"/><br/>
+		length
+		T-RAW : <t t-raw="caca"/><br/>
+		<t t-if="number_one == 1">T-IF "number_one == 1"<br/></t>
+		<t t-if="number_one == '1'">T-IF "number_one == '1'"<br/></t>
+		<t t-if="number_one == 2">T-IF "number_one == 2"<br/></t>
+		<t t-if="string_vide">T-IF "string_vide"<br/></t>
+		<t t-if="!string_vide">T-IF "!string_vide"<br/></t>
+		<t t-if="string_one == 1">T-IF "string_one == 1"<br/></t>
+		Standar: <b></b>
+		Pas stand: <q></q>
+		Fini: <q></q>
+	</t>
+</caca>

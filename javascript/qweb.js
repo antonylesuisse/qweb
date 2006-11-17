@@ -4,6 +4,7 @@
 //---------------------------------------------------------
 var QWeb={
 	templates:{},
+	prefix:"t",
 	reg:"",
 	tag:{},
 	att:{},
@@ -48,105 +49,110 @@ var QWeb={
 			var t_render=null;
 			var a=e.attributes;
 			for(var i=0; i<a.length; i++) {
-				if(a[i].specified) {
-					var an=a[i].name
-					var av=a[i].value
-					if(var m=an.match(this.reg)) {
-						var n=m[1]
-						if(n=="eval") {
-							n=m[2].substring(1)
-							av=this.eval_str(av, v)
-						}
-						if(f=this.att[n]) {
-							this[f](e,t_att,g_att,v ,an,av)
-						} else if(f=this.tag[n]) {
-							t_att[n]=av
-							t_render=f
-						}
-					} else {
-						g_att[an]=av
+				// TODO if from HTMLDOM if(a[i].specified) {
+				var an=a[i].name,av=a[i].value;
+				var m,n;
+				if(m=an.match(this.reg)) {
+					n=m[1]
+					if(n=="eval") {
+						n=m[2].substring(1)
+						av=this.eval_str(av, v)
 					}
+					if(f=this.att[n]) {
+						this[f](e,t_att,g_att,v,m[2],av)
+					} else if(f=this.tag[n]) {
+						t_att[n]=av
+						t_render=f
+					}
+				} else {
+					g_att[an]=av
 				}
 			}
 			if (t_render) {
-				r = this.tag[t_render](e, t_att, g_att, v)
+				r = this[t_render](e, t_att, g_att, v)
 			} else {
 				r = this.render_element(e, t_att, g_att, v)
 			}
-		} else {
-			debug("caca"+e.nodeType);
-		}
+		} 
 		return r;
 	},
-	render_att:function(e,t_att,g_att,v){
-	/*
-	def render_att_att(e,an,av,v)
-		if an =~ Regexp.new("^#{@prefix}-attf-")
-			att = an[@prelen1+5..-1]
-			val=eval_format(av,v)
-		elsif an =~ Regexp.new("^#{@prefix}-att-")
-			att = an[@prelen1+4..-1]
-			val=eval_str(av,v)
-		else
-			o=eval_object(av,v)
-			#TODO: Will cause error if object is not an array, maybe we should check if respondto? [] but what to do if not ?
-			att=o[0]
-			#TODO: Maybe we should check if att is a valid string for an attribute ? But what to do if not ?
-			val=o[1]
-		end
-		#return sprintf(' %s="%s"',att,escape_att(val))
-		return {att => val}
-	end
-	*/
-	},
 	render_element:function(e,t_att,g_att,v){
-		var att="",inner="",ec=e.childNodes;
+		var inner="",ec=e.childNodes;
 		for (var i=0; i<ec.length; i++) {
 			inner+=this.render_node(ec[i],v)
 		}
-		for(var an in g_att) {
-			av=g_att[an]
-			att+=" "+an+'="'+this.escape_att(av)+'"'
+		if(e.tagName==this.prefix) {
+			return inner;
+		} else {
+			var att="";
+			for(var an in g_att) {
+				av=g_att[an]
+				att+=" "+an+'="'+this.escape_att(av)+'"'
+			}
+			r="<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
+			return r
 		}
-		r="<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
-		return r
 		/*
-	def render_element(e, t_att, g_att, v)
-		l_inner=[]
-		e.each { |n|
-			l_inner << render_node(n,v)
-		}
 		inner=render_trim(l_inner.join(), t_att)
-		if e.name==@prefix
-			return inner
 		elsif inner.length==0
 			return sprintf("<%s%s/>", e.name, render_atts(g_att))
 		else
 			return sprintf("<%s%s>%s</%s>", e.name, render_atts(g_att), inner, e.name)
 		end
-	end
 		*/
+	},
+	render_att_attf:function(e,t_att,g_att,v){
+	},
+	render_att_att:function(e,t_att,g_att,v,ext,av){
+		if(ext) {
+			g_att[ext.substring(1)]=this.eval_str(av,v)
+		} else {
+			o=this.eval_object(av,v)
+			g_att[o[0]]=o[1]
+		}
+	},
+	render_tag_rawf:function(e,t_att,g_att,v){
 	},
 	render_tag_raw:function(e,t_att,g_att,v){
 		return this.eval_str(t_att["raw"], v);
 	},
+	render_tag_escf:function(e,t_att,g_att,v){
+	},
+	render_tag_esc:function(e,t_att,g_att,v){
+		return this.escape_text(this.eval_str(t_att["esc"], v));
+	},
+	render_tag_if:function(e,t_att,g_att,v){
+		return this.eval_bool(t_att["if"],v) ? this.render_element(e, t_att, g_att, v) : ""
+	},
 	render_tag_caca:function(name,v){
 /*
 class QWeb
+	render_tag_set:function(e,t_att,g_att,v){
+		var ev;
+		if(ev=t_att["eval"])
+			v[t_att["set"]]=eval_object(ev,v)
+		else
+			v[t_att["set"]] = render_element(e, t_att, g_att, v)
+		end
+		return ""
+	},
+	def render_tag_call(e,t_att,g_att,v)
+		if t_att["import"]
+			d = v
+		else
+			d = v.clone
+		end
+		d[0] = render_element(e, t_att, g_att, d)
+		return render_context(t_att["call"],d)
+	end
+	def render_tag_set(e,t_att,g_att,v)
+	end
 	def render_trim(s, t_att)
 		trim = t_att["trim"]
-		if !trim
-			return s
-		elsif trim == 'left'
-			return s.lstrip
-		elsif trim == 'right'
-			return s.rstrip
-		elsif trim == 'both'
-			return s.strip
+		if !trim return s elsif trim == 'left' return s.lstrip elsif trim == 'right' return s.rstrip elsif trim == 'both' return s.strip
 		end
 	end
 	def render_tag_rawf(e,t_att,g_att,v) return render_trim(eval_format(t_att["rawf"], v), t_att) end
-	def render_tag_esc(e,t_att,g_att,v) return escape_text(render_trim(eval_str(t_att["esc"], v), t_att)) end
 	def render_tag_escf(e,t_att,g_att,v) return escape_text(render_trim(eval_format(t_att["escf"], v), t_att)) end
 	def render_tag_foreach(e,t_att,g_att,v)
 		expr=t_att["foreach"]
@@ -176,30 +182,6 @@ class QWeb
 			return "qweb: #{@prefix}-foreach %s not found."%expr
 		end
 	end
-	def render_tag_if(e,t_att,g_att,v)
-		if eval_bool(t_att["if"],v)
-			return render_element(e, t_att, g_att, v)
-		else
-			return ""
-		end
-	end
-	def render_tag_call(e,t_att,g_att,v)
-		if t_att["import"]
-			d = v
-		else
-			d = v.clone
-		end
-		d[0] = render_element(e, t_att, g_att, d)
-		return render_context(t_att["call"],d)
-	end
-	def render_tag_set(e,t_att,g_att,v)
-		if t_att["eval"]
-			v[t_att["set"]]=eval_object(t_att["eval"],v)
-		else
-			v[t_att["set"]] = render_element(e, t_att, g_att, v)
-		end
-		return ""
-	end
 	def render_tag_ruby(e, t_att, g_att, v)
 		code =  render_element(e, t_att, g_att, v)
 		r=render_trim(v.instance_eval(code).to_s, t_att)
@@ -209,27 +191,7 @@ class QWeb
 end
 */
 	},
-	add_template:function(e){
-		var ec=[];
-		if(e.documentElement) {
-			ec=e.documentElement.childNodes
-		} else if(e.childNodes) {
-			ec=e.childNodes
-		}
-		for (var i=0; i<ec.length; i++) {
-			var n=ec[i];
-			if(n.nodeType==1)
-				this.templates[n.getAttribute("q-name")]=n;
-		}
-	},
-	render:function(name,v){
-		if(e=this.templates[name]) {
-			return this.render_node(e,v)
-		} else {
-			return "template "+name+" not found";
-		}
-	},
-	init:function(name,v){
+	hash:function(){
 		var l=[]
 		for(var i in this) {
 			if(m=i.match(/render_tag_(.*)/)) {
@@ -241,8 +203,77 @@ end
 			}
 		}
 		// TODO sort l
-		var s="^q-(eval|"+l.join("|")+")(.*)$"
+		var s="^"+this.prefix+"-(eval|"+l.join("|")+")(.*)$"
 		this.reg=new RegExp(s);
+	},
+	load_xml:function(s){
+		var xml;
+		if(s[0]=="<") {
+			/*
+			if(window.DOMParser){
+				mozilla
+			if(!window.DOMParser){
+				}else if(Sarissa.getDomDocument && Sarissa.getDomDocument() && "loadXML" in Sarissa.getDomDocument()){
+				IE
+					DOMParser.prototype.parseFromString = function(sXml, contentType){
+						var doc = Sarissa.getDomDocument();
+						doc.loadXML(sXml);
+						return doc;
+					};
+				};
+				if(_SARISSA_IS_SAFARI){
+					DOMParser.prototype.parseFromString = function(sXml, contentType){
+						if(contentType.toLowerCase() != "application/xml"){
+							throw "Cannot handle content type: \"" + contentType + "\"";
+						};
+						var xmlhttp = new XMLHttpRequest();
+						xmlhttp.open("GET", "data:text/xml;charset=utf-8," + encodeURIComponent(str), false);
+						xmlhttp.send(null);
+						return xmlhttp.responseXML;
+					};
+			};
+		*/
+		} else {
+			var req,ie;
+			if(window.XMLHttpRequest) {
+				req = new XMLHttpRequest();
+			} else if(ie=window.ActiveXObject) {
+				try { req = new ie("Msxml2.XMLHTTP"); } catch(e) { try { req = new ie("Microsoft.XMLHTTP"); } catch(e) { } }
+			}
+			if(req) {
+				req.open("GET", s, false);
+				req.send(null);
+				//if ie r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
+				xml=req.responseXML;
+				return xml;
+			}
+		}
+	},
+	add_template:function(e){
+		this.hash()
+		if(typeof(e)=="string") {
+			e=this.load_xml(e)
+		}
+		var ec=[];
+		if(e.documentElement) {
+			ec=e.documentElement.childNodes
+		} else if(e.childNodes) {
+			ec=e.childNodes
+		}
+		for (var i=0; i<ec.length; i++) {
+			var n=ec[i];
+			if(n.nodeType==1) {
+				var name=n.getAttribute(this.prefix+"-name")
+				this.templates[name]=n;
+			}
+		}
+	},
+	render:function(name,v){
+		if(e=this.templates[name]) {
+			return this.render_node(e,v)
+		} else {
+			return "template "+name+" not found";
+		}
 	}
 }
 
