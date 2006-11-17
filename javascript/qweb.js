@@ -4,6 +4,7 @@
 //---------------------------------------------------------
 var QWeb={
 	templates:{},
+	reg:"",
 	tag:{},
 	att:{},
 	eval_object:function(e,v){
@@ -15,6 +16,7 @@ var QWeb={
 	},
 	eval_format:function(e,v){
 	/*
+	%s %(sfsqdf)s #{z#erzer}
 	def qweb_eval_format(expr)
 		begin
 			r=eval("<<QWEB_EXPR\n#{expr}\nQWEB_EXPR\n").chop!
@@ -45,68 +47,36 @@ var QWeb={
 			var t_att={};
 			var t_render=null;
 			var a=e.attributes;
-			//ec=e.childNodes;
-			//debug(ec.length);
-			//for (var i=0; i<ec.length; i++) {
-				//debug("node:"+ec[i].nodeType+" "+ec[i].nodeName)
-			//}
 			for(var i=0; i<a.length; i++) {
 				if(a[i].specified) {
-					an=a[i].name
-					av=a[i].value
-					g_att[an]=av
+					var an=a[i].name
+					var av=a[i].value
+					if(var m=an.match(this.reg)) {
+						var n=m[1]
+						if(n=="eval") {
+							n=m[2].substring(1)
+							av=this.eval_str(av, v)
+						}
+						if(f=this.att[n]) {
+							this[f](e,t_att,g_att,v ,an,av)
+						} else if(f=this.tag[n]) {
+							t_att[n]=av
+							t_render=f
+						}
+					} else {
+						g_att[an]=av
+					}
 				}
 			}
-			r=this.render_element(e, t_att, g_att, v)
+			if (t_render) {
+				r = this.tag[t_render](e, t_att, g_att, v)
+			} else {
+				r = this.render_element(e, t_att, g_att, v)
+			}
 		} else {
 			debug("caca"+e.nodeType);
 		}
 		return r;
-		/*
-	def render_node(e,v)
-		r=""
-		if e.node_type==:text
-			r=e.value
-		elsif e.node_type==:element
-			g_att = {}
-			t_render=nil
-			t_att={}
-			e.attributes.each do |an,av|
-				if an =~ @prereg
-					n=an[@prelen1..-1]
-					found=false
-					# Attributes
-					for i,m in @att;
-						if n[0...i.size] == i
-							#g_att << m.call(e,an,av,v)
-							g_att.update m.call(e, an, av, v)
-							found=true
-							break
-						end
-					end
-					if not found
-						if n =~ Regexp.new("^eval-")
-							n = n[5..-1]
-							av = eval_str(av, v)
-						end
-						if @tag[n]
-							t_render = n
-						end
-						t_att[n]=av
-					end
-				else
-					g_att[an]=av
-				end
-			end
-			if t_render:
-				r = @tag[t_render].call(e, t_att, g_att, v)
-			else
-				r = render_element(e, t_att, g_att, v)
-			end
-		end
-		return r
-	end
-		*/
 	},
 	render_att:function(e,t_att,g_att,v){
 	/*
@@ -156,6 +126,9 @@ var QWeb={
 		end
 	end
 		*/
+	},
+	render_tag_raw:function(e,t_att,g_att,v){
+		return this.eval_str(t_att["raw"], v);
 	},
 	render_tag_caca:function(name,v){
 /*
@@ -236,9 +209,6 @@ class QWeb
 end
 */
 	},
-	render_tag_raw:function(e,t_att,g_att,v){
-		return this.eval_str(t_att["raw"], v);
-	},
 	add_template:function(e){
 		var ec=[];
 		if(e.documentElement) {
@@ -260,15 +230,19 @@ end
 		}
 	},
 	init:function(name,v){
+		var l=[]
 		for(var i in this) {
-			m=i.match(/render_tag_(.*)/)
-			l=[]
-			if(m) {
-				this.tag[m[1]]=1
+			if(m=i.match(/render_tag_(.*)/)) {
+				this.tag[m[1]]=i
+				l.push(m[1])
+			} else if(m=i.match(/render_att_(.*)/)) {
+				this.att[m[1]]=i
+				l.push(m[1])
 			}
-			/^t-(att|attf|esc)-?$/
-
 		}
+		// TODO sort l
+		var s="^q-(eval|"+l.join("|")+")(.*)$"
+		this.reg=new RegExp(s);
 	}
 }
 
