@@ -229,6 +229,7 @@ var QWeb={
 		var xml;
 		if(s[0]=="<") {
 			/*
+				manque ca pour sarrisa
 			if(window.DOMParser){
 				mozilla
 			if(!window.DOMParser){
@@ -246,6 +247,19 @@ var QWeb={
 				r.send(null);
 				//if ie r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 				xml=r.responseXML;
+				/*
+					et ICI
+					TODO
+					if intsernetexploror
+					getdomimplmentation() for try catch
+					responseXML.getImplet
+					d=domimple()
+					d.preserverWhitespace=1
+					d.loadXML()
+
+					xml.preserverWhitespace=1
+					xml.loadXML(r.reponseText)
+				*/
 				return xml;
 			}
 		}
