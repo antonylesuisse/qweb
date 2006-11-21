@@ -19,7 +19,22 @@
 	}
 	$(function(){
 		QWeb.add_template("qweb.xml");
-		debug(QWeb.render("test",{"caca":"Youhou !! <\"men & man\"> !!", "string_vide": "", "string_one": "1", "number_one": 1}));
+		var v = {
+			"loop" : [ {"status":"biesse","name":"Fab"}, {"status":"malin","name":"Antony"}, {"status":"chat","name":"Schtroumph"} ],
+			"caca":"Youhou !! <\"men & man\"> !!",
+			"string_vide": "",
+			"string_one": "1",
+			"number_one": 1,
+			"dict" : {
+				"caca":"Youhou !! <\"men & man\"> !!",
+				"string_vide": "",
+				"string_one": "1",
+				"number_one": 1
+			}
+		}
+		
+		//debug(QWeb.render("test",{"caca":"Youhou !! <\"men & man\"> !!", "string_vide": "", "string_one": "1", "number_one": 1}));
+		debug(QWeb.render("test", v));
 	})
 	</script>
 </head>

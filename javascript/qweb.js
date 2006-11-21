@@ -70,9 +70,9 @@ var QWeb={
 					if(f=this.att[n]) {
 						this[f](e,t_att,g_att,v,m[2],av)
 					} else if(f=this.tag[n]) {
-						t_att[n]=av
 						t_render=f
 					}
+					t_att[n]=av
 				} else {
 					g_att[an]=av
 				}
@@ -141,7 +141,7 @@ var QWeb={
 		var d=v;
 		if(!t_att["import"]) {
 			d = {}
-			for(var i in d) {
+			for(var i in v) {
 				d[i]=v[i]
 			}
 		}
@@ -155,32 +155,55 @@ var QWeb={
 	render_tag_foreach:function(e,t_att,g_att,v){
 		var expr=t_att["foreach"]
 		var enu=this.eval_object(expr,v)
-		/*
-		if enu
-			var=t_att['as'] || expr.gsub(/[^a-zA-Z0-9]/,'_')
-			d=v.clone
-			size=-1
-			size=enu.length if enu.respond_to? "length"
-			d["%s_size"%var]=size
-			d["%s_all"%var]=enu
-			index=0
+		if(enu) {
+			val=t_att['as'] || expr.replace(/[^a-zA-Z0-9]/g,'_')
+			d={}
+			for(var i in v) {
+				d[i]=v[i]
+			}
+			// Ben voila !
+			d[val+"_all"]=enu
 			ru=[]
-			for i in enu
-				d["%s_value"%var]=i
-				d["%s_index"%var]=index
-				d["%s_first"%var]=index==0
-				d["%s_last"%var]=index+1==size
-				d["%s_parity"%var]=(index%2==1 ? 'odd' : 'even')
-				d.merge!(i) if i.kind_of?(Hash)
-				d[var]=i
-				ru << render_element(e,t_att,g_att,d)
-				index+=1
-			end
-			return ru.join()
-		else
-			return "qweb: foreach %s not found."%expr
-		end
-*/
+			// TODO a faire en ruby optimize le foreach
+			val_value  = val+"_value"
+			val_index  = val+"_index"
+			val_first  = val+"_first"
+			val_last   = val+"_last"
+			val_parity = val+"_parity"
+			size=enu.length
+			if(size) {
+				d[val+"_size"]=size
+				for (var i=0; i<size; i++) {
+					cur=enu[i]
+					d[val_value]=cur
+					d[val_index]=i
+					d[val_first]=i==0
+					d[val_last]=i+1==size
+					d[val_parity]=(i%2==1 ? 'odd' : 'even')
+					if (cur.constructor==Object) {
+						for(var j in cur) {
+							d[j]=cur[j]
+						}
+					}
+					d[val]=cur
+					ru.push(this.render_element(e,t_att,g_att,d))
+				}
+			} else {
+				index=0
+				for(cur in enu) {
+					d[val_value]=cur
+					d[val_index]=index
+					d[val_first]=index==0
+					d[val_parity]=(index%2==1 ? 'odd' : 'even')
+					d[val]=cur
+					ru.push(this.render_element(e,t_att,g_att,d))
+					index+=1
+				}
+			}
+			return ru.join("")
+		} else {
+			return "qweb: foreach "+expr+" not found."
+		}
 	},
 	hash:function(){
 		var l=[]
@@ -194,7 +217,12 @@ var QWeb={
 			}
 		}
 		l.sort(function(a,b){return a.length>b.length?-1:1})
-		var s="^"+this.prefix+"-(eval|"+l.join("|")+")(.*)$"
+		// c'est vrai qu'on devrait trouver un endroit pour les attributs qu'on utilisera mais qui n'ont pas de fonction
+		// exact
+		// je vais faire attend non il faut que marche de maniere genrique
+		// pas sur il faut que j'essyae dans smjsok
+		// par sur 
+		var s="^"+this.prefix+"-(eval|"+l.join("|")+"|.*)(.*)$"
 		this.reg=new RegExp(s);
 	},
 	load_xml:function(s){

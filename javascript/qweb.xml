@@ -18,6 +18,19 @@
 		<t t-js="caca">
 			// alert("caca")
 		</t>
+		*****************************************<br/>
+		<t t-foreach="loop">
+			Name : <t t-esc="name"/>
+			Status : <t t-esc="status"/>
+			Parity : <t t-esc="loop_parity"/>
+			Size : <t t-esc="loop_size"/>
+			<t t-if="loop_last">LAST</t>
+			<hr/>
+		</t>
+		*****************************************<br/>
+		<t t-foreach="dict" t-as="key" t-brol="dd">
+			Key : <t t-esc="key"/> => Val : <t t-esc="dict[key]"/>
+		</t>
 	</t>
 	<t t-name="test2" xml:space="preserve">
 		test 2
