@@ -153,20 +153,19 @@ var QWeb={
 		return t_att["ruby"]!="quiet" ? r : ""
 	},
 	render_tag_foreach:function(e,t_att,g_att,v){
+		var expr=t_att["foreach"]
+		var enu=this.eval_object(expr,v)
 		/*
-	def render_tag_foreach(e,t_att,g_att,v)
-		expr=t_att["foreach"]
-		enum=eval_object(expr,v)
-		if enum
+		if enu
 			var=t_att['as'] || expr.gsub(/[^a-zA-Z0-9]/,'_')
 			d=v.clone
 			size=-1
-			size=enum.length if enum.respond_to? "length"
+			size=enu.length if enu.respond_to? "length"
 			d["%s_size"%var]=size
-			d["%s_all"%var]=enum
+			d["%s_all"%var]=enu
 			index=0
 			ru=[]
-			for i in enum
+			for i in enu
 				d["%s_value"%var]=i
 				d["%s_index"%var]=index
 				d["%s_first"%var]=index==0
@@ -179,10 +178,8 @@ var QWeb={
 			end
 			return ru.join()
 		else
-			return "qweb: #{@prefix}-foreach %s not found."%expr
+			return "qweb: foreach %s not found."%expr
 		end
-	end
-end
 */
 	},
 	hash:function(){
@@ -214,15 +211,8 @@ end
 			};
 		*/
 		} else {
-			var w=window,r=w.XMLHttpRequest,i=w.ActiveXObject;
-			r=r?new r():(i?eval('for(var j in["Msxml2.XMLHTTP","Microsoft.XMLHTTP"])try{r=new i(j);break}catch{}'):0);
-
-/*
-noneval
-
-var req=window.XMLHttpRequest,ie=window.ActiveXObject;if(req){req=new req();}else if(ie){for(var i in ["Msxml2.XMLHTTP","Microsoft.XMLHTTP"]) try{req=new ie(i);break;} catch(e) {}}
-
-*/
+			var w=window,r=w.XMLHttpRequest,j;
+			if(r)r=new r();else for(j in{"Msxml2":1,"Microsoft":1})try{r=new ActiveXObject(j+".XMLHTTP");break}catch(e){}
 			if(r) {
 				r.open("GET", s, false);
 				r.send(null);
