@@ -7,6 +7,9 @@
 /*
 	TODO
 
+	eval_format
+		ruby syntax "string123#{expr}5667"
+
 	trim? is it needed ?
 		inner=render_trim(l_inner.join(), t_att)
 		def render_trim(s, t_att) trim = t_att["trim"] if !trim return s
@@ -44,19 +47,6 @@ var QWeb={
 	},
 	eval_format:function(e,v){
 		return this.eval_str(e,v);
-	/*
-	%s %(sfsqdf)s #{z#erzer}
-	def qweb_eval_format(expr)
-		begin
-			r=eval("<<QWEB_EXPR\n#{expr}\nQWEB_EXPR\n").chop!
-		rescue SyntaxError, NameError => boom
-			r="String doesn't compile: " +expr+ boom
-		rescue StandardError => bang
-			r="Error running script: " +expr+ bang
-		end
-		return r
-	end
-*/
 	},
 	eval_bool:function(e,v){
 		return this.eval_object(e,v)?true:false;
