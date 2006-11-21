@@ -2,21 +2,40 @@
 //---------------------------------------------------------
 // QWeb javascript
 //---------------------------------------------------------
+
+{/
+/*
+	TODO
+
+	trim? is it needed ?
+		inner=render_trim(l_inner.join(), t_att)
+		def render_trim(s, t_att) trim = t_att["trim"] if !trim return s
+		elsif trim == 'left' return s.lstrip elsif trim == 'right' return s.rstrip elsif trim == 'both' return s.strip end
+
+	add_template
+		Support string parsing
+		Support space in IE responseXml .load(resposeText)
+		Preprocess: HUGE omptimization preprocess flatten all non t- element to a TEXT_NODE
+		While preprocess, if from IE HTMLDOM use if(a[i].specified) to avoid 88 attributes per element
+
+	Ruby/python etc..
+		regexp
+		factorize foreach %var
+*/
+}
+
 var QWeb={
-	/* TODO
-		trim
-			inner=render_trim(l_inner.join(), t_att)
-			def render_trim(s, t_att) trim = t_att["trim"] if !trim return s
-			elsif trim == 'left' return s.lstrip elsif trim == 'right' return s.rstrip elsif trim == 'both' return s.strip end
-	*/
 	templates:{},
 	prefix:"t",
 	reg:"",
 	tag:{},
 	att:{},
 	eval_object:function(e,v){
-		// TODO if v[e] return v[e]
-		with(v) return eval(e);
+		if(v[e]==undefined) {
+			return v[e]
+		} else {
+			with(v) return eval(e);
+		}
 	},
 	eval_str:function(e,v){
 		var r=this.eval_object(e,v)
@@ -58,7 +77,6 @@ var QWeb={
 			var t_render=null;
 			var a=e.attributes;
 			for(var i=0; i<a.length; i++) {
-				// TODO if from HTMLDOM if(a[i].specified) {
 				var an=a[i].name,av=a[i].value;
 				var m,n;
 				if(m=an.match(this.reg)) {
@@ -164,7 +182,6 @@ var QWeb={
 			// Ben voila !
 			d[val+"_all"]=enu
 			ru=[]
-			// TODO a faire en ruby optimize le foreach
 			val_value  = val+"_value"
 			val_index  = val+"_index"
 			val_first  = val+"_first"
@@ -248,7 +265,6 @@ var QWeb={
 				//if ie r.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 				xml=r.responseXML;
 				/*
-					et ICI
 					TODO
 					if intsernetexploror
 					getdomimplmentation() for try catch
@@ -290,57 +306,5 @@ var QWeb={
 			return "template "+name+" not found";
 		}
 	}
-}
-
-{
-/*
-Testing
-/*
-version   version([number])      Get or set JavaScript version number
-options   options([option ...])  Get or toggle JavaScript options
-load      load(['foo.js' ...])   Load files named by string arguments
-readline  readline()             Read a single line from stdin
-print     print([exp ...])       Evaluate and print expressions
-help      help([name ...])       Display usage and help messages
-quit      quit()                 Quit the shell
-gc        gc()                   Run the garbage collector
-trap      trap([fun, [pc,]] exp) Trap bytecode execution
-untrap    untrap(fun[, pc])      Remove a trap
-line2pc   line2pc([fun,] line)   Map line number to PC
-pc2line   pc2line(fun[, pc])     Map PC to line number
-build     build()                Show build date and time
-clear     clear([obj])           Clear properties of object
-intern    intern(str)            Internalize str in the atom table
-clone     clone(fun[, scope])    Clone function object
-seal      seal(obj[, deep])      Seal object, or object graph if deep
-getpda    getpda(obj)            Get the property descriptors for obj
-getslx    getslx(obj)            Get script line extent
-toint32   toint32(n)             Testing hook for JS_ValueToInt32
-
-var Test={
-	"name": "value",
-	"fun": function(arg) {
-		print("arg+"+arg);
-		print(this);
-		this.caca=2;
-		print(this.caca);
-	},
-	"fun2": function(arg) {
-		print("fun2:"+this.caca);
-	},
-};
-
-print(Test)
-print(Test.name)
-print(Test.fun)
-bound=Test.fun
-bound.apply(Test)
-Test.fun2()
-print(this.caca)
-var T2=function() { }
-T2.cacazezr=2
-print(typeof T2)
-
-*/
 }
 
