@@ -34,7 +34,7 @@ var QWeb={
 	tag:{},
 	att:{},
 	eval_object:function(e,v){
-		if(v[e]==undefined) {
+		if(v[e]!=undefined) {
 			return v[e]
 		} else {
 			with(v) return eval(e);
@@ -169,7 +169,6 @@ var QWeb={
 			for(var i in v) {
 				d[i]=v[i]
 			}
-			// Ben voila !
 			d[val+"_all"]=enu
 			ru=[]
 			val_value  = val+"_value"

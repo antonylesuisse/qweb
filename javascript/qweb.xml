@@ -28,7 +28,7 @@
 			<hr/>
 		</t>
 		*****************************************<br/>
-		<t t-foreach="dict" t-as="key" t-brol="dd">
+		<t t-foreach="dict" t-as="key">
 			Key : <t t-esc="key"/> => Val : <t t-esc="dict[key]"/>
 		</t>
 	</t>
