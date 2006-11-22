@@ -224,11 +224,6 @@ var QWeb={
 			}
 		}
 		l.sort(function(a,b){return a.length>b.length?-1:1})
-		// c'est vrai qu'on devrait trouver un endroit pour les attributs qu'on utilisera mais qui n'ont pas de fonction
-		// exact
-		// je vais faire attend non il faut que marche de maniere genrique
-		// pas sur il faut que j'essyae dans smjsok
-		// par sur 
 		var s="^"+this.prefix+"-(eval|"+l.join("|")+"|.*)(.*)$"
 		this.reg=new RegExp(s);
 	},
