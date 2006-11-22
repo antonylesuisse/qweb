@@ -6,6 +6,7 @@
 {
 /*
 	TODO
+	escape_text:function(s){ is it the same to javascript encodeURI ? why does jfif use that ?
 
 	eval_format
 		ruby syntax "string123#{expr}5667"
