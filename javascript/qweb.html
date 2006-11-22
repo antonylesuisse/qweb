@@ -32,13 +32,34 @@
 				"number_one": 1
 			}
 		}
-		debug(QWeb.render("test", v));
+		//debug(QWeb.render("test", v));
+
+		var a = {"lastname" : "Meghazi", "firstname": "Fabien", "email" : "agr@amigrave.com", "status" : "GROSSE BIESSSSSSE"}
+		var aa = new Array();
+		for (var i = 0; i < 500; i++) {
+			aa.push(a);
+		}
+		v["tableau"] = aa;
+
+		iter = 1;
+		start = Date.now()
+		var tmp = ""
+		for (var i = 0; i < iter; i++) {
+			tmp += QWeb.render("table", v);
+		}
+		stop = Date.now()
+		diff = stop - start;
+		debug(iter + " iterations in " + (diff / 1000) + " sec");
+		$("#table").html(tmp);
 	})
 	</script>
 </head>
 <body>
 
 <pre id="output" style="padding: 4px; border: 1px solid #000;"></pre>
+<div id="table">
+
+</div>
 
 </body>
 </html>

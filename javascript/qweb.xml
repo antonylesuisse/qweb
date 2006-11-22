@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <caca id="template" xml:space="preserve">
+	<t t-name="table">
+		<table cellpadding="0" cellspacing="0" border="1">
+		<tr>
+			<th>Lastname</th>
+			<th>Firstname</th>
+			<th>Email</th>
+		</tr>
+		<t t-foreach="tableau">
+			<tr>
+				<td><t t-esc="lastname"/></td>
+				<td><t t-esc="firstname"/></td>
+				<td><a t-att-href="'mailto:' + email"><t t-esc="email"/></a></td>
+				<td><t t-esc="status"/></td>
+			</tr>
+		</t>
+		</table>
+	</t>
 	<t t-name="test" xml:space="preserve">
 		Hello <b t-att-id="caca">world</b><br/>
 		T-ESC : <t t-esc="caca"/><br/>
@@ -30,6 +47,10 @@
 		*****************************************<br/>
 		<t t-foreach="dict" t-as="key">
 			Key : <t t-esc="key"/> => Val : <t t-esc="dict[key]"/>
+		</t>
+		*****************************************<br/>
+		<t t-foreach="'efzef,fezzef,efzfez'.split(',')" t-as="i">
+			List : <t t-esc="i"/>
 		</t>
 	</t>
 	<t t-name="test2" xml:space="preserve">
