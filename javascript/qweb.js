@@ -107,7 +107,7 @@ var QWeb={
 				av=g_att[an]
 				att+=" "+an+'="'+this.escape_att(av)+'"'
 			}
-			r=inner.length ? "<"+e.tagName+att+"/>" : "<"+e.tagName+att+">"+inner+"</"+e.tagName+">"
+			r=inner.length ? "<"+e.tagName+att+">"+inner+"</"+e.tagName+">" : "<"+e.tagName+att+"/>"
 			return r
 		}
 	},
