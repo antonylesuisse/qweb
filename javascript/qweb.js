@@ -8,17 +8,18 @@
 	TODO
 	escape_text:function(s){ is it the same to javascript encodeURI ? why does jfif use that ?
 
-	eval_format
-		ruby syntax "string123#{expr}5667"
-
 	trim? is it needed ?
 		inner=render_trim(l_inner.join(), t_att)
 		def render_trim(s, t_att) trim = t_att["trim"] if !trim return s
 		elsif trim == 'left' return s.lstrip elsif trim == 'right' return s.rstrip elsif trim == 'both' return s.strip end
 
 	add_template
-		Support string parsing
-		Support space in IE responseXml .load(resposeText)
+		Support string parsing Domparser
+		Support space in IE
+			xmlhttp.responseXML.loadXML(xmlhttp.responseText)
+			OR
+			var xmlDoc=new ActiveXObject("Msxml2.DOMDocument.4.0");
+			xmlDoc.async=false; xmlDoc.preserveWhiteSpace=true; xmlDoc.load("f.xml"); alert(xmlDoc.xml);
 		Preprocess: HUGE omptimization preprocess flatten all non t- element to a TEXT_NODE
 		While preprocess, if from IE HTMLDOM use if(a[i].specified) to avoid 88 attributes per element
 
@@ -47,7 +48,16 @@ var QWeb={
 		return e=="0" ? v["0"] : r
 	},
 	eval_format:function(e,v){
-		return this.eval_str(e,v);
+		var i,m,r,src=e.split(/#/)
+		r=src[0]
+		for(i=1; i<src.length; i++) {
+			if(m=src[i].match(/^{(.*)}(.*)/)) {
+				r+=this.eval_str(m[1],v)+m[2]
+			} else {
+				r+="#"+src[i]
+			}
+		}
+		return r
 	},
 	eval_bool:function(e,v){
 		return this.eval_object(e,v)?true:false;
