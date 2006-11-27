@@ -162,7 +162,7 @@ var QWeb={
 	},
 	render_tag_js:function(e,t_att,g_att,v){
 		var r=this.eval_str(this.render_element(e, t_att, g_att, v),v)
-		return t_att["ruby"]!="quiet" ? r : ""
+		return t_att["js"]!="quiet" ? r : ""
 	},
 	render_tag_foreach:function(e,t_att,g_att,v){
 		var expr=t_att["foreach"]
