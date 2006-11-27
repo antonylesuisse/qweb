@@ -6,26 +6,19 @@
 {
 /*
 	TODO
-	escape_text:function(s){ is it the same to javascript encodeURI ? why does jfif use that ?
-
-	trim? is it needed ?
-		inner=render_trim(l_inner.join(), t_att)
-		def render_trim(s, t_att) trim = t_att["trim"] if !trim return s
-		elsif trim == 'left' return s.lstrip elsif trim == 'right' return s.rstrip elsif trim == 'both' return s.strip end
-
-	add_template
-		Support string parsing Domparser
+	load_xml
+		Support string parsing
+			DOMParser or loadXml
 		Support space in IE
-			xmlhttp.responseXML.loadXML(xmlhttp.responseText)
-			OR
+			xmlhttp.responseXML.loadXML(xmlhttp.responseText);
 			var xmlDoc=new ActiveXObject("Msxml2.DOMDocument.4.0");
 			xmlDoc.async=false; xmlDoc.preserveWhiteSpace=true; xmlDoc.load("f.xml"); alert(xmlDoc.xml);
 		Preprocess: HUGE omptimization preprocess flatten all non t- element to a TEXT_NODE
-		While preprocess, if from IE HTMLDOM use if(a[i].specified) to avoid 88 attributes per element
+			While preprocess, if from IE HTMLDOM use if(a[i].specified) to avoid 88 attributes per element
 
-	Ruby/python etc..
-		regexp
-		factorize foreach %var
+	trim 'left' 'right' 'both' is it needed ?  inner=render_trim(l_inner.join(), t_att)
+
+	Ruby/python: render_node use regexp, factorize foreach %var
 */
 }
 
