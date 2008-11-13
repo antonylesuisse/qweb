@@ -15,6 +15,9 @@ commit:
 push:
 	git-push ssh://wis@udev.org/home/wis/sites/antony.lesuisse.org/public/qweb/qweb.git master
 
+repack:
+	git-repack -a -d
+
 tgz:
 	mkdir dist || true
 	# Build
