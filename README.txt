@@ -12,15 +12,15 @@ components.
 
 active versions:
 
- * QwebJavascript: XML templating under developement
+ * QwebJavascript: XML templating
  * QwebRuby: XML templating, HTML forms
  * QwebPython: XML templating, HTML forms, Controller, WSGI/cgi/fastcgi/builtin-web-server Request handler, Sessions
 
 unmaintained versions:
 
- * QwebCsharp
- * QwebJava
- * QwebPHP: XML templating, HTML forms, Controller, Misc
+ * QwebCsharp: XML templating, Controller
+ * QwebJava: XML templating, Controller
+ * QwebPhp: XML templating, HTML forms, Controller, Misc
  
 == Documentation ==
 

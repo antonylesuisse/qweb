@@ -1,0 +1,748 @@
+# Logfile created on Sat Nov 04 19:47:46 +0100 2006 by logger.rb/1.5.2.9
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 19:47:49) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+Completed in 0.09440 (10 reqs/sec) | 200 OK [http://localhost/]
+MainController: missing default helper path main_helper
+
+
+Processing Base#index (for 127.0.0.1 at 2006-11-04 21:08:02) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {}
+
+
+SyntaxError (script/../config/../app/controllers/application.rb:6: syntax error, unexpected ','
+	alias :render, :render_orig
+	              ^):
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:140:in `load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:140:in `load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:56:in `require_or_load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:30:in `depend_on'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:85:in `require_dependency'
+    .//vendor/rails/railties/lib/dispatcher.rb:69:in `prepare_application'
+    .//vendor/rails/railties/lib/dispatcher.rb:37:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+
+
+Processing Base#index (for 127.0.0.1 at 2006-11-04 21:08:54) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {}
+
+
+NameError (uninitialized constant QWebRails):
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:123:in `const_missing'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:131:in `const_missing'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:133:in `send'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:133:in `const_missing'
+    /app/controllers/application.rb:7
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:140:in `load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:140:in `load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:56:in `require_or_load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:30:in `depend_on'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:85:in `require_dependency'
+    .//vendor/rails/railties/lib/dispatcher.rb:69:in `prepare_application'
+    .//vendor/rails/railties/lib/dispatcher.rb:37:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+
+
+Processing Base#index (for 127.0.0.1 at 2006-11-04 21:10:53) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {}
+
+
+NameError (uninitialized constant QWebRails):
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:123:in `const_missing'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:131:in `const_missing'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:133:in `send'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:133:in `const_missing'
+    /app/controllers/application.rb:7
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:140:in `load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:140:in `load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:56:in `require_or_load'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:30:in `depend_on'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:85:in `require_dependency'
+    .//vendor/rails/railties/lib/dispatcher.rb:69:in `prepare_application'
+    .//vendor/rails/railties/lib/dispatcher.rb:37:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:11:35) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+Errno::ENOENT (No such file or directory - script/../config/../app/controller/qweb.xml):
+    .//app/controllers/qweb.rb:458:in `mtime'
+    .//app/controllers/qweb.rb:458:in `qweb_load'
+    /app/controllers/application.rb:8:in `everytime'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `each'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:383:in `before_action'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:365:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:13:41) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+Errno::ENOENT (No such file or directory - script/../config/../app/controller/qweb.xml):
+    .//app/controllers/qweb.rb:458:in `mtime'
+    .//app/controllers/qweb.rb:458:in `qweb_load'
+    /app/controllers/application.rb:8:in `everytime'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `each'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:383:in `before_action'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:365:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:13:42) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+Errno::ENOENT (No such file or directory - script/../config/../app/controller/qweb.xml):
+    .//app/controllers/qweb.rb:458:in `mtime'
+    .//app/controllers/qweb.rb:458:in `qweb_load'
+    /app/controllers/application.rb:8:in `everytime'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `each'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:383:in `before_action'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:365:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:14:40) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+Errno::ENOENT (No such file or directory - script/../config/../app/controller/qweb.xml):
+    .//app/controllers/qweb.rb:459:in `mtime'
+    .//app/controllers/qweb.rb:459:in `qweb_load'
+    /app/controllers/application.rb:8:in `everytime'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `each'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:383:in `before_action'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:365:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:15:24) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+Errno::ENOENT (No such file or directory - script/../config/../app/controller/qweb.xml):
+    .//app/controllers/qweb.rb:459:in `mtime'
+    .//app/controllers/qweb.rb:459:in `qweb_load'
+    /app/controllers/application.rb:8:in `everytime'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `each'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:383:in `before_action'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:365:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:15:30) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+Errno::ENOENT (No such file or directory - script/../config/../app/controller/qweb.xml):
+    .//app/controllers/qweb.rb:459:in `mtime'
+    .//app/controllers/qweb.rb:459:in `qweb_load'
+    /app/controllers/application.rb:8:in `everytime'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `each'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:383:in `before_action'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:365:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:18:50) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+Errno::ENOENT (No such file or directory - script/../config/../app/controller/qweb.xml):
+    .//app/controllers/qweb.rb:460:in `mtime'
+    .//app/controllers/qweb.rb:460:in `qweb_load'
+    /app/controllers/application.rb:8:in `everytime'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:399:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `each'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:394:in `call_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:383:in `before_action'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:365:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:19:21) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+ActionController::MissingTemplate (Missing template script/../config/../app/views/main/index.rhtml):
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:1034:in `assert_existence_of_template_file'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:724:in `render_file'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:648:in `render_with_no_layout'
+    .//vendor/rails/actionpack/lib/action_controller/layout.rb:253:in `render_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:53:in `render'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:53:in `render'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:942:in `perform_action_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:368:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:24:47) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+ActionController::MissingTemplate (Missing template script/../config/../app/views/main/index.rhtml):
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:1034:in `assert_existence_of_template_file'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:724:in `render_file'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:648:in `render_with_no_layout'
+    .//vendor/rails/actionpack/lib/action_controller/layout.rb:253:in `render_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:53:in `render'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:53:in `render'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:942:in `perform_action_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:368:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:26:47) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+Completed in 0.06051 (16 reqs/sec) | 200 OK [http://localhost/]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:29:00) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+Completed in 0.06202 (16 reqs/sec) | 200 OK [http://localhost/]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-04 21:29:06) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+Completed in 0.00364 (274 reqs/sec) | 200 OK [http://localhost/]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-08 21:36:54) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+Completed in 0.14113 (7 reqs/sec) | 200 OK [http://localhost/]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 05:30:48) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+Completed in 0.12158 (8 reqs/sec) | 200 OK [http://localhost/]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:17:40) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+
+
+ArgumentError (wrong number of arguments (0 for 1)):
+    (eval):4:in `b64encode'
+    (eval):4:in `b64encode'
+    .//app/controllers/qweb.rb:382:in `serialize'
+    .//app/controllers/qweb.rb:482:in `render_tag_form'
+    .//app/controllers/qweb.rb:180:in `call'
+    .//app/controllers/qweb.rb:180:in `render_node'
+    .//app/controllers/qweb.rb:190:in `render_element'
+    /usr/lib/ruby/1.8/rexml/parent.rb:40:in `each'
+    /usr/lib/ruby/1.8/rexml/parent.rb:40:in `each'
+    .//app/controllers/qweb.rb:189:in `render_element'
+    .//app/controllers/qweb.rb:182:in `render_node'
+    .//app/controllers/qweb.rb:139:in `render_context'
+    .//app/controllers/qweb.rb:134:in `render'
+    .//app/controllers/qweb.rb:531:in `render'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:942:in `perform_action_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:368:in `perform_action_without_benchmark'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    /usr/lib/ruby/1.8/benchmark.rb:293:in `measure'
+    .//vendor/rails/actionpack/lib/action_controller/benchmarking.rb:69:in `perform_action_without_rescue'
+    .//vendor/rails/actionpack/lib/action_controller/rescue.rb:82:in `perform_action'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `send'
+    .//vendor/rails/actionpack/lib/action_controller/base.rb:408:in `process_without_filters'
+    .//vendor/rails/actionpack/lib/action_controller/filters.rb:377:in `process_without_session_management_support'
+    .//vendor/rails/actionpack/lib/action_controller/session_management.rb:117:in `process'
+    .//vendor/rails/railties/lib/dispatcher.rb:38:in `dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:115:in `handle_dispatch'
+    .//vendor/rails/railties/lib/webrick_server.rb:81:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:104:in `service'
+    /usr/lib/ruby/1.8/webrick/httpserver.rb:65:in `run'
+    /usr/lib/ruby/1.8/webrick/server.rb:173:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:162:in `start_thread'
+    /usr/lib/ruby/1.8/webrick/server.rb:95:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `each'
+    /usr/lib/ruby/1.8/webrick/server.rb:92:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:23:in `start'
+    /usr/lib/ruby/1.8/webrick/server.rb:82:in `start'
+    .//vendor/rails/railties/lib/webrick_server.rb:67:in `dispatch'
+    .//vendor/rails/railties/lib/commands/servers/webrick.rb:59
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/activesupport/lib/active_support/dependencies.rb:147:in `require'
+    .//vendor/rails/railties/lib/commands/server.rb:30
+    script/server:3:in `require'
+    script/server:3
+
+
+Rendering ./script/../config/../vendor/rails/actionpack/lib/action_controller/templates/rescues/layout.rhtml (500 Internal Error)
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:02) [GET]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"action"=>"index", "controller"=>"main"}
+Completed in 0.14016 (7 reqs/sec) | 200 OK [http://localhost/]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:04) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRGOgtAZXJyb3JbADoLQHZhbGlk\r\nRjoMQGZpZWxkc3sIIgtjYW5jZWxvOg5RV2ViRmllbGQSOglAY3NzIgA6EEBj\r\nc3NpbnZhbGlkIhFxd2ViX2ludmFsaWQ6CkB0eXBlOgtzdWJtaXQ6D0BjbGlj\r\na2VkX3lpADoNQG1pc3NpbmdUOgtAY2hlY2swOg9AY2xpY2tlZF94aQA7CEY6\r\nCkBuYW1lIgtjYW5jZWw6CkB0cmltRjoNQGNsaWNrZWRGOgtAdmFsdWUiFUNh\r\nbmNlbCB0aGlzIHNoaXQ6DEBpbl94bWxUIgdva287ChI7CyIAOwwiEXF3ZWJf\r\naW52YWxpZDsNOw47D2kAOxBUOxEwOxJpADsIRjsTIgdvazsURjsVRjsWIhVT\r\ndWJtaXQgdGhpcyBmb3JtOxdUIgpsb2dpbm87ChI7CyIAOwwiEXF3ZWJfaW52\r\nYWxpZDsNOgl0ZXh0Ow9pADsQVDsRIg4vLnsxLDUwfS87EmkAOwhGOxMiCmxv\r\nZ2luOxQwOxVGOxYiCGFncjsXVDsTMA==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>"agr"}
+Completed in 0.12032 (8 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:11) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoKQG5hbWUw\r\nOgxAZmllbGRzewgiC2NhbmNlbG86DlFXZWJGaWVsZBI6CUBjc3MiADoKQHR5\r\ncGU6C3N1Ym1pdDoQQGNzc2ludmFsaWQiEXF3ZWJfaW52YWxpZDoPQGNsaWNr\r\nZWRfeWkAOg1AbWlzc2luZ1Q6C0BjaGVjazA6D0BjbGlja2VkX3hpADsIIgtj\r\nYW5jZWw6C0B2YWxpZEY6CkB0cmltRjoLQHZhbHVlIhVDYW5jZWwgdGhpcyBz\r\naGl0Og1AY2xpY2tlZEY6DEBpbl94bWxUIgdva287ChI7CyIAOww7DTsOIhFx\r\nd2ViX2ludmFsaWQ7D2kAOxBGOxEwOxJpADsIIgdvazsTRjsURjsVIhVTdWJt\r\naXQgdGhpcyBmb3JtOxZUOxdUIgpsb2dpbm87ChI7CyIAOww6CXRleHQ7DiIR\r\ncXdlYl9pbnZhbGlkOw9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwgiCmxvZ2lu\r\nOxNGOxQwOxUiCGFncjsWRjsXVDsTRg==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>"agr"}
+Completed in 0.07870 (12 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:13) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoLQHZhbGlk\r\nRjoMQGZpZWxkc3sIIgtjYW5jZWxvOg5RV2ViRmllbGQSOglAY3NzIgA6EEBj\r\nc3NpbnZhbGlkIhFxd2ViX2ludmFsaWQ6CkB0eXBlOgtzdWJtaXQ6D0BjbGlj\r\na2VkX3lpADoNQG1pc3NpbmdUOgtAY2hlY2swOg9AY2xpY2tlZF94aQA7CEY6\r\nCkBuYW1lIgtjYW5jZWw6CkB0cmltRjoNQGNsaWNrZWRGOgtAdmFsdWUiFUNh\r\nbmNlbCB0aGlzIHNoaXQ6DEBpbl94bWxUIgdva287ChI7CyIAOwwiEXF3ZWJf\r\naW52YWxpZDsNOw47D2kAOxBGOxEwOxJpADsIRjsTIgdvazsURjsVVDsWIhVT\r\ndWJtaXQgdGhpcyBmb3JtOxdUIgpsb2dpbm87ChI7CyIAOwwiEXF3ZWJfaW52\r\nYWxpZDsNOgl0ZXh0Ow9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwhGOxMiCmxv\r\nZ2luOxQwOxVGOxYiCGFncjsXVDsTMA==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>"agr"}
+Completed in 0.30670 (3 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:15) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoKQG5hbWUw\r\nOgxAZmllbGRzewgiC2NhbmNlbG86DlFXZWJGaWVsZBI6CUBjc3MiADoKQHR5\r\ncGU6C3N1Ym1pdDoQQGNzc2ludmFsaWQiEXF3ZWJfaW52YWxpZDoPQGNsaWNr\r\nZWRfeWkAOg1AbWlzc2luZ1Q6C0BjaGVjazA6D0BjbGlja2VkX3hpADsIIgtj\r\nYW5jZWw6C0B2YWxpZEY6CkB0cmltRjoLQHZhbHVlIhVDYW5jZWwgdGhpcyBz\r\naGl0Og1AY2xpY2tlZEY6DEBpbl94bWxUIgdva287ChI7CyIAOww7DTsOIhFx\r\nd2ViX2ludmFsaWQ7D2kAOxBGOxEwOxJpADsIIgdvazsTRjsURjsVIhVTdWJt\r\naXQgdGhpcyBmb3JtOxZUOxdUIgpsb2dpbm87ChI7CyIAOww6CXRleHQ7DiIR\r\ncXdlYl9pbnZhbGlkOw9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwgiCmxvZ2lu\r\nOxNGOxQwOxUiCGFncjsWRjsXVDsTRg==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>"agr"}
+Completed in 0.13635 (7 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:16) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoLQHZhbGlk\r\nRjoMQGZpZWxkc3sIIgtjYW5jZWxvOg5RV2ViRmllbGQSOglAY3NzIgA6EEBj\r\nc3NpbnZhbGlkIhFxd2ViX2ludmFsaWQ6CkB0eXBlOgtzdWJtaXQ6D0BjbGlj\r\na2VkX3lpADoNQG1pc3NpbmdUOgtAY2hlY2swOg9AY2xpY2tlZF94aQA7CEY6\r\nCkBuYW1lIgtjYW5jZWw6CkB0cmltRjoNQGNsaWNrZWRGOgtAdmFsdWUiFUNh\r\nbmNlbCB0aGlzIHNoaXQ6DEBpbl94bWxUIgdva287ChI7CyIAOwwiEXF3ZWJf\r\naW52YWxpZDsNOw47D2kAOxBGOxEwOxJpADsIRjsTIgdvazsURjsVVDsWIhVT\r\ndWJtaXQgdGhpcyBmb3JtOxdUIgpsb2dpbm87ChI7CyIAOwwiEXF3ZWJfaW52\r\nYWxpZDsNOgl0ZXh0Ow9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwhGOxMiCmxv\r\nZ2luOxQwOxVGOxYiCGFncjsXVDsTMA==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>"agr"}
+Completed in 0.09876 (10 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:25) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoKQG5hbWUw\r\nOgxAZmllbGRzewgiC2NhbmNlbG86DlFXZWJGaWVsZBI6CUBjc3MiADoKQHR5\r\ncGU6C3N1Ym1pdDoQQGNzc2ludmFsaWQiEXF3ZWJfaW52YWxpZDoPQGNsaWNr\r\nZWRfeWkAOg1AbWlzc2luZ1Q6C0BjaGVjazA6D0BjbGlja2VkX3hpADsIIgtj\r\nYW5jZWw6C0B2YWxpZEY6CkB0cmltRjoLQHZhbHVlIhVDYW5jZWwgdGhpcyBz\r\naGl0Og1AY2xpY2tlZEY6DEBpbl94bWxUIgdva287ChI7CyIAOww7DTsOIhFx\r\nd2ViX2ludmFsaWQ7D2kAOxBGOxEwOxJpADsIIgdvazsTRjsURjsVIhVTdWJt\r\naXQgdGhpcyBmb3JtOxZUOxdUIgpsb2dpbm87ChI7CyIAOww6CXRleHQ7DiIR\r\ncXdlYl9pbnZhbGlkOw9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwgiCmxvZ2lu\r\nOxNGOxQwOxUiCGFncjsWRjsXVDsTRg==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>"agr"}
+Completed in 0.06129 (16 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:28) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoLQHZhbGlk\r\nRjoMQGZpZWxkc3sIIgtjYW5jZWxvOg5RV2ViRmllbGQSOglAY3NzIgA6EEBj\r\nc3NpbnZhbGlkIhFxd2ViX2ludmFsaWQ6CkB0eXBlOgtzdWJtaXQ6D0BjbGlj\r\na2VkX3lpADoNQG1pc3NpbmdUOgtAY2hlY2swOg9AY2xpY2tlZF94aQA7CEY6\r\nCkBuYW1lIgtjYW5jZWw6CkB0cmltRjoNQGNsaWNrZWRGOgtAdmFsdWUiFUNh\r\nbmNlbCB0aGlzIHNoaXQ6DEBpbl94bWxUIgdva287ChI7CyIAOwwiEXF3ZWJf\r\naW52YWxpZDsNOw47D2kAOxBGOxEwOxJpADsIRjsTIgdvazsURjsVVDsWIhVT\r\ndWJtaXQgdGhpcyBmb3JtOxdUIgpsb2dpbm87ChI7CyIAOwwiEXF3ZWJfaW52\r\nYWxpZDsNOgl0ZXh0Ow9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwhGOxMiCmxv\r\nZ2luOxQwOxVGOxYiCGFncjsXVDsTMA==", "cancel"=>"Cancel this shit", "action"=>"index", "controller"=>"main", "login"=>"agr"}
+Completed in 0.26476 (3 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:32) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoKQG5hbWUw\r\nOgxAZmllbGRzewgiC2NhbmNlbG86DlFXZWJGaWVsZBI6CUBjc3MiADoKQHR5\r\ncGU6C3N1Ym1pdDoQQGNzc2ludmFsaWQiEXF3ZWJfaW52YWxpZDoPQGNsaWNr\r\nZWRfeWkAOg1AbWlzc2luZ0Y6C0BjaGVjazA6D0BjbGlja2VkX3hpADsIIgtj\r\nYW5jZWw6C0B2YWxpZEY6CkB0cmltRjoLQHZhbHVlIhVDYW5jZWwgdGhpcyBz\r\naGl0Og1AY2xpY2tlZFQ6DEBpbl94bWxUIgdva287ChI7CyIAOww7DTsOIhFx\r\nd2ViX2ludmFsaWQ7D2kAOxBUOxEwOxJpADsIIgdvazsTRjsURjsVIhVTdWJt\r\naXQgdGhpcyBmb3JtOxZGOxdUIgpsb2dpbm87ChI7CyIAOww6CXRleHQ7DiIR\r\ncXdlYl9pbnZhbGlkOw9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwgiCmxvZ2lu\r\nOxNGOxQwOxUiCGFncjsWRjsXVDsTRg==", "cancel"=>"Cancel this shit", "action"=>"index", "controller"=>"main", "login"=>"agr"}
+Completed in 0.08261 (12 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:22:35) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoLQHZhbGlk\r\nRjoMQGZpZWxkc3sIIgtjYW5jZWxvOg5RV2ViRmllbGQSOglAY3NzIgA6EEBj\r\nc3NpbnZhbGlkIhFxd2ViX2ludmFsaWQ6CkB0eXBlOgtzdWJtaXQ6D0BjbGlj\r\na2VkX3lpADoNQG1pc3NpbmdGOgtAY2hlY2swOg9AY2xpY2tlZF94aQA7CEY6\r\nCkBuYW1lIgtjYW5jZWw6CkB0cmltRjoNQGNsaWNrZWRUOgtAdmFsdWUiFUNh\r\nbmNlbCB0aGlzIHNoaXQ6DEBpbl94bWxUIgdva287ChI7CyIAOwwiEXF3ZWJf\r\naW52YWxpZDsNOw47D2kAOxBUOxEwOxJpADsIRjsTIgdvazsURjsVRjsWIhVT\r\ndWJtaXQgdGhpcyBmb3JtOxdUIgpsb2dpbm87ChI7CyIAOwwiEXF3ZWJfaW52\r\nYWxpZDsNOgl0ZXh0Ow9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwhGOxMiCmxv\r\nZ2luOxQwOxVGOxYiCGFncjsXVDsTMA==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>""}
+Completed in 0.15776 (6 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:24:56) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoKQG5hbWUw\r\nOgxAZmllbGRzewgiC2NhbmNlbG86DlFXZWJGaWVsZBI6CUBjc3MiADoKQHR5\r\ncGU6C3N1Ym1pdDoQQGNzc2ludmFsaWQiEXF3ZWJfaW52YWxpZDoPQGNsaWNr\r\nZWRfeWkAOg1AbWlzc2luZ1Q6C0BjaGVjazA6D0BjbGlja2VkX3hpADsIIgtj\r\nYW5jZWw6C0B2YWxpZEY6CkB0cmltRjoLQHZhbHVlIhVDYW5jZWwgdGhpcyBz\r\naGl0Og1AY2xpY2tlZEY6DEBpbl94bWxUIgdva287ChI7CyIAOww7DTsOIhFx\r\nd2ViX2ludmFsaWQ7D2kAOxBGOxEwOxJpADsIIgdvazsTRjsURjsVIhVTdWJt\r\naXQgdGhpcyBmb3JtOxZUOxdUIgpsb2dpbm87ChI7CyIAOww6CXRleHQ7DiIR\r\ncXdlYl9pbnZhbGlkOw9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwgiCmxvZ2lu\r\nOxNGOxQwOxUiADsWRjsXVDsTRg==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>""}
+Completed in 0.07567 (13 reqs/sec) | 200 OK [http://localhost/main/index]
+MainController: missing default helper path main_helper
+
+
+Processing MainController#index (for 127.0.0.1 at 2006-11-09 15:24:59) [POST]
+  Session ID: ef862a9ffbc6a05a82bf129519b5b096
+  Parameters: {"__FORM__user__"=>"BAhvOg1RV2ViRm9ybQo6D0BzdWJtaXR0ZWRUOgtAZXJyb3JbADoLQHZhbGlk\r\nRjoMQGZpZWxkc3sIIgtjYW5jZWxvOg5RV2ViRmllbGQSOglAY3NzIgA6EEBj\r\nc3NpbnZhbGlkIhFxd2ViX2ludmFsaWQ6CkB0eXBlOgtzdWJtaXQ6D0BjbGlj\r\na2VkX3lpADoNQG1pc3NpbmdUOgtAY2hlY2swOg9AY2xpY2tlZF94aQA7CEY6\r\nCkBuYW1lIgtjYW5jZWw6CkB0cmltRjoNQGNsaWNrZWRGOgtAdmFsdWUiFUNh\r\nbmNlbCB0aGlzIHNoaXQ6DEBpbl94bWxUIgdva287ChI7CyIAOwwiEXF3ZWJf\r\naW52YWxpZDsNOw47D2kAOxBGOxEwOxJpADsIRjsTIgdvazsURjsVVDsWIhVT\r\ndWJtaXQgdGhpcyBmb3JtOxdUIgpsb2dpbm87ChI7CyIAOwwiEXF3ZWJfaW52\r\nYWxpZDsNOgl0ZXh0Ow9pADsQRjsRIg4vLnsxLDUwfS87EmkAOwhGOxMiCmxv\r\nZ2luOxQwOxVGOxYiADsXVDsTMA==", "action"=>"index", "ok"=>"Submit this form", "controller"=>"main", "login"=>"dqsfsqdf"}
+Completed in 0.10152 (9 reqs/sec) | 200 OK [http://localhost/main/index]

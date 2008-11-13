@@ -19,6 +19,7 @@ class DBACol:
 		# many2one
 		self.dest=None
 
+
 class DBAdmin:
 	def __init__(self,urlroot,mod):
 		self.urlroot = urlroot
@@ -45,7 +46,7 @@ class DBAdmin:
 	def pretable(self,mod,table):
 		if not hasattr(table,'dba'):
 			table.dba=DBATable([])
-			tmp=[(col.creationOrder, col) for col in table.sqlmeta.columns.values() if col.name!='childName']
+			tmp=[(col.creationOrder, col) for col in table.sqlmeta.columns.values() if col.name!='childName' if not getattr(col, 'hidden', False)]
 			tmp.sort()
 			for order, col in tmp:
 				col.dba=DBACol()
@@ -137,6 +138,8 @@ class DBAdmin:
 			# ---------------------------------------------
 			if c.dba.nullable:
 				check=None
+			elif c.dba.sqltype=='DATE':
+				check="date"
 			else:
 				check="/.+/"
 			# ---------------------------------------------

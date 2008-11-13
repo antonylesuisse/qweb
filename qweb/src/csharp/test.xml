@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<template>
+<t name="layout">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+	<html>
+	<head>
+	<title>the title is <t t-esc="test"/></title>
+	<link rel="icon" href="/favicon.ico" type="image/x-icon"/>
+	<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+	<link type="text/css" href="/ml_style.css" rel="stylesheet"/>
+	<!-- <style type="text/css">readfile("ml_style.css");</style> -->
+	<style>
+	#agr_form input, select, textarea { font-family: arial; font-size: 90%; }
+	#agr_form textarea { display: block; width:100%; /*width: 550px;*/ }
+	#agr_form textarea, #agr_form input[type="text"], #agr_form input[type="password"], #agr_form input[type="submit"], #agr_form input[type="button"] { border: 1px solid black; }
+	#agr_form input[type="text"] { width:335px; }
+	#agr_form input[type="checkbox"] { border-style: none; }
+	#agr_form input[type="radio"] { border-style: none; }
+	.agr_form_submit { border: 1px solid black; font-family:arial; font-size:9pt; }
+	.agr_form_submitted { background: #990000; color: white; border: 1px solid black; font-family:arial; font-size:9pt; }
+	.agr_form_cancel { border: 1px solid black; font-family:arial; font-size:9pt; }
+	.agr_form_success { background: #696; color: white; font-weight: bold; border: 2px solid #363; padding: 4px; margin-bottom: 10px; text-align: center; }
+	.agr_form_error { background: #696; color: white; font-weight: bold; border: 2px solid #363; padding: 4px; margin-bottom: 10px; text-align: center; }
+	.form_error { background: #fc9; font-weight: bold; }
+	.form_submit { width: 550px; }
+	.field_title { font-weight: bold; margin: 0; }
+	.field_help { font-size: 80%; margin: 0; }
+	.field_error { color: #900; font-weight: bold; margin: 0; padding-top: 4px; font-size: 90%; }
+	.field_label { vertical-align: top; width: 200px; min-width: 200px; max-width: 200px; }
+	.field_code { vertical-align: top; min-width: 350px; padding-left:10px; white-space: nowrap; }
+	.field_seperator { line-height: 0px; border-bottom: 2px solid #69c; margin: 2 0 2 0; min-width: 550px; }
+	</style>
+	</head>
+	<body>
+	<table align="center" width="800" cellpadding="0" cellspacing="0"><tr><td>
+	<t t-raw="0"/>
+	<hr/>
+	<div class="copy">&amp;copy; 2004 Mobiload, &amp;lt;support@mobiload.com&amp;gt;</div>
+	</td></tr></table>
+	</body>
+	</html>
+</t>
+<t name="home">
+	<t t-call="layout">
+
+
+		<form name="form" action="index.aspx" method="GET">
+<!--
+			<span class="form_error" t-error="name">Il un erreur sur le fichier</span> <br/>
+
+			<input type="file"/>
+
+			Name: <input  t-type="text" t-name="name" t-check="/.+/"/>; <span class="form_error" t-error="name">Il un erreur sur name</span> <br/>
+
+			Text: <textarea t-type="textarea" t-name="ta" t-check="//">Salut les gars</textarea>
+
+			Checkbox: <input t-type="checkbox" t-name="check" t-value="love"/> <br/>
+
+			Radio: <input t-type="radio" t-name="radio" t-value="y"/>Oui,
+			       <input t-type="radio" t-name="radio" t-value="n"/>Non
+
+			Select: <select t-name="langue">
+						<option t-select="langue" t-value="fr" t-selected="selected">Francais</option>
+						<option t-select="langue" t-value="conard">Vlaams</option>
+					</select> <br/>
+
+			Email: <input t-type="text" t-name="email" t-check="email" t-value="steveb@microsoft"/> <br/>
+			Email: <input type="submit" name="Register" value="Button Value"/>
+
+-->
+
+<!--		<form name="form" action="index.aspx?p=nws_add" method="POST" id="agr_form"> -->
+		<br/> <br/> <br/> <br/>
+		<span t-invalid="form" class="agr_form_error">The form was not successfully completed, please check your entries before submit</span>
+		<br/> <br/> <br/> <br/>
+		<table align="center">
+		<tr>
+			<td class="field_label">
+				<p class="field_title">Newsletter name:</p>
+				<p class="field_help">(This name will be used as a reference in the administration modules)</p>
+			</td>
+			<td class="field_code">
+				<input t-type="text" t-name="sNWSname" t-check="/.+/"/>
+				<p t-error="sNWSname" class="field_error">Please enter a newsletter name</p>
+			</td>
+		</tr>
+		<tr><td colspan="2"><div class="field_seperator">&amp;nbsp;</div></td></tr>
+
+		<tr>
+			<td class="field_label">
+				<p class="field_title">Languages:</p>
+				<p class="field_help">(Choose the different languages this newsletter will use)</p>
+			</td>
+			<td class="field_code">
+				<input t-type="checkbox" t-name="sNWSlanguages" t-value="en"/> EN &amp;nbsp;
+				<input t-type="checkbox" t-name="sNWSlanguages" t-value="fr"/> FR &amp;nbsp;
+				<input t-type="checkbox" t-name="sNWSlanguages" t-value="nl"/> NL
+				<p t-if="error" class="field_error">Please choose at least a language</p>
+			</td>
+		</tr>
+		<tr><td colspan="2"><div class="field_seperator">&amp;nbsp;</div></td></tr>
+
+		<tr>
+			<td class="field_label">
+				<p class="field_title">Mail from:</p>
+				<p class="field_help">(From what email the mailing should be sent)</p>
+			</td>
+			<td class="field_code">
+				<input t-type="text" t-name="sNWSmailfrom" t-check="email"/>
+				<p t-error="sNWSmailfrom" class="field_error">Please use a valid email adress</p>
+			</td>
+		</tr>
+		<tr><td colspan="2"><div class="field_seperator">&amp;nbsp;</div></td></tr>
+
+		<tr>
+			<td colspan="2">
+				<p class="field_title">Mail to:</p>
+				<p class="field_help">(Where to send mails, this can be a list of emails seperated by ',' or ';')</p>
+				<textarea t-type="textarea" t-name="sNWSmailto" t-value="default" rows="5"/>
+			</td>
+		</tr>
+		<tr><td colspan="2"><div class="field_seperator">&amp;nbsp;</div></td></tr>
+
+		<tr>
+			<td colspan="2" style="padding-left:225px">
+				<input type="Submit" name="button" value="Submit" onclick="agr_form_submit(this)"/>&amp;nbsp;
+				<input type="button" value="Cancel" onclick="history.Back()"/>
+			</td>
+		</tr>
+		</table>
+		</form>
+
+
+		Home page
+	</t>
+</t>
+<t name="about">
+	<t t-call="layout">
+
+
+
+		About page
+
+		salue les amis
+
+		<t t-esc="var"/>
+
+	</t>
+</t>
+</template>
