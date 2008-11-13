@@ -3,8 +3,17 @@ SRCTGZ=${SRCDIR}.tar.gz
 ATDIR=Ajaxterm-0.10
 ATTGZ=${ATDIR}.tar.gz
 
+nothing:
+	true
+
 all: dist
 	true
+
+commit:
+	git-commit -a
+
+push:
+	git-push ssh://wis@udev.org/home/wis/sites/antony.lesuisse.org/public/qweb/qweb.git master
 
 tgz:
 	mkdir dist || true
