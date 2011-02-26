@@ -122,7 +122,7 @@ var QWeb={
 			g_att[o[0]]=o[1]
 		}
 	},
-	render_att_attf:function(e,t_att,g_att,v){
+	render_att_attf:function(e,t_att,g_att,v,ext,av){
 		g_att[ext.substring(1)]=this.eval_format(av,v)
 	},
 	render_tag_raw:function(e,t_att,g_att,v){
@@ -167,24 +167,24 @@ var QWeb={
 	render_tag_foreach:function(e,t_att,g_att,v){
 		var expr=t_att["foreach"]
 		var enu=this.eval_object(expr,v)
+		var ru=[];
 		if(enu) {
-			val=t_att['as'] || expr.replace(/[^a-zA-Z0-9]/g,'_')
+			var val=t_att['as'] || expr.replace(/[^a-zA-Z0-9]/g,'_')
 			d={}
 			for(var i in v) {
 				d[i]=v[i]
 			}
 			d[val+"_all"]=enu
-			ru=[]
 			val_value  = val+"_value"
 			val_index  = val+"_index"
 			val_first  = val+"_first"
 			val_last   = val+"_last"
 			val_parity = val+"_parity"
-			size=enu.length
+			var size=enu.length
 			if(size) {
 				d[val+"_size"]=size
 				for (var i=0; i<size; i++) {
-					cur=enu[i]
+					var cur=enu[i]
 					d[val_value]=cur
 					d[val_index]=i
 					d[val_first]=i==0
@@ -196,7 +196,8 @@ var QWeb={
 						}
 					}
 					d[val]=cur
-					ru.push(this.render_element(e,t_att,g_att,d))
+					var r = this.render_element(e,t_att,g_att,d);
+					ru.push(r)
 				}
 			} else {
 				index=0
