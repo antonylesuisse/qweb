@@ -5,22 +5,22 @@ ATTGZ=${ATDIR}.tar.gz
 
 nothing:
 	true
-
-all: dist
-	true
-
-commit:
-	git-commit -a
-
-push:
-	git-push ssh://wis@udev.org/home/wis/sites/antony.lesuisse.org/public/qweb/qweb.git master
-
-repack:
-	git-repack -a -d
-
-pub:
-	rsync -av ajaxterm/README.txt wis@udev.org:sites/antony.lesuisse.org/public/software/ajaxterm/HEADER.html
-
+#
+#all: dist
+#	true
+#
+#commit:
+#	git-commit -a
+#
+#push:
+#	git-push ssh://wis@udev.org/home/wis/sites/antony.lesuisse.org/public/qweb/qweb.git master
+#
+#repack:
+#	git-repack -a -d
+#
+#pub:
+#	rsync -av ajaxterm/README.txt wis@udev.org:sites/antony.lesuisse.org/public/software/ajaxterm/HEADER.html
+#
 #tgz:
 #	mkdir dist || true
 #	# Build
